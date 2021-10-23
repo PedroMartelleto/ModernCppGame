@@ -1,6 +1,6 @@
 #include "GameLoop.h"
 #include "Core.h"
-#include "Player.h"
+#include "../Entity/Mob/Player.h"
 
 GameLoop::GameLoop(Core* core)
 {

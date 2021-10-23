@@ -1,6 +1,6 @@
 #include "GameEntity.h"
-#include "Core.h"
-#include "TextureAtlas.h"
+#include "../Core/Core.h"
+#include "../Render/TextureAtlas.h"
 
 GameEntity::GameEntity(Core* core, TextureAtlas* atlas, Texture2D texture) :
 	m_uid(core->CreateUID())

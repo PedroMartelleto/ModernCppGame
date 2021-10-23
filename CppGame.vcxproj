@@ -18,6 +18,30 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Core\Core.cpp" />
+    <ClCompile Include="Source\Core\GameLoop.cpp" />
+    <ClCompile Include="Source\Core\GameMath.cpp" />
+    <ClCompile Include="Source\Entity\GameEntity.cpp" />
+    <ClCompile Include="Source\Entity\Mob\Mob.cpp" />
+    <ClCompile Include="Source\Entity\Mob\Player.cpp" />
+    <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Render\TextureAtlas.cpp" />
+    <ClCompile Include="Source\Render\TextureManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Commons.h" />
+    <ClInclude Include="Source\Core\Core.h" />
+    <ClInclude Include="Source\Core\GameLoop.h" />
+    <ClInclude Include="Source\Core\GameMath.h" />
+    <ClInclude Include="Source\Core\GameObject.h" />
+    <ClInclude Include="Source\Core\Logger.h" />
+    <ClInclude Include="Source\Entity\GameEntity.h" />
+    <ClInclude Include="Source\Entity\Mob\Mob.h" />
+    <ClInclude Include="Source\Entity\Mob\Player.h" />
+    <ClInclude Include="Source\Render\TextureAtlas.h" />
+    <ClInclude Include="Source\Render\TextureManager.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{86A80A52-84B5-40BF-B2B6-8F4773DB74B0}</ProjectGuid>
@@ -137,30 +161,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Core.cpp" />
-    <ClCompile Include="GameEntity.cpp" />
-    <ClCompile Include="GameLoop.cpp" />
-    <ClCompile Include="GameMath.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Mob.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="TextureAtlas.cpp" />
-    <ClCompile Include="TextureManager.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Core.h" />
-    <ClInclude Include="Commons.h" />
-    <ClInclude Include="GameEntity.h" />
-    <ClInclude Include="GameLoop.h" />
-    <ClInclude Include="GameMath.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Logger.h" />
-    <ClInclude Include="Mob.h" />
-    <ClInclude Include="TextureAtlas.h" />
-    <ClInclude Include="TextureManager.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

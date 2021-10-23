@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Commons.h"
-#include "TextureManager.h"
-#include "GameEntity.h"
+#include "../Commons.h"
+#include "../Render/TextureManager.h"
+#include "../Entity/GameEntity.h"
 
 class GameLoop;
 

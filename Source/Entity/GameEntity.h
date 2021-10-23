@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Commons.h"
+#include "../Commons.h"
 
 class TextureAtlas;
 class Core;
@@ -10,12 +10,12 @@ class GameEntity : GameObject
 public:
 	GameEntity(Core* core, TextureAtlas* atlas, Texture2D texture);
 
+	UID GetUID();
+
 	virtual void Create() = 0;
 	virtual void Update(float deltaTime) override;
 	virtual void Render() override;
 	virtual void Destroy() = 0;
-
-	UID GetUID();
 protected:
 	const UID m_uid;
 

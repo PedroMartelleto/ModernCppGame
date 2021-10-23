@@ -1,6 +1,6 @@
 #include "Mob.h"
-#include "Core.h"
-#include "TextureAtlas.h"
+#include "../../Core/Core.h"
+#include "../../Render/TextureAtlas.h"
 
 Mob::Mob(Core* core) :
 	GameEntity(core, core->GetTextureAtlas(), Texture2D())

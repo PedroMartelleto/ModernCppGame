@@ -1,5 +1,5 @@
 #include "Core.h"
-#include "TextureAtlas.h"
+#include "../Render/TextureAtlas.h"
 #include "GameLoop.h"
 #include <chrono>
 #include <thread>
@@ -76,7 +76,7 @@ void Core::Destroy()
 void Core::Run()
 {
 	double lastTime = GetTime();
-	double frameCounter = 0; 
+	double frameCounter = 0;
 	double unprocessedTime = 0;
 	int frames = 0;
 
@@ -95,12 +95,10 @@ void Core::Run()
 		frameCounter += passedTime;
 
 		// Displays FPS
-		if (frameCounter >= 1.0)
+		if (frameCounter >= 3.0)
 		{
 			double totalTime = ((1000.0 * frameCounter) / ((double)frames));
-			if (LOGGER_VERBOSE >= 0) {
-				printf("Frame Time:		%f ms\n", totalTime);
-			}
+			LOGGER_MESSAGE("Frame Time: " + std::to_string(roundf(totalTime*100)/100.0f) + " ms");
 			frames = 0;
 			frameCounter = 0;
 		}

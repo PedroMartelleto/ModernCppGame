@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include "raylib.h"
-#include "Core.h"
+#include "Core/Core.h"
 
 int main(void)
 {
