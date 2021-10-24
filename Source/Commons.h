@@ -8,6 +8,7 @@
 #include "Core/Logger.h"
 #include "Core/GameObject.h"
 #include "Core/GameMath.h"
+#include "Core/Timer.h"
 #include "raylib.h"
 
 

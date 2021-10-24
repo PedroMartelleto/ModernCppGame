@@ -28,6 +28,8 @@
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Render\TextureAtlas.cpp" />
     <ClCompile Include="Source\Render\TextureManager.cpp" />
+    <ClCompile Include="Source\Map\TileMap.cpp" />
+    <ClCompile Include="Source\Core\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Commons.h" />
@@ -41,6 +43,8 @@
     <ClInclude Include="Source\Entity\Mob\Player.h" />
     <ClInclude Include="Source\Render\TextureAtlas.h" />
     <ClInclude Include="Source\Render\TextureManager.h" />
+    <ClInclude Include="Source\Map\TileMap.h" />
+    <ClInclude Include="Source\Core\Timer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
