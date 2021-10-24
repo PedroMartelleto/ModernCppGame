@@ -5,13 +5,15 @@ TextureManager::TextureManager(const std::string& basePath)
 	m_basePath = basePath;
 }
 
-Texture2D TextureManager::Get(const std::string& name)
+Texture2D TextureManager::Get(const std::string& name, bool appendBasePath)
 {
 	auto findResult = m_resources.find(name);
+
 	if (findResult == m_resources.end())
 	{
 		// If the resource was not found, load it
-		auto texture = LoadTexture((m_basePath + name).c_str());
+		auto base = appendBasePath ? m_basePath : "";
+		auto texture = LoadTexture((base + name).c_str());
 		std::cout << m_basePath + name << std::endl;
 		m_resources[name] = texture;
 		SetTextureFilter(texture, FILTER_POINT);

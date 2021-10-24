@@ -30,6 +30,9 @@
     <ClCompile Include="Source\Render\TextureManager.cpp" />
     <ClCompile Include="Source\Map\TileMap.cpp" />
     <ClCompile Include="Source\Core\Timer.cpp" />
+    <ClCompile Include="Source\Map\TileMapLayer.cpp" />
+    <ClCompile Include="Source\Core\Utils.cpp" />
+    <ClCompile Include="Source\Map\Tileset.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Commons.h" />
@@ -45,6 +48,9 @@
     <ClInclude Include="Source\Render\TextureManager.h" />
     <ClInclude Include="Source\Map\TileMap.h" />
     <ClInclude Include="Source\Core\Timer.h" />
+    <ClInclude Include="Source\Map\TileMapLayer.h" />
+    <ClInclude Include="Source\Core\Utils.h" />
+    <ClInclude Include="Source\Map\Tileset.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

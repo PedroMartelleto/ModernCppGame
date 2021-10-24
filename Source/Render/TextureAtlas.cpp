@@ -1,21 +1,6 @@
 #include "TextureAtlas.h"
 #include <fstream>
 
-std::vector<std::string> split(const std::string& str, const std::string& delimiter) {
-	size_t pos_start = 0, pos_end, delim_len = delimiter.length();
-	std::string token;
-	std::vector<std::string> res;
-
-	while ((pos_end = str.find(delimiter, pos_start)) != std::string::npos) {
-		token = str.substr(pos_start, pos_end - pos_start);
-		pos_start = pos_end + delim_len;
-		res.push_back(token);
-	}
-
-	res.push_back(str.substr(pos_start));
-	return res;
-}
-
 TextureAtlas* TextureAtlas::FromFile(const std::string& fileName)
 {
 	TextureAtlas* atlas = new TextureAtlas();
@@ -29,7 +14,7 @@ TextureAtlas* TextureAtlas::FromFile(const std::string& fileName)
 		// For each line in the file...
 		while (getline(file, line))
 		{
-			std::vector<std::string> splitString = split(line, " ");
+			std::vector<std::string> splitString = Utils::StringSplit(line, " ");
 			// Removes empty strings
 			for (auto it = splitString.begin(); it != splitString.end(); )
 			{

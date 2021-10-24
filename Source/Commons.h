@@ -9,7 +9,8 @@
 #include "Core/GameObject.h"
 #include "Core/GameMath.h"
 #include "Core/Timer.h"
+#include "Core/Utils.h"
 #include "raylib.h"
 
-
+typedef unsigned char TileID;
 typedef uint64_t UID;

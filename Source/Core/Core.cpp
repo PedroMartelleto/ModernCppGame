@@ -11,8 +11,8 @@ Core::Core(int targetFPS)
 	m_windowHeight = -1;
 	m_frameTime = 1.0f / (float)targetFPS;
 	m_isRunning = false;
-	m_textureManager = new TextureManager("Resources/");
-	m_atlas = TextureAtlas::FromFile("Resources/DungeonTileset/Atlas.meta");
+	m_textureManager = new TextureManager("Resources/Sprites/");
+	m_atlas = TextureAtlas::FromFile("Resources/Sprites/DungeonTileset/Atlas.meta");
 	m_gameLoop = new GameLoop(this);
 }
 

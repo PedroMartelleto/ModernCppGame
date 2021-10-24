@@ -15,7 +15,7 @@ void Player::Update(float deltaTime)
 	if (IsKeyDown(KEY_D)) direction.SetX(direction.GetX() + 1.0f);
 	if (IsKeyDown(KEY_A)) direction.SetX(direction.GetX() + -1.0f);
 
-	m_velocity = direction * 80.0f;
+	m_velocity = direction * 160.0f;
 
 	bool isIdle = m_velocity.LengthSq() <= 0.0001f;
 

@@ -10,7 +10,7 @@ class TextureManager
 public:
 	TextureManager(const std::string& basePath);
 
-	Texture2D Get(const std::string& name);
+	Texture2D Get(const std::string& name, bool appendBasePath = true);
 	void Destroy(const std::string& name);
 	void DestroyAll();
 private:
