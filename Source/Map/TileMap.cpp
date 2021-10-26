@@ -85,11 +85,11 @@ TileMap::~TileMap()
 
 bool TileMap::IsPixelSolid(const MapCoords& mapCoords) const
 {
-	TileID tileID = layers[collisionLayerIndex]->GetTile(mapCoords.tilePos.x, mapCoords.tilePos.y);
+	TileID tileID = layers[collisionLayerIndex]->GetTile((int) mapCoords.tilePos.x, (int) mapCoords.tilePos.y);
 
 	if (tileID > 0)
 	{
-		return collisionMask->IsPixelSolid(tileID, mapCoords.inTileOffset.x, mapCoords.inTileOffset.y);
+		return collisionMask->IsPixelSolid(tileID, (int) mapCoords.inTileOffset.x, (int) mapCoords.inTileOffset.y);
 	}
 	else
 	{

@@ -5,13 +5,17 @@
 #include "../Physics/CollisionMask.h"
 #include <assert.h>
 
-const float GameEntity::gravity = 9.8f * 100.0f;
+const float GameEntity::gravity = 9.8f * 150.0f;
+const float GameEntity::jumpFallGravityMultiplier = 2.3f;
 
 GameEntity::GameEntity(Core* core, TextureAtlas* atlas, Texture2D texture) :
 	uid(core->CreateUID()),
 	checksForMapCollisions(false),
 	flipX(false),
-	flipY(false)
+	flipY(false),
+	applyGravity(true),
+	jumpFallVelocity(0.0f),
+	collisionState(CollisionState::Undefined)
 {
 	this->atlas = atlas;
 	this->core = core;
@@ -33,11 +37,23 @@ void GameEntity::Update(float deltaTime)
 
 	if (checksForMapCollisions)
 	{
-		auto collisionState = ResolveMapCollisions();
+		ResolveMapCollisions();
 	}
 
 	angle += angularVelocity * deltaTime + angularAcceleration * deltaTime * deltaTime / 2;
 	angularVelocity += angularAcceleration * deltaTime;
+
+	if (applyGravity)
+	{
+		if (collisionState == CollisionState::JumpFall)
+		{
+			acceleration.y = GameEntity::gravity * GameEntity::jumpFallGravityMultiplier;
+		}
+		else
+		{
+			acceleration.y = GameEntity::gravity;
+		}
+	}
 }
 
 void GameEntity::Render()
@@ -59,21 +75,15 @@ Vec2f GameEntity::YAxisSolve(int dir, const MapCoords& coordsA, const MapCoords&
 {
 	auto map = core->map;
 
-#ifdef _DEBUG
-	assert(coordsA.inTileOffset.y == coordsB.inTileOffset.y);
-	assert(dir == 1 || dir == -1);
-	assert(map->IsPixelSolid(coordsA) && map->IsPixelSolid(coordsB));
-#endif
-
 	velocity.y = 0.0f;
 	// At this point, coordsA.inTileOffset.y and coordsB.inTileOffset.y should be equal!
-	int y = coordsA.inTileOffset.y;
+	int y = (int) coordsA.inTileOffset.y;
 	bool foundResolveOffset = false;
 
 	while (!foundResolveOffset && y >= 0 && y < map->tileset->tileHeight)
 	{
-		auto solidA = map->IsPixelSolid(MapCoords(coordsA.tilePos, Vec2i(coordsA.inTileOffset.x, y)));
-		auto solidB = map->IsPixelSolid(MapCoords(coordsB.tilePos, Vec2i(coordsB.inTileOffset.x, y)));
+		auto solidA = map->IsPixelSolid(MapCoords(coordsA.tilePos, Vec2i((int)coordsA.inTileOffset.x, y)));
+		auto solidB = map->IsPixelSolid(MapCoords(coordsB.tilePos, Vec2i((int) coordsB.inTileOffset.x, y)));
 		
 		if (!solidA && !solidB)
 		{
@@ -85,17 +95,54 @@ Vec2f GameEntity::YAxisSolve(int dir, const MapCoords& coordsA, const MapCoords&
 		}
 	}
 
-	// TODO: Visual debug this
-	LOGGER_VAR(y);
-	LOGGER_VAR(coordsA.inTileOffset.y - (float)y);
+#ifdef _DEBUG
+	assert(coordsA.inTileOffset.y == coordsB.inTileOffset.y);
+	assert(dir == 1 || dir == -1);
+	assert(map->IsPixelSolid(coordsA) && map->IsPixelSolid(coordsB));
+	coordsA.DebugDraw(core, RED);
+	MapCoords(coordsA.tilePos, Vec2f(coordsA.inTileOffset.x, (float)y)).DebugDraw(core, GREEN);
+	coordsB.DebugDraw(core, RED);
+	MapCoords(coordsB.tilePos, Vec2f(coordsB.inTileOffset.x, (float)y)).DebugDraw(core, GREEN);
+#endif
 
-	return Vec2f(0, ((float)y - coordsA.inTileOffset.y) * map->mapScale);
+	return Vec2f(0, ((float)y - coordsA.inTileOffset.y - dir) * map->mapScale);
 }
 
 Vec2f GameEntity::XAxisSolve(int dir, const MapCoords& coordsA, const MapCoords& coordsB)
 {
-	//velocity.x = 0.0f;
-	return Vec2f::zero;
+	auto map = core->map;
+
+	velocity.x = 0.0f;
+	// At this point, coordsA.inTileOffset.x and coordsB.inTileOffset.x should be equal!
+	int x = (int) coordsA.inTileOffset.x;
+	bool foundResolveOffset = false;
+
+	while (!foundResolveOffset && x >= 0 && x < map->tileset->tileWidth)
+	{
+		auto solidA = map->IsPixelSolid(MapCoords(coordsA.tilePos, Vec2i(x, (int)coordsA.inTileOffset.y)));
+		auto solidB = map->IsPixelSolid(MapCoords(coordsB.tilePos, Vec2i(x, (int)coordsB.inTileOffset.y)));
+
+		if (!solidA && !solidB)
+		{
+			foundResolveOffset = true;
+		}
+		else
+		{
+			x += dir;
+		}
+	}
+
+#ifdef _DEBUG
+	assert(coordsA.inTileOffset.x == coordsB.inTileOffset.x);
+	assert(dir == 1 || dir == -1);
+	assert(map->IsPixelSolid(coordsA) && map->IsPixelSolid(coordsB));
+	coordsA.DebugDraw(core, RED);
+	MapCoords(coordsA.tilePos, Vec2i(x, (int)coordsA.inTileOffset.y)).DebugDraw(core, GREEN);
+	coordsB.DebugDraw(core, RED);
+	MapCoords(coordsB.tilePos, Vec2i(x, (int)coordsB.inTileOffset.y)).DebugDraw(core, GREEN);
+#endif
+
+	return Vec2f(((float)x - coordsA.inTileOffset.x) * map->mapScale, 0);
 }
 
 Vec2f GameEntity::MinAxisSolve(int xDir, int yDir, const MapCoords& coords)
@@ -110,19 +157,22 @@ Vec2f GameEntity::MinAxisSolve(int xDir, int yDir, const MapCoords& coords)
 	}
 }
 
-CollisionState GameEntity::ResolveMapCollisions()
+void GameEntity::ResolveMapCollisions()
 {
 	auto map = core->map;
 	if (map == nullptr)
 	{
-		return CollisionState::Grounded;
+		collisionState = CollisionState::Undefined;
+		return;
 	}
 
 	// Collision resolving = offseting the entity so that it is no longer colliding after this function.
 	int maxResolutions = 2;
-	auto corners = map->GetRectCorners(position, size);
+	auto corners = map->GetRectCorners(position + collisionOffset * map->mapScale, collisionSize * map->mapScale);
 	auto solid = map->GetOverlaps(corners); // True if the corner is overlapping a solid pixel
 	bool isColliding = solid[0] || solid[1] || solid[2] || solid[3];
+
+	bool isGrounded = false;
 
 	while (isColliding && maxResolutions > 0)
 	{
@@ -137,6 +187,7 @@ CollisionState GameEntity::ResolveMapCollisions()
 		else if (solid[BOTTOM_LEFT] && solid[BOTTOM_RIGHT])
 		{
 			position += YAxisSolve(-1, corners[BOTTOM_LEFT], corners[BOTTOM_RIGHT]);
+			isGrounded = true;
 		}
 		else if (solid[TOP_LEFT] && solid[BOTTOM_LEFT])
 		{
@@ -148,19 +199,21 @@ CollisionState GameEntity::ResolveMapCollisions()
 		}
 		else if (solid[TOP_LEFT])
 		{
-			position += MinAxisSolve(1, -1, corners[TOP_LEFT]);
+			position += MinAxisSolve(1, 1, corners[TOP_LEFT]);
 		}
 		else if (solid[TOP_RIGHT])
 		{
-			position += MinAxisSolve(-1, -1, corners[TOP_RIGHT]);
+			position += MinAxisSolve(-1, 1, corners[TOP_RIGHT]);
 		}
 		else if (solid[BOTTOM_LEFT])
 		{
-			position += MinAxisSolve(1, 1, corners[BOTTOM_LEFT]);
+			position += MinAxisSolve(1, -1, corners[BOTTOM_LEFT]);
+			isGrounded = true;
 		}
 		else if (solid[BOTTOM_RIGHT])
 		{
-			position += MinAxisSolve(-1, 1, corners[BOTTOM_RIGHT]);
+			position += MinAxisSolve(-1, -1, corners[BOTTOM_RIGHT]);
+			isGrounded = true;
 		}
 
 		maxResolutions -= 1;
@@ -168,22 +221,23 @@ CollisionState GameEntity::ResolveMapCollisions()
 		// If there are resolutions remaining...
 		if (maxResolutions > 0)
 		{
-			corners = map->GetRectCorners(position, size);
+			corners = map->GetRectCorners(position + collisionOffset, collisionSize);
 			solid = map->GetOverlaps(corners);
 			isColliding = solid[0] || solid[1] || solid[2] || solid[3];
 		}
 	}
 
-	if (velocity.y < 0.0f)
+	if (isGrounded)
 	{
-		return CollisionState::Jumping;
+		collisionState = CollisionState::Grounded;
+	}
+	// Switches to state Jump Fall when jump fall velocity is reached
+	else if (velocity.y > -fabsf(jumpFallVelocity) && (collisionState == CollisionState::Jumping || collisionState == CollisionState::JumpFall))
+	{
+		collisionState = CollisionState::JumpFall;
 	}
 	else if (velocity.y > 0.0f)
 	{
-		return CollisionState::Falling;
-	}
-	else
-	{
-		return CollisionState::Grounded;
+		collisionState = CollisionState::Falling;
 	}
 }

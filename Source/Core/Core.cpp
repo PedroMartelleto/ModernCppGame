@@ -180,15 +180,15 @@ void Core::Render()
 	{
 		m_gameLoop->Render();
 
+		for (auto layer : map->layers)
+		{
+			layer->Render(Vec2f::zero, map->mapScale);
+		}
+
 		for (auto iterator = m_entities.begin(); iterator != m_entities.end(); ++iterator)
 		{
 			auto entity = (*iterator).second;
 			entity->Render();
-		}
-
-		for (auto layer : map->layers)
-		{
-			layer->Render(Vec2f::zero, map->mapScale);
 		}
 	}
 

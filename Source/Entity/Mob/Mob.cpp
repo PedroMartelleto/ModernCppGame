@@ -5,7 +5,7 @@
 Mob::Mob(Core* core) :
 	GameEntity(core, core->GetTextureAtlas(), Texture2D())
 {
-	acceleration = Vec2f(0, GameEntity::gravity);
+	applyGravity = true;
 }
 
 void Mob::Create()

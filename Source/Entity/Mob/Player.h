@@ -10,4 +10,6 @@ public:
 	Player(Core* core);
 
 	void Update(float deltaTime) override;
+
+	float jumpHeight;
 };

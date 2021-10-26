@@ -7,6 +7,11 @@ Player::Player(Core* core) :
 	m_animTimer = Timer();
 	m_animTimer.Reset();
 	checksForMapCollisions = true;
+
+	jumpHeight = 140.0f;
+	collisionOffset = Vec2f(2.0f, 14.0f);
+	collisionSize = Vec2f(13.0f, 15.0f);
+	jumpFallVelocity = -70.0f;
 }
 int frame = 0;
 void Player::Update(float deltaTime)
@@ -37,8 +42,9 @@ void Player::Update(float deltaTime)
 
 	Mob::Update(deltaTime);
 
-	if (IsKeyDown(KEY_W) && velocity.y == 0.0f)
+	if (IsKeyDown(KEY_W) && collisionState == CollisionState::Grounded)
 	{
-		velocity.y = -860.0f;
+		velocity.y = -sqrtf(fabsf(2 * GameEntity::gravity * jumpHeight / 0.7 / 0.7));
+		collisionState = CollisionState::Jumping;
 	}
 }
