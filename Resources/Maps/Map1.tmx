@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="24" height="17" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="1">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="24" height="17" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="80">
  <editorsettings>
   <export target="Map1.csv" format="csv"/>
  </editorsettings>
@@ -67,4 +67,55 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="6" name="Collisions">
+  <object id="39" x="247.091" y="131.455">
+   <polygon points="0,0 2.54545,6.54545 8.72727,12.5455 41.6364,12.7273 51.2727,0.909091 47.6364,-3.09091 4.54545,-3.27273"/>
+  </object>
+  <object id="43" x="72" y="147">
+   <polygon points="0,0 6,12.6667 24,12.6667 35,0.333333 30.3333,-3.66667 3.33333,-3.33333"/>
+  </object>
+  <object id="49" x="47.5" y="255.5">
+   <polygon points="0,0 96.5,-47.5 128.5,-47.5 128.5,16.5 0.5,16.5"/>
+  </object>
+  <object id="50" x="224" y="208">
+   <polygon points="0,0 0,64 80,64 80,48 32,0"/>
+  </object>
+  <object id="51" x="176" y="208" width="48" height="16"/>
+  <object id="54" x="304" y="256" width="96" height="16"/>
+  <object id="55" x="-16" y="256" width="64" height="16"/>
+  <object id="57" x="-16" y="186.75">
+   <polygon points="0,0 34.75,1 45.25,-5.25 45.25,-61.5 34.5,-68.5 -1,-69"/>
+  </object>
+  <object id="59" x="-17.5" y="100.5">
+   <polygon points="0,0 19.75,0.25 28.75,7.5 36,17.75 0,17.25"/>
+  </object>
+  <object id="60" x="341.75" y="121">
+   <polygon points="0,0 -4.5,5.75 -3.5,60.25 2.75,66 9,66.75 59,67.5 57.5,3"/>
+  </object>
+  <object id="65" x="346.5" y="121.125">
+   <polygon points="0,0 10,-9.375 37.5,-9.75 37.375,2"/>
+  </object>
+  <object id="66" x="356.5" y="111.75">
+   <polygon points="0,0 1.625,-6.75 10.75,-9.75 40.75,-9.75 41.625,0.25"/>
+  </object>
+  <object id="68" x="-16" y="-16">
+   <polygon points="0,0 0,73 16,75.3333 64.6667,75 64,0"/>
+  </object>
+  <object id="70" x="48" y="-16">
+   <polygon points="0,0 60,0 61.25,84.75 53.25,91.25 12.25,91.5 6.25,89.5 1.75,81.25 0.75,74.5"/>
+  </object>
+  <object id="72" x="109.091" y="47.2727">
+   <polygon points="0,0 13.8182,-6.72727 19.0909,-16 18.9091,-63.2727 -1.27273,-63.2727"/>
+  </object>
+  <object id="74" x="128.182" y="27.8182">
+   <polygon points="0,0 36.7273,0.363636 45.6364,-6.54545 44.9091,-46.7273 -0.363636,-43.8182"/>
+  </object>
+  <object id="76" x="337.636" y="-11.0909">
+   <polygon points="0,0 0.181818,78 7.63636,86 36.1818,85.8182 44.5455,78.5455 46.7273,70.9091 46.3636,-4.18182"/>
+  </object>
+  <object id="77" x="226.909" y="-19.2727">
+   <polygon points="0,0 0,53.8182 3.63636,60.7273 10.9091,64 110.727,63.4545 110.364,2.90909"/>
+  </object>
+  <object id="79" x="384.182" y="-15.2727" width="15.2727" height="75.4545"/>
+ </objectgroup>
 </map>

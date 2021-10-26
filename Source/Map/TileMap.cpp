@@ -2,14 +2,12 @@
 #include "tinyxml2.h"
 #include "../Render/TextureManager.h"
 #include "../Core/Core.h"
-#include "../Physics/CollisionMask.h"
 
 using namespace tinyxml2;
 
-TileMap::TileMap(Core* core, float mapScale, int collisionLayerIndex, const std::string& fileName, const std::string& maskPath, TextureManager* textureManager) :
-	collisionLayerIndex(collisionLayerIndex),
+TileMap::TileMap(Core* core, float mapScale, const std::string& fileName, TextureManager* textureManager) :
 	core(core),
-	mapScale(mapScale)
+	mapScale(MAP_SCALE)
 {
 	auto workingDir = std::string(GetDirectoryPath(fileName.c_str())) + "/";
 
@@ -33,7 +31,6 @@ TileMap::TileMap(Core* core, float mapScale, int collisionLayerIndex, const std:
 	auto texture = textureManager->Get(texturePath, false);
 
 	tileset = new Tileset(texture, tileWidth, tileHeight, textureManager);
-	collisionMask = CollisionMask::FromFile(maskPath, tileWidth, tileHeight);
 
 	// For each layer in the map...
 	for (auto element = root->FirstChildElement("layer"); element != NULL; element = element->NextSiblingElement("layer"))
@@ -57,7 +54,7 @@ TileMap::TileMap(Core* core, float mapScale, int collisionLayerIndex, const std:
 			{
 				if (tile.length() > 0)
 				{
-					tiles[x + y * width] = (TileID) std::stoi(tile);
+					tiles[x + y * width] = (TileID)std::stoi(tile);
 					x += 1;
 				}
 			}
@@ -67,15 +64,61 @@ TileMap::TileMap(Core* core, float mapScale, int collisionLayerIndex, const std:
 		layers.push_back(new TileMapLayer(tiles, width, height, std::string(name), tileset));
 	}
 
+	auto objectGroup = root->FirstChildElement("objectgroup");
+
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_staticBody;
+	bodyDef.position.Set(0.0f, 0.0f);
+	body = core->physicsWorld.CreateBody(&bodyDef);
+
+	auto objGroupElement = root->FirstChildElement("objectgroup");
+	auto scale = mapScale * PIXELS_TO_METERS;
+
+	// For each collision object...
+	for (auto element = objGroupElement->FirstChildElement("object"); element != NULL; element = element->NextSiblingElement("object"))
+	{
+		auto x0 = element->FloatAttribute("x");
+		auto y0 = element->FloatAttribute("y");
+
+		auto polyElement = element->FirstChildElement("polygon");
+		b2PolygonShape shape;
+
+		// If the body is a rectangle...
+		if (polyElement == nullptr)
+		{
+			auto width = element->FloatAttribute("width");
+			auto height = element->FloatAttribute("height");
+			b2Vec2 vertices[4] = {
+				b2Vec2(x0 * scale, y0 * scale),
+				b2Vec2((x0 + width) * scale, y0 * scale),
+				b2Vec2((x0 + width) * scale, (y0 + height) * scale),
+				b2Vec2(x0 * scale, (y0 + height) * scale)
+			};
+			shape.Set(&vertices[0], 4);
+		}
+		// Else it is a polygon
+		else
+		{
+			// Adds the polygon points to a box 2d shape
+			auto points = std::vector<b2Vec2>();
+			
+			for (auto pointStr : Utils::StringSplit(polyElement->Attribute("points"), " "))
+			{
+				auto coordsStr = Utils::StringSplit(pointStr, ",");
+				auto x = std::stof(coordsStr[0]);
+				auto y = std::stof(coordsStr[1]);
+				points.push_back(b2Vec2((x0 + x) * scale, (y0 + y) * scale));
+			}
+
+			assert(points.size() <= 8);
+			shape.Set(&points[0], points.size());
+		}
+
+		body->CreateFixture(&shape, 0.0f);
+	}
+
 	scaledTileSize = Vec2f(((float)tileset->tileWidth) * mapScale, ((float)tileset->tileHeight) * mapScale);
 	scaledInvTileSize = Vec2f(1.0f / scaledTileSize.x, 1.0f / scaledTileSize.y);
-}
-
-MapCoords TileMap::WorldToMapPos(const Vec2f& worldPos) const
-{
-	auto tilePos = worldPos.Multiply(scaledInvTileSize).Floor();
-	auto inTilePos = (worldPos - tilePos.Multiply(scaledTileSize)) / mapScale;
-	return MapCoords(Vec2i(tilePos), Vec2i(inTilePos));
 }
 
 TileMap::~TileMap()
@@ -83,37 +126,9 @@ TileMap::~TileMap()
 	Destroy();
 }
 
-bool TileMap::IsPixelSolid(const MapCoords& mapCoords) const
-{
-	TileID tileID = layers[collisionLayerIndex]->GetTile((int) mapCoords.tilePos.x, (int) mapCoords.tilePos.y);
-
-	if (tileID > 0)
-	{
-		return collisionMask->IsPixelSolid(tileID, (int) mapCoords.inTileOffset.x, (int) mapCoords.inTileOffset.y);
-	}
-	else
-	{
-		return false;
-	}
-}
-
-std::array<MapCoords, 4> TileMap::GetRectCorners(const Vec2f& pos, const Vec2f& size) const
-{
-	auto tlCoords = WorldToMapPos(pos);
-	auto trCoords = WorldToMapPos(pos + Vec2f(size.x, 0.0f));
-	auto blCoords = WorldToMapPos(pos + Vec2f(0, size.y));
-	auto brCoords = WorldToMapPos(pos + size);
-	return { { tlCoords, trCoords, blCoords, brCoords } };
-}
-
-std::array<bool, 4> TileMap::GetOverlaps(const std::array<MapCoords, 4>& corners) const
-{
-	return {{ IsPixelSolid(corners[0]), IsPixelSolid(corners[1]), IsPixelSolid(corners[2]), IsPixelSolid(corners[3]) }};
-}
-
 unsigned char TileMap::GetTile(int layer, int x, int y) const
 {
-	if (layer >= layers.size() || layer < 0)
+	if (layer >= (int) layers.size() || layer < 0)
 	{
 		return 0;
 	}
@@ -135,11 +150,5 @@ void TileMap::Destroy()
 	{
 		delete tileset;
 		tileset = nullptr;
-	}
-
-	if (collisionMask != nullptr)
-	{
-		delete collisionMask;
-		collisionMask = nullptr;
 	}
 }

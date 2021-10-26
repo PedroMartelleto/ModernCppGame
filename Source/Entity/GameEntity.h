@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../Commons.h"
+#include "../Core/Core.h"
+#include "../Map/TileMap.h"
+#include "../Render/TextureAtlas.h"
 
-class TextureAtlas;
 class Core;
-class MapCoords;
 
 enum class CollisionState
 {
@@ -20,7 +21,9 @@ public:
 
 	GameEntity(Core* core, TextureAtlas* atlas, Texture2D texture);
 
-	virtual void Create() = 0;
+	void CreateBody(b2BodyDef* bodyDef, b2FixtureDef* fixtureDef);
+
+	virtual void Create() {};
 	virtual void Update(float deltaTime) override;
 	virtual void Render() override;
 	virtual void Destroy() = 0;
@@ -32,43 +35,19 @@ public:
 	Rectangle atlasRegion;
 	Texture2D texture;
 	
-	/// <summary>
-	/// Render size
-	/// </summary>
-	Vec2f size;
-	
-	/// <summary>
-	/// Render position
-	/// </summary>
-	Vec2f position;
-
-	Vec2f collisionOffset;
-	Vec2f collisionSize;
-
-	Vec2f velocity;
-	Vec2f acceleration;
+	b2Body* body;
+	Vec2f drawOffset;
 
 	bool flipX;
 	bool flipY;
-
-	float angle;
-	float angularVelocity;
-	float angularAcceleration;
 	
 	/// <summary>
-	/// When the entity reaches this velocity during its jump, gravity increases.
+	/// Set this to true to make this entity show up on the other side of the map when it leaves the bounds of the screen.
 	/// </summary>
-	float jumpFallVelocity;
+	bool loopsInScreen;
 
 	CollisionState collisionState;
-
-	bool checksForMapCollisions;
-	bool applyGravity;
 private:
-	void ResolveMapCollisions();
-
-	Vec2f YAxisSolve(int dir, const MapCoords& coordsA, const MapCoords& coordsB);
-	Vec2f XAxisSolve(int dir, const MapCoords& coordsA, const MapCoords& coordsB);
-	Vec2f MinAxisSolve(int xDir, int yDir, const MapCoords& coords);
+	Vec2f drawSize;
 };
 

@@ -14,14 +14,14 @@ MapCoords::MapCoords(const MapCoords& other)
 	inTileOffset = Vec2i(other.inTileOffset);
 }
 
-void MapCoords::DebugDraw(Core* core, Color color, const Vec2f& size) const
+void MapCoords::DEBUG_Draw(Core* core, Color color, const Vec2f& size) const
 {
-	core->DrawDebugRect((tilePos * (float)core->map->tileset->tileWidth + inTileOffset) * core->map->mapScale, Vec2f::one * 4, color);
+	core->DEBUG_DrawRect((tilePos * (float)core->map->tileset->tileWidth + inTileOffset) * core->map->mapScale, Vec2f::one * 4, color);
 }
 
-void MapCoords::DebugDrawTile(Core* core, Color color) const
+void MapCoords::DEBUG_DrawTile(Core* core, Color color) const
 {
-	core->DrawDebugRect((tilePos * (float)core->map->tileset->tileWidth) * core->map->mapScale, core->map->scaledTileSize, ColorAlpha(color, 0.3f));
+	core->DEBUG_DrawRect((tilePos * (float)core->map->tileset->tileWidth) * core->map->mapScale, core->map->scaledTileSize, ColorAlpha(color, 0.3f));
 }
 
 MapCoords& MapCoords::operator=(const MapCoords& other)

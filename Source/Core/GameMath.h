@@ -3,6 +3,7 @@
 #include <math.h>
 #include "raylib.h"
 #include <string>
+#include "box2d/box2d.h"
 
 typedef Vector3 raylib_Vec3;
 typedef Vector2 raylib_Vec2;
@@ -14,6 +15,9 @@ typedef BoundingBox raylib_BoundingBox;
 
 BoundingBox CreateBoundingBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
 
+class Vec2f;
+
+Rectangle CreateRectangle(const Vec2f& pos, const Vec2f& size);
 Rectangle CreateRectangle(float x, float y, float width, float height);
 
 namespace GameMath
@@ -26,8 +30,6 @@ namespace GameMath
 		else return a;
 	}
 };
-
-class Vec2f;
 
 class Vec2i
 {
@@ -77,9 +79,25 @@ public:
 
 	Vec2f() : x(0), y(0) { }
 
-	Vec2f(const Vec2f& r);
 	Vec2f(const Vec2i& r);
-	Vec2f(float x, float y);
+	
+	inline Vec2f(const Vec2f& r)
+	{
+		x = r.x;
+		y = r.y;
+	}
+
+	inline Vec2f(float x, float y)
+	{
+		this->x = x;
+		this->y = y;
+	}
+
+	inline Vec2f(const b2Vec2& v)
+	{
+		x = v.x;
+		y = v.y;
+	}
 
 	float Cross(const Vec2f& r) const;
 
@@ -89,6 +107,11 @@ public:
 		vec.x = (float)x;
 		vec.y = (float)y;
 		return vec;
+	}
+
+	inline b2Vec2 b2()
+	{
+		return b2Vec2(x, y);
 	}
 
 	inline float Length() const { return sqrtf(x * x + y * y); }
@@ -133,6 +156,11 @@ public:
 		this->y /= f;
 
 		return *this;
+	}
+
+	inline Vec2f Abs() const
+	{
+		return Vec2f(fabsf(x), fabsf(y));
 	}
 
 	inline Vec2f Multiply(const Vec2f& other) const
@@ -192,6 +220,13 @@ public:
 		this->x = r.x;
 		this->y = r.y;
 		this->z = r.z;
+	}
+
+	inline Vec3f(const b2Vec3& v)
+	{
+		this->x = v.x;
+		this->y = v.y;
+		this->z = v.z;
 	}
 
 	inline Vec3f Multiply(const Vec3f& other) const
@@ -282,6 +317,11 @@ public:
 		vec.y = y;
 		vec.z = z;
 		return vec;
+	}
+
+	inline b2Vec3 b2()
+	{
+		return b2Vec3(x, y, z);
 	}
 
 	inline Vec3f Floor() const

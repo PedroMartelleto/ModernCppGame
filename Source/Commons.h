@@ -12,6 +12,8 @@
 #include "Core/Timer.h"
 #include "Core/Utils.h"
 #include "raylib.h"
+#include "box2d/box2d.h"
+#include "Globals.h"
 
 typedef unsigned char TileID;
 typedef uint64_t UID;

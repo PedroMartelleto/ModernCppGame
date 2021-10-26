@@ -13,8 +13,8 @@ public:
 	MapCoords(const Vec2f& tilePos, const Vec2f& inTileOffset);
 	MapCoords(const MapCoords& other);
 
-	void DebugDraw(Core* core, Color color, const Vec2f& size = Vec2f(4, 4)) const;
-	void DebugDrawTile(Core* core, Color color) const;
+	void DEBUG_Draw(Core* core, Color color, const Vec2f& size = Vec2f(4, 4)) const;
+	void DEBUG_DrawTile(Core* core, Color color) const;
 
 	MapCoords& operator=(const MapCoords& other);
 	bool operator==(const MapCoords& other) const;

@@ -2,10 +2,20 @@
 
 #include "../Commons.h"
 #include "../Render/TextureManager.h"
-#include "../Entity/GameEntity.h"
 
 class GameLoop;
 class TileMap;
+class GameEntity;
+class TextureAtlas;
+class TextureManager;
+
+struct DebugLineInfo
+{
+	Vec2f start;
+	Vec2f end;
+	float thickness;
+	Color color;
+};
 
 class Core : GameObject
 {
@@ -18,7 +28,11 @@ public:
 	virtual void Update(float deltaTime);
 	void Run();
 
-	void DrawDebugRect(const Vec2f& pos, const Vec2f& size, const Color& color);
+	void DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const Color& color);
+	void DEBUG_DrawBodyAABB(b2Body* body, const Color& color);
+	void DEBUG_DrawBody(b2Body* body, const Color& color);
+
+	void SetWindowSizeAndCenter(int windowWidth, int windowHeight) const;
 
 	UID CreateUID();
 
@@ -30,6 +44,7 @@ public:
 	TextureManager* GetTextureManager();
 public:
 	TileMap* map;
+	b2World physicsWorld;
 private:
 	/// <summary>
 	/// Maps an UID to a Game Entity.
@@ -41,12 +56,11 @@ private:
 	TextureAtlas* m_atlas;
 	TextureManager* m_textureManager;
 
-	int m_windowWidth;
-	int m_windowHeight;
 	float m_frameTime;
 	bool m_isRunning;
 	UID m_uidCounter;
 
-	std::vector<std::pair<Rectangle, Color>> debugRects;
+	std::vector<std::pair<Rectangle, Color>> m_debugRects;
+	std::vector<DebugLineInfo> m_debugLines;
 };
 

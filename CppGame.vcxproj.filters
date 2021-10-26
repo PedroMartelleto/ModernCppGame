@@ -57,9 +57,6 @@
     <ClCompile Include="Source\Render\TextureAtlas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Physics\CollisionMask.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Map\MapCoords.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -113,10 +110,10 @@
     <ClInclude Include="Source\Render\TextureAtlas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Physics\CollisionMask.h">
+    <ClInclude Include="Source\Map\MapCoords.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Map\MapCoords.h">
+    <ClInclude Include="Source\Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

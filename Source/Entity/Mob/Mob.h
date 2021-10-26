@@ -4,7 +4,7 @@
 class Mob : public GameEntity
 {
 public:
-	Mob(Core* core);
+	Mob(Core* core, b2BodyDef* bodyDef);
 
 	virtual void Create() override;
 	virtual void Update(float deltaTime) override;

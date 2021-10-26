@@ -1,29 +1,74 @@
 #include "Player.h"
-#include "../../Render/TextureAtlas.h"
 
 Player::Player(Core* core) :
-	Mob::Mob(core)
+	Mob::Mob(core, nullptr)
 {
 	m_animTimer = Timer();
 	m_animTimer.Reset();
-	checksForMapCollisions = true;
 
-	jumpHeight = 140.0f;
-	collisionOffset = Vec2f(2.0f, 14.0f);
-	collisionSize = Vec2f(13.0f, 15.0f);
-	jumpFallVelocity = -70.0f;
+	loopsInScreen = true;
+
+	drawOffset = Vec2f(-1, -4);
+
+	movementImpulse = 15.0f;
+	maxMoveSpeed = 12.0f;
+	linearDrag = 10.0f;
 }
+
+void Player::Create()
+{
+	auto mapScale = core->map->mapScale;
+
+	b2BodyDef bodyDef;
+	bodyDef.fixedRotation = true;
+	bodyDef.type = b2_dynamicBody;
+	bodyDef.position.Set(440.0f * PIXELS_TO_METERS, 100.0f * PIXELS_TO_METERS);
+	b2PolygonShape dynamicBox;
+	dynamicBox.SetAsBox(6.0f * mapScale * PIXELS_TO_METERS, 9.0f * mapScale * PIXELS_TO_METERS);
+
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &dynamicBox;
+	fixtureDef.density = 1.0f;
+	fixtureDef.friction = 0.01f;
+
+	CreateBody(&bodyDef, &fixtureDef);
+	Mob::Create();
+}
+
+void Player::HandleInputs(float deltaTime)
+{
+	if (body == nullptr) return;
+
+	horizontalDirection = 0.0f;
+
+	if (IsKeyDown(KEY_D)) horizontalDirection += 1.0f;
+	if (IsKeyDown(KEY_A)) horizontalDirection -= 1.0f;
+
+	if (horizontalDirection != 0.0f)
+	{
+		body->ApplyForceToCenter(b2Vec2(movementImpulse * horizontalDirection, 0), true);
+	}
+
+	auto velocity = body->GetLinearVelocity();
+	if (velocity.x > maxMoveSpeed)
+	{
+		velocity.x = maxMoveSpeed;
+		body->SetLinearVelocity(velocity);
+	}
+
+	if (IsKeyDown(KEY_W))
+	{
+		body->ApplyForce(b2Vec2(0, -32), body->GetPosition(), true);
+	}
+}
+
 int frame = 0;
+
 void Player::Update(float deltaTime)
 {
-	float dir = 0.0f;
+	HandleInputs(deltaTime);
 
-	if (IsKeyDown(KEY_D)) dir += 1.0f;
-	if (IsKeyDown(KEY_A)) dir -= 1.0f;
-
-	velocity.x = dir * 160.0f;
-
-	bool isIdle = velocity.LengthSquared() <= 0.0001f;
+	bool isIdle = body->GetLinearVelocity().LengthSquared() <= 0.0001f;
 
 	if (m_animTimer.TimeElapsed() >= (isIdle ? 0.2 : 0.1))
 	{
@@ -33,18 +78,12 @@ void Player::Update(float deltaTime)
 
 	if (isIdle)
 	{
-		atlasRegion = atlas->GetAnimFrameRegion("wizzard_m_idle_anim", frame);
+		atlasRegion = atlas->GetAnimFrameRegion("knight_m_idle_anim", frame);
 	}
 	else
 	{
-		atlasRegion = atlas->GetAnimFrameRegion("wizzard_m_run_anim", frame);
+		atlasRegion = atlas->GetAnimFrameRegion("knight_m_run_anim", frame);
 	}
 
 	Mob::Update(deltaTime);
-
-	if (IsKeyDown(KEY_W) && collisionState == CollisionState::Grounded)
-	{
-		velocity.y = -sqrtf(fabsf(2 * GameEntity::gravity * jumpHeight / 0.7 / 0.7));
-		collisionState = CollisionState::Jumping;
-	}
 }

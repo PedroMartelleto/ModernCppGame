@@ -19,6 +19,16 @@ BoundingBox CreateBoundingBox(float minX, float minY, float minZ, float maxX, fl
 	return box;
 }
 
+Rectangle CreateRectangle(const Vec2f& pos, const Vec2f& size)
+{
+	Rectangle rect;
+	rect.x = pos.x;
+	rect.y = pos.y;
+	rect.width = size.x;
+	rect.height = size.y;
+	return rect;
+}
+
 Rectangle CreateRectangle(float x, float y, float width, float height)
 {
 	Rectangle rect;
@@ -35,22 +45,10 @@ Vec2i::Vec2i(const Vec2f& v)
 	this->y = (int)v.y;
 }
 
-Vec2f::Vec2f(const Vec2f& r)
-{
-	x = r.x;
-	y = r.y;
-}
-
 Vec2f::Vec2f(const Vec2i& r)
 {
 	x = (float) r.x;
 	y = (float) r.y;
-}
-
-Vec2f::Vec2f(float x, float y)
-{
-	this->x = x;
-	this->y = y;
 }
 
 float Vec2f::Cross(const Vec2f& r) const

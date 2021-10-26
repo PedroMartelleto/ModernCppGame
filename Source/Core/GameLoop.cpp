@@ -13,9 +13,13 @@ void GameLoop::Create()
 {
 	player = new Player(core);
 	core->AddEntity(player);
-	player->position = Vec2f(456.0f, 256.0f);
 
-	core->map = new TileMap(core, 3.0f, 1, "Resources/Maps/Map1.tmx", "Resources/Sprites/Desert/AtlasMask.png", core->GetTextureManager());
+	core->map = new TileMap(core, MAP_SCALE, "Resources/Maps/Map1.tmx", core->GetTextureManager());
+
+	auto mapWidth = core->map->layers[0]->GetWidth();
+	auto mapHeight = core->map->layers[0]->GetHeight();
+
+	core->SetWindowSizeAndCenter(mapWidth * MAP_SCALE * TILE_SIZE, mapHeight * MAP_SCALE * TILE_SIZE);
 }
 
 void GameLoop::Update(float deltaTime)
