@@ -3,20 +3,19 @@
 #include "../Entity/Mob/Player.h"
 #include "../Map/TileMap.h"
 
-GameLoop::GameLoop(Core* core)
+GameLoop::GameLoop(Core* core) :
+	core(core),
+	player(nullptr)
 {
-	m_core = core;
-	m_player = nullptr;
 }
-
-TileMap* map;
 
 void GameLoop::Create()
 {
-	m_player = new Player(m_core);
-	m_core->AddEntity(m_player);
+	player = new Player(core);
+	core->AddEntity(player);
+	player->position = Vec2f(456.0f, 256.0f);
 
-	map = new TileMap("Resources/Maps/Map1.tmx", m_core->GetTextureManager());
+	core->map = new TileMap(core, 3.0f, 1, "Resources/Maps/Map1.tmx", "Resources/Sprites/Desert/AtlasMask.png", core->GetTextureManager());
 }
 
 void GameLoop::Update(float deltaTime)
@@ -25,14 +24,9 @@ void GameLoop::Update(float deltaTime)
 
 void GameLoop::Render()
 {
-	for (auto layer : map->GetLayers())
-	{
-		layer->Render(Vec2f::zero, 3.0f);
-	}
+
 }
 
 void GameLoop::Destroy()
 {
-	map->Destroy();
-	delete map;
 }

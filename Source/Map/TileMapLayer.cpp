@@ -43,8 +43,8 @@ void TileMapLayer::SetTileset(Tileset* tileset)
 
 void TileMapLayer::Render(const Vec2f& position, float scale)
 {
-	auto tileWidth = scale * m_tileset->GetTileWidth();
-	auto tileHeight = scale * m_tileset->GetTileHeight();
+	auto tileWidth = scale * m_tileset->tileWidth;
+	auto tileHeight = scale * m_tileset->tileHeight;
 	auto zero = Vec2f(0, 0).raylib();
 
 	for (int y = 0; y < m_height; ++y)
@@ -55,8 +55,8 @@ void TileMapLayer::Render(const Vec2f& position, float scale)
 			if (id > 0)
 			{
 				auto region = m_tileset->GetTileRegion(id);
-				auto dest = CreateRectangle(position.GetX() + x * tileWidth, position.GetY() + y * tileWidth, tileWidth, tileHeight);
-				DrawTexturePro(m_tileset->GetTexture(), region, dest, zero, 0.0f, WHITE);
+				auto dest = CreateRectangle(position.x + x * tileWidth, position.y + y * tileWidth, tileWidth, tileHeight);
+				DrawTexturePro(m_tileset->texture, region, dest, zero, 0.0f, WHITE);
 			}
 		}
 	}

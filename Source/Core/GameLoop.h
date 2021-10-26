@@ -13,8 +13,8 @@ public:
 	void Update(float deltaTime) override;
 	void Render() override;
 	void Destroy() override;
-private:
-	Core* m_core;
-	Mob* m_player;
+public:
+	Core* core;
+	Mob* player;
 };
 

@@ -5,6 +5,7 @@
 #include "../Entity/GameEntity.h"
 
 class GameLoop;
+class TileMap;
 
 class Core : GameObject
 {
@@ -17,6 +18,8 @@ public:
 	virtual void Update(float deltaTime);
 	void Run();
 
+	void DrawDebugRect(const Vec2f& pos, const Vec2f& size, const Color& color);
+
 	UID CreateUID();
 
 	void AddEntity(GameEntity* entity);
@@ -25,6 +28,8 @@ public:
 
 	TextureAtlas* GetTextureAtlas();
 	TextureManager* GetTextureManager();
+public:
+	TileMap* map;
 private:
 	/// <summary>
 	/// Maps an UID to a Game Entity.
@@ -32,14 +37,16 @@ private:
 	/// </summary>
 	std::map<UID, GameEntity*> m_entities;
 
+	GameLoop* m_gameLoop;
+	TextureAtlas* m_atlas;
+	TextureManager* m_textureManager;
+
 	int m_windowWidth;
 	int m_windowHeight;
 	float m_frameTime;
 	bool m_isRunning;
 	UID m_uidCounter;
 
-	GameLoop* m_gameLoop;
-	TextureAtlas* m_atlas;
-	TextureManager* m_textureManager;
+	std::vector<std::pair<Rectangle, Color>> debugRects;
 };
 

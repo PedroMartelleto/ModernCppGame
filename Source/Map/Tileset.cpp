@@ -1,26 +1,23 @@
 #include "Tileset.h"
 
-Tileset::Tileset(Texture2D texture, int tileWidth, int tileHeight, TextureManager* textureManager)
+Tileset::Tileset(Texture2D texture, int tileWidth, int tileHeight, TextureManager* textureManager) :
+	tileWidth(tileWidth),
+	tileHeight(tileHeight),
+	textureManager(textureManager),
+	texture(texture),
+	tileCountWidth(0),
+	tileCountHeight(0)
 {
-	m_texture = texture;
-	m_tileWidth = tileWidth;
-	m_tileHeight = tileHeight;
-	m_textureManager = textureManager;
 }
 
-TextureManager* Tileset::GetTextureManager()
+Vec2f Tileset::TileSize() const
 {
-	return m_textureManager;
-}
-
-Texture2D Tileset::GetTexture()
-{
-	return m_texture;
+	return Vec2f((float) tileWidth, (float) tileHeight);
 }
 
 Rectangle Tileset::GetTileRegion(int x, int y) const
 {
-	return CreateRectangle((float)x*m_tileWidth, (float)y*m_tileHeight, (float)m_tileWidth, (float)m_tileHeight);
+	return CreateRectangle((float)x*tileWidth, (float)y*tileHeight, (float)tileWidth, (float)tileHeight);
 }
 
 Rectangle Tileset::GetTileRegion(TileID id) const
@@ -31,20 +28,10 @@ Rectangle Tileset::GetTileRegion(TileID id) const
 	}
 
 	// Converts index to (x,y)
-	auto width = m_texture.width / m_tileWidth;
-	auto height = m_texture.height / m_tileHeight;
+	auto width = texture.width / tileWidth;
+	auto height = texture.height / tileHeight;
 	int tindex = ((int)id) - 1;
 	auto x = tindex % width;
 	auto y = (tindex / width) % height;
 	return GetTileRegion(x, y);
-}
-
-int Tileset::GetTileWidth() const
-{
-	return m_tileWidth;
-}
-
-int Tileset::GetTileHeight() const
-{
-	return m_tileHeight;
 }

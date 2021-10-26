@@ -1,10 +1,11 @@
 #include "Core.h"
 #include "../Render/TextureAtlas.h"
+#include "../Map/TileMap.h"
 #include "GameLoop.h"
 #include <chrono>
 #include <thread>
 
-Core::Core(int targetFPS)
+Core::Core(int targetFPS) : map(nullptr)
 {
 	m_uidCounter = 0;
 	m_windowWidth = -1;
@@ -70,6 +71,12 @@ void Core::Destroy()
 	delete m_atlas;
 	delete m_gameLoop;
 
+	if (map != nullptr)
+	{
+		map->Destroy();
+		delete map;
+	}
+
 	CloseWindow();
 }
 
@@ -98,7 +105,7 @@ void Core::Run()
 		if (frameCounter >= 3.0)
 		{
 			double totalTime = ((1000.0 * frameCounter) / ((double)frames));
-			LOGGER_MESSAGE("Frame Time: " + std::to_string(roundf(totalTime*100)/100.0f) + " ms");
+			LOGGER_MESSAGE("Frame Time: " + std::to_string(round(totalTime*100)/100.0) + " ms");
 			frames = 0;
 			frameCounter = 0;
 		}
@@ -133,7 +140,7 @@ void Core::Run()
 
 void Core::AddEntity(GameEntity* entity)
 {
-	m_entities[entity->GetUID()] = entity;
+	m_entities[entity->uid] = entity;
 }
 
 GameEntity* Core::GetEntity(UID uid)
@@ -159,19 +166,38 @@ void Core::Update(float deltaTime)
 	}
 }
 
+void Core::DrawDebugRect(const Vec2f& pos, const Vec2f& size, const Color& color)
+{
+	debugRects.push_back({ CreateRectangle(pos.x, pos.y, size.x, size.y), color });
+}
+
 void Core::Render()
 {
 	BeginDrawing();
 	ClearBackground(DARKGRAY);
 
-	m_gameLoop->Render();
-
-	for (auto iterator = m_entities.begin(); iterator != m_entities.end(); ++iterator)
+	if (map != nullptr)
 	{
-		auto entity = (*iterator).second;
-		entity->Render();
+		m_gameLoop->Render();
+
+		for (auto iterator = m_entities.begin(); iterator != m_entities.end(); ++iterator)
+		{
+			auto entity = (*iterator).second;
+			entity->Render();
+		}
+
+		for (auto layer : map->layers)
+		{
+			layer->Render(Vec2f::zero, map->mapScale);
+		}
 	}
+
+	for (auto rect : debugRects)
+	{
+		auto rectToDraw = rect.first;
+		DrawRectangle((int) rectToDraw.x, (int) rectToDraw.y, (int) rectToDraw.width, (int) rectToDraw.height, rect.second);
+	}
+	debugRects.clear();
 	
 	EndDrawing();
 }
-

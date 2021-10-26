@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <array>
 #include <iostream>
 #include <unordered_map>
 #include "Core/Logger.h"

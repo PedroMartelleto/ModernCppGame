@@ -4,37 +4,51 @@
 
 class TextureAtlas;
 class Core;
+class MapCoords;
+
+enum CollisionState
+{
+	Falling, Grounded, Jumping
+};
 
 class GameEntity : GameObject
 {
 public:
-	GameEntity(Core* core, TextureAtlas* atlas, Texture2D texture);
+	const static float gravity;
 
-	UID GetUID();
+	GameEntity(Core* core, TextureAtlas* atlas, Texture2D texture);
 
 	virtual void Create() = 0;
 	virtual void Update(float deltaTime) override;
 	virtual void Render() override;
 	virtual void Destroy() = 0;
-protected:
-	const UID m_uid;
+public:
+	const UID uid;
 
-	TextureAtlas* m_atlas;
-	Core* m_core;
-	Rectangle m_atlasRegion;
-	Texture2D m_texture;
+	TextureAtlas* atlas;
+	Core* core;
+	Rectangle atlasRegion;
+	Texture2D texture;
 
-	Vec2f m_size;
+	Vec2f size;
 
-	Vec2f m_position;
-	Vec2f m_velocity;
-	Vec2f m_acceleration;
+	Vec2f position;
+	Vec2f velocity;
+	Vec2f acceleration;
 
-	bool m_flipX;
-	bool m_flipY;
+	bool flipX;
+	bool flipY;
 
-	float m_angle;
-	float m_angularVelocity;
-	float m_angularAcceleration;
+	float angle;
+	float angularVelocity;
+	float angularAcceleration;
+
+	bool checksForMapCollisions;
+private:
+	CollisionState ResolveMapCollisions();
+
+	Vec2f YAxisSolve(int dir, const MapCoords& coordsA, const MapCoords& coordsB);
+	Vec2f XAxisSolve(int dir, const MapCoords& coordsA, const MapCoords& coordsB);
+	Vec2f MinAxisSolve(int xDir, int yDir, const MapCoords& coords);
 };
 

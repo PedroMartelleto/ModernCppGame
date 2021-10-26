@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Map\MapCoords.cpp" />
+    <ClCompile Include="Source\Physics\CollisionMask.cpp" />
     <ClCompile Include="Source\Core\Core.cpp" />
     <ClCompile Include="Source\Core\GameLoop.cpp" />
     <ClCompile Include="Source\Core\GameMath.cpp" />
@@ -35,6 +37,8 @@
     <ClCompile Include="Source\Map\Tileset.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Map\MapCoords.h" />
+    <ClInclude Include="Source\Physics\CollisionMask.h" />
     <ClInclude Include="Source\Commons.h" />
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\GameLoop.h" />

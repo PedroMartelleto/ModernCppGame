@@ -1,10 +1,15 @@
 #include "TileMap.h"
 #include "tinyxml2.h"
 #include "../Render/TextureManager.h"
+#include "../Core/Core.h"
+#include "../Physics/CollisionMask.h"
 
 using namespace tinyxml2;
 
-TileMap::TileMap(const std::string& fileName, TextureManager* textureManager)
+TileMap::TileMap(Core* core, float mapScale, int collisionLayerIndex, const std::string& fileName, const std::string& maskPath, TextureManager* textureManager) :
+	collisionLayerIndex(collisionLayerIndex),
+	core(core),
+	mapScale(mapScale)
 {
 	auto workingDir = std::string(GetDirectoryPath(fileName.c_str())) + "/";
 
@@ -24,9 +29,11 @@ TileMap::TileMap(const std::string& fileName, TextureManager* textureManager)
 	auto pathToImage = tilesetElement->FirstChildElement("image");
 	auto tileWidth = tilesetElement->IntAttribute("tilewidth");
 	auto tileHeight = tilesetElement->IntAttribute("tileheight");
-	auto texture = textureManager->Get(tilesetFolder + pathToImage->Attribute("source"), false);
+	auto texturePath = tilesetFolder + pathToImage->Attribute("source");
+	auto texture = textureManager->Get(texturePath, false);
 
-	m_tileset = new Tileset(texture, tileWidth, tileHeight, textureManager);
+	tileset = new Tileset(texture, tileWidth, tileHeight, textureManager);
+	collisionMask = CollisionMask::FromFile(maskPath, tileWidth, tileHeight);
 
 	// For each layer in the map...
 	for (auto element = root->FirstChildElement("layer"); element != NULL; element = element->NextSiblingElement("layer"))
@@ -50,15 +57,25 @@ TileMap::TileMap(const std::string& fileName, TextureManager* textureManager)
 			{
 				if (tile.length() > 0)
 				{
-					tiles[x + y * width] = (TileID)std::stoi(tile);
+					tiles[x + y * width] = (TileID) std::stoi(tile);
 					x += 1;
 				}
 			}
 			y += 1;
 		}
 
-		m_layers.push_back(new TileMapLayer(tiles, width, height, std::string(name), m_tileset));
+		layers.push_back(new TileMapLayer(tiles, width, height, std::string(name), tileset));
 	}
+
+	scaledTileSize = Vec2f(((float)tileset->tileWidth) * mapScale, ((float)tileset->tileHeight) * mapScale);
+	scaledInvTileSize = Vec2f(1.0f / scaledTileSize.x, 1.0f / scaledTileSize.y);
+}
+
+MapCoords TileMap::WorldToMapPos(const Vec2f& worldPos) const
+{
+	auto tilePos = worldPos.Multiply(scaledInvTileSize).Floor();
+	auto inTilePos = (worldPos - tilePos.Multiply(scaledTileSize)) / mapScale;
+	return MapCoords(Vec2i(tilePos), Vec2i(inTilePos));
 }
 
 TileMap::~TileMap()
@@ -66,39 +83,63 @@ TileMap::~TileMap()
 	Destroy();
 }
 
-int TileMap::GetLayerCount() const
+bool TileMap::IsPixelSolid(const MapCoords& mapCoords) const
 {
-	return m_layers.size();
+	TileID tileID = layers[collisionLayerIndex]->GetTile(mapCoords.tilePos.x, mapCoords.tilePos.y);
+
+	if (tileID > 0)
+	{
+		return collisionMask->IsPixelSolid(tileID, mapCoords.inTileOffset.x, mapCoords.inTileOffset.y);
+	}
+	else
+	{
+		return false;
+	}
+}
+
+std::array<MapCoords, 4> TileMap::GetRectCorners(const Vec2f& pos, const Vec2f& size) const
+{
+	auto tlCoords = WorldToMapPos(pos);
+	auto trCoords = WorldToMapPos(pos + Vec2f(size.x, 0.0f));
+	auto blCoords = WorldToMapPos(pos + Vec2f(0, size.y));
+	auto brCoords = WorldToMapPos(pos + size);
+	return { { tlCoords, trCoords, blCoords, brCoords } };
+}
+
+std::array<bool, 4> TileMap::GetOverlaps(const std::array<MapCoords, 4>& corners) const
+{
+	return {{ IsPixelSolid(corners[0]), IsPixelSolid(corners[1]), IsPixelSolid(corners[2]), IsPixelSolid(corners[3]) }};
 }
 
 unsigned char TileMap::GetTile(int layer, int x, int y) const
 {
-	if (layer >= m_layers.size() || layer < 0)
+	if (layer >= layers.size() || layer < 0)
 	{
 		return 0;
 	}
 
-	return m_layers[layer]->GetTile(x, y);
-}
-
-std::vector<TileMapLayer*> TileMap::GetLayers()
-{
-	return m_layers;
+	return layers[layer]->GetTile(x, y);
 }
 
 void TileMap::Destroy()
 {
-	for (auto layer : m_layers)
+	for (auto layer : layers)
 	{
 		layer->Destroy();
 		delete layer;
 	}
 
-	m_layers.clear();
+	layers.clear();
 
-	if (m_tileset != nullptr)
+	if (tileset != nullptr)
 	{
-		delete m_tileset;
-		m_tileset = nullptr;
+		delete tileset;
+		tileset = nullptr;
+	}
+
+	if (collisionMask != nullptr)
+	{
+		delete collisionMask;
+		collisionMask = nullptr;
 	}
 }
