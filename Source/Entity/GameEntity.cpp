@@ -37,18 +37,30 @@ void GameEntity::Update(float deltaTime)
 		auto width = map->layers[0]->GetWidth() * (float) map->layers[0]->GetTileset()->tileWidth * map->mapScale;
 		auto height = map->layers[0]->GetHeight() * (float) map->layers[0]->GetTileset()->tileHeight * map->mapScale;
 		
-		if (drawPos.x < -drawSize.x && body->GetLinearVelocity().x < 0.0f)
+		if (drawPos.x + drawSize.x / 2 < 0 && body->GetLinearVelocity().x < 0.0f)
 		{
 			auto pos = body->GetPosition();
 			pos.x = (width + drawSize.x/2) * PIXELS_TO_METERS;
 			body->SetTransform(pos, body->GetAngle());
-		} else if (drawPos.x - drawSize.x / 2 > width && body->GetLinearVelocity().x > 0.0f)
+		}
+		else if (drawPos.x - drawSize.x / 2 > width && body->GetLinearVelocity().x > 0.0f)
 		{
 			auto pos = body->GetPosition();
 			pos.x = -drawSize.x/2 * PIXELS_TO_METERS;
 			body->SetTransform(pos, body->GetAngle());
 		}
-
+		else if (drawPos.y + drawSize.y / 2 < 0 && body->GetLinearVelocity().y < 0.0f)
+		{
+			auto pos = body->GetPosition();
+			pos.y = (height + drawSize.y / 2) * PIXELS_TO_METERS;
+			body->SetTransform(pos, body->GetAngle());
+		}
+		else if (drawPos.y - drawSize.y / 2 > height && body->GetLinearVelocity().y > 0.0f)
+		{
+			auto pos = body->GetPosition();
+			pos.y = -drawSize.y / 2 * PIXELS_TO_METERS;
+			body->SetTransform(pos, body->GetAngle());
+		}
 	}
 }
 
@@ -59,10 +71,10 @@ void GameEntity::Render()
 
 	drawSize = Vec2f(map->mapScale * atlasRegion.width, map->mapScale * atlasRegion.height);
 	auto drawPos = Vec2f(body->GetPosition()) * METERS_TO_PIXELS + drawOffset * map->mapScale;
-	auto renderDest = CreateRectangle(drawPos - drawSize/2, drawSize);
+	auto renderDest = CreateRectangle(drawPos, drawSize);
 	
 	atlasRegion.width = flipX ? -fabsf(atlasRegion.width) : fabsf(atlasRegion.width);
 	atlasRegion.height = flipY ? -fabsf(atlasRegion.height) : fabsf(atlasRegion.height);
 
-	DrawTexturePro(texture, atlasRegion, renderDest, Vec2f(0, 0).raylib(), body->GetAngle(), WHITE);
+	DrawTexturePro(texture, atlasRegion, renderDest, (drawSize / 2).raylib(), ToDegrees(body->GetAngle()), WHITE);
 }
