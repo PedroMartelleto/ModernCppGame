@@ -34,7 +34,6 @@ TextureManager* Core::GetTextureManager()
 
 void Core::Create()
 {
-	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(0, 0, "CppGame");
 
 	m_gameLoop->Create();

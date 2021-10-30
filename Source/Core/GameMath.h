@@ -29,6 +29,11 @@ namespace GameMath
 		else if (a > max) return max;
 		else return a;
 	}
+
+	inline float Max(int a, int b)
+	{
+		return a < b ? b : a;
+	}
 };
 
 class Vec2i

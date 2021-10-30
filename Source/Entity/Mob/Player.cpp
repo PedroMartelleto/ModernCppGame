@@ -3,6 +3,8 @@
 Player::Player(Core* core) :
 	Mob::Mob(core, nullptr)
 {
+	horizontalDirection = 0;
+
 	m_animTimer = Timer();
 	m_animTimer.Reset();
 
@@ -64,10 +66,8 @@ void Player::HandleInputs(float deltaTime)
 
 int frame = 0;
 
-void Player::Update(float deltaTime)
+void Player::UpdateAnimations(float deltaTime)
 {
-	HandleInputs(deltaTime);
-
 	bool isIdle = body->GetLinearVelocity().LengthSquared() <= 0.0001f;
 
 	if (m_animTimer.TimeElapsed() >= (isIdle ? 0.2 : 0.1))
@@ -84,6 +84,21 @@ void Player::Update(float deltaTime)
 	{
 		atlasRegion = atlas->GetAnimFrameRegion("knight_m_run_anim", frame);
 	}
+}
+
+void Player::UpdateState(float deltaTime)
+{
+	if (core == nullptr || core->map == nullptr) return;
+
+	// auto map = core->map;
+	// auto mapBody = map->body;
+}
+
+void Player::Update(float deltaTime)
+{
+	UpdateState(deltaTime);
+	HandleInputs(deltaTime);
+	UpdateAnimations(deltaTime);
 
 	Mob::Update(deltaTime);
 }

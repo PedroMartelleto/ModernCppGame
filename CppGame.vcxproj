@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ECS\ECS.cpp" />
+    <ClCompile Include="Source\ECS\ECSSystem.cpp" />
+    <ClCompile Include="Source\ECS\ECSComponent.cpp" />
     <ClCompile Include="Source\Map\MapCoords.cpp" />
     <ClCompile Include="Source\Core\Core.cpp" />
     <ClCompile Include="Source\Core\GameLoop.cpp" />
@@ -36,6 +39,9 @@
     <ClCompile Include="Source\Map\Tileset.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\ECS\ECS.h" />
+    <ClInclude Include="Source\ECS\ECSSystem.h" />
+    <ClInclude Include="Source\ECS\ECSComponent.h" />
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Map\MapCoords.h" />
     <ClInclude Include="Source\Commons.h" />

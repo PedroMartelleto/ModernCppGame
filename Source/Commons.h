@@ -17,3 +17,12 @@
 
 typedef unsigned char TileID;
 typedef uint64_t UID;
+
+template<typename T>
+using Array = std::vector<T>;
+
+template<typename K, typename V>
+using RBTree = std::unordered_map<K, V>;
+
+template<typename K, typename V>
+using HashMap = std::map<K, V>;

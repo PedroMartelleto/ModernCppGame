@@ -47,7 +47,7 @@ public:
 	bool loopsInScreen;
 
 	CollisionState collisionState;
-private:
+protected:
 	Vec2f drawSize;
 };
 

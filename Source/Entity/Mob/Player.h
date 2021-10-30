@@ -17,5 +17,7 @@ public:
 	float linearDrag;
 	float horizontalDirection;
 private:
+	void UpdateState(float deltaTime);
+	void UpdateAnimations(float deltaTime);
 	void HandleInputs(float deltaTime);
 };
