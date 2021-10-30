@@ -18,121 +18,118 @@
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Core.cpp">
+    <ClCompile Include="Source\Engine\Core\Core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\GameLoop.cpp">
+    <ClCompile Include="Source\Game\GameCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\GameMath.cpp">
+    <ClCompile Include="Source\Engine\Core\Math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Entity\Mob\Mob.cpp">
+    <ClCompile Include="Source\Engine\Texture\TextureManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Entity\Mob\Player.cpp">
+    <ClCompile Include="Source\Engine\TileMap\TileMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Entity\GameEntity.cpp">
+    <ClCompile Include="Source\Engine\Core\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Render\TextureManager.cpp">
+    <ClCompile Include="Source\Engine\TileMap\TileMapLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Map\TileMap.cpp">
+    <ClCompile Include="Source\Engine\Core\Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Timer.cpp">
+    <ClCompile Include="Source\Engine\TileMap\Tileset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Map\TileMapLayer.cpp">
+    <ClCompile Include="Source\Engine\Texture\TextureAtlas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Utils.cpp">
+    <ClCompile Include="Source\Game\ECS\UpdateSystems\MobBodyUpdateSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Map\Tileset.cpp">
+    <ClCompile Include="Source\Game\ECS\UpdateSystems\SpriteBodyUpdateSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Render\TextureAtlas.cpp">
+    <ClCompile Include="Source\Game\ECS\UpdateSystems\MobInputUpdateSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Map\MapCoords.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ECS\ECSComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ECS\ECSSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ECS\ECS.cpp">
+    <ClCompile Include="Source\Game\ECS\RenderSystems\SpriteRenderSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Core\Core.h">
+    <ClInclude Include="Source\Engine\Core\Core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\GameLoop.h">
+    <ClInclude Include="Source\Game\GameCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\GameMath.h">
+    <ClInclude Include="Source\Engine\Core\Math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\GameObject.h">
+    <ClInclude Include="Source\Engine\Core\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Logger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Mob\Mob.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\Mob\Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Entity\GameEntity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Render\TextureManager.h">
+    <ClInclude Include="Source\Engine\Texture\TextureManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Commons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Map\TileMap.h">
+    <ClInclude Include="Source\Engine\TileMap\TileMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Timer.h">
+    <ClInclude Include="Source\Engine\Core\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Map\TileMapLayer.h">
+    <ClInclude Include="Source\Engine\TileMap\TileMapLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Utils.h">
+    <ClInclude Include="Source\Engine\Core\Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Map\Tileset.h">
+    <ClInclude Include="Source\Engine\TileMap\Tileset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Render\TextureAtlas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Map\MapCoords.h">
+    <ClInclude Include="Source\Engine\Texture\TextureAtlas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ECS\ECSComponent.h">
+    <ClInclude Include="Source\Game\ECS\Components.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ECS\ECSSystem.h">
+    <ClInclude Include="Source\Game\Physics\FixtureUserData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ECS\ECS.h">
+    <ClInclude Include="Source\Game\ECS\UpdateSystems\MobBodyUpdateSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Game\ECS\UpdateSystems\SpriteBodyUpdateSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\ECS\UpdateSystems\MobInputUpdateSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\ECS\System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\ECS\RenderSystems\SpriteRenderSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\GameData\MobData.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Source\README.md" />
   </ItemGroup>
 </Project>

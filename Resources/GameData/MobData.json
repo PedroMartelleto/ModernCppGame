@@ -1,0 +1,10 @@
+{
+  "knight": {
+    "name": "knight",
+    "horizontalImpulse": 4.0,
+    "maxHorizontalSpeed": 8.0,
+    "horizontalDragForce": 10.0,
+    "jumpHeight": 12,
+    "density": 1
+  }
+}
