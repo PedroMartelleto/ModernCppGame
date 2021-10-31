@@ -39,7 +39,7 @@ void SpriteRenderSystem::Render(GameCore* gameCore)
 
 		if (region != nullptr)
 		{
-			DrawTexturePro(sprite.texture, *region, CreateRectangle(drawPos + sprite.size, sprite.size), (sprite.size / 2).raylib(), ToDegrees(rotation), sprite.tint);
+			DrawTexturePro(sprite.texture, *region, raylib::CreateRectangle(drawPos + sprite.size, sprite.size), (sprite.size / 2).raylib(), ToDegrees(rotation), sprite.tint);
 		}
 		else
 		{

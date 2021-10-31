@@ -3,24 +3,22 @@
 #include "../Texture/TextureManager.h"
 #include "../Core/Core.h"
 
-using namespace tinyxml2;
-
 TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& fileName, TextureManager* textureManager) :
 	mapScale(MAP_SCALE)
 {
-	auto workingDir = std::string(GetDirectoryPath(fileName.c_str())) + "/";
+	auto workingDir = std::string(raylib::GetDirectoryPath(fileName.c_str())) + "/";
 
 	// Loads main XML
-	XMLDocument mainXML;
+	tinyxml2::XMLDocument mainXML;
 	mainXML.LoadFile(fileName.c_str());
 
 	auto root = mainXML.FirstChildElement("map");
 
 	// Loads tileset file
-	XMLDocument tilesetXML;
+	tinyxml2::XMLDocument tilesetXML;
 	auto tilesetPath = workingDir + root->FirstChildElement("tileset")->Attribute("source");
 	tilesetXML.LoadFile(tilesetPath.c_str());
-	auto tilesetFolder = std::string(GetDirectoryPath(tilesetPath.c_str())) + "/";
+	auto tilesetFolder = std::string(raylib::GetDirectoryPath(tilesetPath.c_str())) + "/";
 
 	auto tilesetElement = tilesetXML.FirstChildElement("tileset");
 	auto pathToImage = tilesetElement->FirstChildElement("image");

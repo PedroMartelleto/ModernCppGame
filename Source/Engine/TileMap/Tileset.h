@@ -6,10 +6,10 @@
 class Tileset
 {
 public:
-	Tileset(Texture2D texture, int tileWidth, int tileHeight, TextureManager* textureManager);
+	Tileset(const Texture2D& texture, int tileWidth, int tileHeight, TextureManager* textureManager);
 
-	Rectangle GetTileRegion(int x, int y) const;
-	Rectangle GetTileRegion(TileID id) const;
+	Rect2D GetTileRegion(int x, int y) const;
+	Rect2D GetTileRegion(TileID id) const;
 
 	Vec2f TileSize() const;
 public:

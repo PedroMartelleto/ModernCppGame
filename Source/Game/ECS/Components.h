@@ -22,21 +22,23 @@ struct TextureRegionComponent
 	bool allowFlip;
 
 	TextureRegionComponent(const Vec2f& texPos, const Vec2f& texSize) : texPos(texPos), texSize(texSize), allowFlip(true) {}
-	TextureRegionComponent(const Rectangle& rect) : texPos(rect.x, rect.y), texSize(rect.width, rect.height), allowFlip(true) {}
+	TextureRegionComponent(const Rect2D& rect) : texPos(rect.pos), texSize(rect.size), allowFlip(true) {}
 
-	inline operator Rectangle () const { return CreateRectangle(texPos, texSize); }
+	inline operator Rect2D () const { return Rect2D(texPos, texSize); }
 };
+
+class Texture2D;
 
 struct SpriteComponent
 {
-	Texture2D texture;
+	Texture2D* texture;
 	int zIndex;
 	Vec2f pos = Vec2f::zero;
 	Vec2f size = Vec2f::zero;
-	Color tint = WHITE;
+	RGBAColor tint = RGBAColor::WHITE;
 	float scale = 1.0f;
 
-	SpriteComponent(const Texture2D& texture, int zIndex, const Vec2f& pos, const Vec2f& size, const Color& tint = WHITE, float scale = 1.0f) :
+	SpriteComponent(Texture2D* texture, int zIndex, const Vec2f& pos, const Vec2f& size, const RGBAColor& tint = RGBAColor::WHITE, float scale = 1.0f) :
 		texture(texture), pos(pos), size(size), tint(tint), zIndex(zIndex), scale(scale) {}
 };
 
@@ -53,10 +55,12 @@ struct DEBUG_PhysicsBodyDrawComponent
 {
 	bool drawAABB;
 	bool drawPoly;
-	Color aabbColor;
-	Color polyColor;
-
-	DEBUG_PhysicsBodyDrawComponent(bool drawAABB, bool drawPoly, const Color& aabbColor = ColorAlpha(GREEN, 0.3f), const Color& polyColor = BLACK) :
+	RGBAColor aabbColor;
+	RGBAColor polyColor;
+	
+	DEBUG_PhysicsBodyDrawComponent(bool drawAABB, bool drawPoly,
+		const RGBAColor& aabbColor = RGBAColor::GREEN.Alpha(0.3f),
+		const RGBAColor& polyColor = RGBAColor::BLACK) :
 		drawAABB(drawAABB), drawPoly(drawPoly), aabbColor(aabbColor), polyColor(polyColor) {}
 };
 

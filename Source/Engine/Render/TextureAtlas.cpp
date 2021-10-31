@@ -33,14 +33,14 @@ TextureAtlas* TextureAtlas::FromFile(const std::string& fileName)
 			}
 
 			// Gets texture region and frame count
-			Rectangle region;
-			region.x = (float) std::stoi(splitString[1]);
-			region.y = (float) std::stoi(splitString[2]);
-			region.width = (float) std::stoi(splitString[3]);
-			region.height = (float) std::stoi(splitString[4]);
+			Rect2D region;
+			region.pos.x = (float) std::stoi(splitString[1]);
+			region.pos.y = (float) std::stoi(splitString[2]);
+			region.size.x = (float) std::stoi(splitString[3]);
+			region.size.y = (float) std::stoi(splitString[4]);
 
 			int frameCount = splitString.size() == 5 ? 1 : std::stoi(splitString[5]);
-			atlas->m_animations[splitString[0]] = std::pair<Rectangle, int>(region, frameCount);
+			atlas->m_animations[splitString[0]] = std::pair<Rect2D, int>(region, frameCount);
 		}
 	}
 	else
@@ -51,20 +51,20 @@ TextureAtlas* TextureAtlas::FromFile(const std::string& fileName)
 	return atlas;
 }
 
-Rectangle TextureAtlas::GetRegion(const std::string& name)
+Rect2D TextureAtlas::GetRegion(const std::string& name)
 {
 	return GetAnimFrameRegion(name, 0);
 }
 
-Rectangle TextureAtlas::GetAnimFrameRegion(const std::string& animName, int frame)
+Rect2D TextureAtlas::GetAnimFrameRegion(const std::string& animName, int frame)
 {
 	// Gets the stored data and offsets the rectangle so that it is at the right place in the animation
 	auto animData = m_animations[animName];
-	Rectangle rect = animData.first;
+	Rect2D rect = animData.first;
 	int frameCount = animData.second;
 	if (frameCount > 0) {
 		int frameOffset = frame % frameCount;
-		rect.x += rect.width * frameOffset;
+		rect.pos.x += rect.size.x * frameOffset;
 	}
 	return rect;
 }

@@ -53,9 +53,9 @@ void TileMapLayer::Render(const Vec2f& position, float scale)
 			auto id = m_tiles[x + y * m_width];
 			if (id > 0)
 			{
-				auto region = m_tileset->GetTileRegion(id);
-				auto dest = CreateRectangle(position + Vec2f((float) x, (float) y).Multiply(tileSize), tileSize);
-				DrawTexturePro(m_tileset->texture, region, dest, zero, 0.0f, WHITE);
+				// auto region = m_tileset->GetTileRegion(id);
+				// auto dest = raylib::CreateRectangle(position + Vec2f((float) x, (float) y).Multiply(tileSize), tileSize);
+				// DrawTexturePro(m_tileset->texture, region, dest, zero, 0.0f, RGBAColor::WHITE);
 			}
 		}
 	}

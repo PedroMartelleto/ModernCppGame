@@ -1,6 +1,6 @@
 #include "Tileset.h"
 
-Tileset::Tileset(Texture2D texture, int tileWidth, int tileHeight, TextureManager* textureManager) :
+Tileset::Tileset(const raylib::Texture2D& texture, int tileWidth, int tileHeight, TextureManager* textureManager) :
 	tileWidth(tileWidth),
 	tileHeight(tileHeight),
 	textureManager(textureManager),
@@ -15,12 +15,12 @@ Vec2f Tileset::TileSize() const
 	return Vec2f((float) tileWidth, (float) tileHeight);
 }
 
-Rectangle Tileset::GetTileRegion(int x, int y) const
+Rect2D Tileset::GetTileRegion(int x, int y) const
 {
-	return CreateRectangle((float)x*tileWidth, (float)y*tileHeight, (float)tileWidth, (float)tileHeight);
+	return Rect2D((float)x*tileWidth, (float)y*tileHeight, (float)tileWidth, (float)tileHeight);
 }
 
-Rectangle Tileset::GetTileRegion(TileID id) const
+Rect2D Tileset::GetTileRegion(TileID id) const
 {
 	if (id <= 0)
 	{

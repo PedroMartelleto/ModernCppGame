@@ -1,40 +1,36 @@
 #include "Core.h"
-#include "../Texture/TextureAtlas.h"
-#include "../../Game/GameCore.h"
+// #include "../Texture/TextureAtlas.h"
+// #include "../../Game/GameCore.h"
 #include <chrono>
 #include <thread>
 
-Core::Core(int targetFPS)
+Core::Core(int targetFPS) :
+	m_window(nullptr)
 {
 	m_frameTime = 1.0f / (float)targetFPS;
 	m_isRunning = false;
-	gameCore = new GameCore(this);
+	// gameCore = new GameCore(this);
 }
 
 void Core::Create()
 {
-	InitWindow(0, 0, "CppGame");
+	m_window = new Window(800, 600, "CppGame");
 
-	gameCore->Create();
+	// gameCore->Create();
 }
 
 void Core::Destroy()
 {
-	gameCore->Destroy();
-	delete gameCore;
+	//gameCore->Destroy();
+	//delete gameCore;
 
-	CloseWindow();
-}
-
-void Core::SetWindowSizeAndCenter(int windowWidth, int windowHeight) const
-{
-	SetWindowSize(windowWidth, windowHeight);
-	SetWindowPosition((GetMonitorWidth(0) - windowWidth) / 2, (GetMonitorHeight(0) - windowHeight) / 2);
+	delete m_window;
+	SDL_Quit();
 }
 
 void Core::Run()
 {
-	double lastTime = GetTime();
+	double lastTime = Timer::GetTime();
 	double frameCounter = 0;
 	double unprocessedTime = 0;
 	int frames = 0;
@@ -46,7 +42,7 @@ void Core::Run()
 		bool render = false;
 
 		// Computes the time at the start of the frame and the passed time since the last frame
-		double startTime = GetTime();
+		double startTime = Timer::GetTime();
 		double passedTime = startTime - lastTime;
 		lastTime = startTime;
 
@@ -65,7 +61,9 @@ void Core::Run()
 		// While there is time to process...
 		while (unprocessedTime > m_frameTime)
 		{
-			if (WindowShouldClose())
+			m_window->Update();
+
+			if (m_window->IsCloseRequested())
 			{
 				m_isRunning = false;
 			}
@@ -79,6 +77,7 @@ void Core::Run()
 		if (render)
 		{
 			Render();
+			m_window->SwapBuffers();
 			frames++;
 		}
 		else
@@ -92,13 +91,26 @@ void Core::Run()
 
 void Core::Update(float deltaTime)
 {
-	gameCore->Update(deltaTime);
+	// gameCore->Update(deltaTime);
 }
 
 void Core::Render()
-{
-	BeginDrawing();
-	ClearBackground(DARKGRAY);
+{	
+	glClearColor(1.0, 0.0, 0.0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 1.0, 1.0);
+	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+	glBegin(GL_POLYGON);
+	glVertex3f(0.25, 0.25, 0.0);
+	glVertex3f(0.75, 0.25, 0.0);
+	glVertex3f(0.75, 0.75, 0.0);
+	glVertex3f(0.25, 0.75, 0.0);
+	glEnd();
+	glFlush();
+
+	/*
+	raylib::BeginDrawing();
+	raylib::ClearBackground(RGBAColor::DARKGRAY);
 
 	gameCore->Render();
 
@@ -110,21 +122,21 @@ void Core::Render()
 
 	for (const auto& line : m_debugLines)
 	{
-		DrawLineEx(line.start.raylib(), line.end.raylib(), line.thickness, line.color);
+		raylib::DrawLineEx(line.start.raylib(), line.end.raylib(), line.thickness, line.color);
 	}
 
 	m_debugRects.clear();
 	
-	EndDrawing();
+	raylib::EndDrawing();*/
 }
 
-
-void Core::DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const Color& color)
+/*
+void Core::DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const RGBAColor& color)
 {
-	m_debugRects.push_back({ CreateRectangle(pos, size), color });
+	m_debugRects.push_back({ Rect2D(pos, size), color });
 }
 
-void Core::DEBUG_DrawBodyAABB(b2Body* body, const Color& color)
+void Core::DEBUG_DrawBodyAABB(b2Body* body, const RGBAColor& color)
 {
 	b2Fixture* fixture = body->GetFixtureList();
 
@@ -136,13 +148,13 @@ void Core::DEBUG_DrawBodyAABB(b2Body* body, const Color& color)
 			auto bottomRight = Vec2f(aabb.upperBound) * METERS_TO_PIXELS;
 			auto topLeft = Vec2f(aabb.lowerBound) * METERS_TO_PIXELS;
 
-			m_debugRects.push_back({ CreateRectangle(topLeft, (bottomRight - topLeft).Abs()), color });
+			m_debugRects.push_back({ raylib::CreateRectangle(topLeft, (bottomRight - topLeft).Abs()), color });
 		}
 		fixture = fixture->GetNext();
 	}
 }
 
-void Core::DEBUG_DrawBody(b2Body* body, const Color& color)
+void Core::DEBUG_DrawBody(b2Body* body, const RGBAColor& color)
 {
 	b2Fixture* fixture = body->GetFixtureList();
 	DebugLineInfo line;
@@ -165,7 +177,7 @@ void Core::DEBUG_DrawBody(b2Body* body, const Color& color)
 	}
 }
 
-void Core::DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const Color& color, float thickness)
+void Core::DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const RGBAColor& color, float thickness)
 {
 	DebugLineInfo dbLineInfo;
 	dbLineInfo.start = start;
@@ -173,4 +185,4 @@ void Core::DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const Color& col
 	dbLineInfo.color = color;
 	dbLineInfo.thickness = thickness;
 	m_debugLines.push_back(dbLineInfo);
-}
+}*/

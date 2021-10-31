@@ -118,8 +118,8 @@ void GameCore::Create()
 
 	core->SetWindowSizeAndCenter((int)((float)mapWidth * MAP_SCALE * TILE_SIZE), (int)((float)mapHeight * MAP_SCALE * TILE_SIZE));
 	
-	auto windowWidth = (float) GetScreenWidth();
-	auto windowHeight = (float) GetScreenHeight();
+	auto windowWidth = (float)raylib::GetScreenWidth();
+	auto windowHeight = (float)raylib::GetScreenHeight();
 
 	auto region = atlas->GetAnimFrameRegion("knight_m_idle_anim", 0);
 	auto size = Vec2f(region.width * 3, region.height * 3);
@@ -132,7 +132,7 @@ void GameCore::Create()
 
 	auto* groundDetectionComponent = registry.try_get<GroundDetectionComponent>(player);
 	registry.emplace<PhysicsBodyComponent>(player, CreateDynamicBoxBody(Vec2f(380, 200), aabbSize, Vec2f(0.9f, 0.2f), groundDetectionComponent));
-	registry.emplace<SpriteComponent>(player, textureManager->Get("DungeonTileset/Atlas.png"), 0, size * -1 + Vec2f(-2.0f, -heightOffset), size, WHITE);
+	registry.emplace<SpriteComponent>(player, textureManager->Get("DungeonTileset/Atlas.png"), 0, size * -1 + Vec2f(-2.0f, -heightOffset), size, raylib::WHITE);
 	registry.emplace<TextureRegionComponent>(player, region);
 	// registry.emplace<DEBUG_PhysicsBodyDrawComponent>(player, true, true);
 

@@ -7,5 +7,6 @@
 #include "Core/Utils.h"
 #include "Texture/TextureManager.h"
 #include "Texture/TextureAtlas.h"
+#include "Texture/Texture2D.h"
 #include "TileMap/TileMap.h"
 #include "TileMap/Tileset.h"
