@@ -1,26 +1,6 @@
 #include "Math.h"
 
-/*
-std::string Vec2f::ToString() const
+std::string Rect2D::ToString() const
 {
-	std::stringstream stream;
-	stream << "(";
-	stream << std::fixed << std::setprecision(1) << x;
-	stream << ",";
-	stream << std::fixed << std::setprecision(1) << y;
-	stream << ")";
-	return stream.str();
+	return "{ " + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ", " + std::to_string(size.x) + ", " + std::to_string(size.y) + " }";
 }
-
-std::string Vec3f::ToString() const
-{
-	std::stringstream stream;
-	stream << "(";
-	stream << std::fixed << std::setprecision(1) << x;
-	stream << ",";
-	stream << std::fixed << std::setprecision(1) << y;
-	stream << ",";
-	stream << std::fixed << std::setprecision(1) << z;
-	stream << ")";
-	return stream.str();
-}*/

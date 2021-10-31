@@ -4,11 +4,6 @@ void SpriteRenderSystem::Render(GameCore* gameCore)
 {
 	auto& registry = gameCore->registry;
 
-	// NOTE: These should not be done here...
-	registry.sort<SpriteComponent>([](const auto& lhs, const auto& rhs) {
-		return lhs.zIndex < rhs.zIndex;
-		});
-
 	// Renders sprites
 	for (auto entity : registry.view<SpriteComponent>())
 	{
@@ -21,7 +16,7 @@ void SpriteRenderSystem::Render(GameCore* gameCore)
 
 		if (body != nullptr)
 		{
-			drawPos += Vec2f(body->body->GetPosition()) * METERS_TO_PIXELS;
+			drawPos += Vec2fFromB2(body->body->GetPosition()) * Game::METERS_TO_PIXELS;
 			rotation = body->body->GetAngle();
 
 			if (region != nullptr && region->allowFlip)
@@ -39,11 +34,11 @@ void SpriteRenderSystem::Render(GameCore* gameCore)
 
 		if (region != nullptr)
 		{
-			DrawTexturePro(sprite.texture, *region, raylib::CreateRectangle(drawPos + sprite.size, sprite.size), (sprite.size / 2).raylib(), ToDegrees(rotation), sprite.tint);
+			Render2D::DrawRect(drawPos, sprite.size, sprite.zIndex, *region, sprite.texture, sprite.tint);
 		}
 		else
 		{
-			DrawTextureEx(sprite.texture, drawPos.raylib(), ToDegrees(rotation), sprite.scale, sprite.tint);
+			Render2D::DrawRect(drawPos, sprite.size, sprite.zIndex, sprite.texture, sprite.tint);
 		}
 	}
 }

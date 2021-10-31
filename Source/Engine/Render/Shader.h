@@ -29,7 +29,7 @@ public:
 		m_name(name),
 		m_memberNames(memberNames) {}
 
-	inline const std::string& GetName()                   const { return m_name; }
+	inline const std::string& GetName() const { return m_name; }
 	inline const std::vector<TypedData>& GetMemberNames() const { return m_memberNames; }
 private:
 	std::string            m_name;
@@ -43,10 +43,8 @@ public:
 	virtual ~ShaderData();
 
 	inline int GetProgram()                                           const { return m_program; }
-	inline const std::vector<int>& GetShaders()                       const { return m_shaders; }
-	inline const std::vector<std::string>& GetUniformNames()          const { return m_uniformNames; }
-	inline const std::vector<std::string>& GetUniformTypes()          const { return m_uniformTypes; }
-	inline const std::map<std::string, unsigned int>& GetUniformMap() const { return m_uniformMap; }
+	inline const std::vector<int>& GetShaders() const { return m_shaders; }
+	inline const RBTree<std::string, unsigned int>& GetUniformMap() const { return m_uniformMap; }
 private:
 	void AddVertexShader(const std::string& text);
 	void AddGeometryShader(const std::string& text);
@@ -54,17 +52,15 @@ private:
 	void AddProgram(const std::string& text, int type);
 
 	void AddAllAttributes(const std::string& vertexShaderText, const std::string& attributeKeyword);
-	void AddShaderUniforms(const std::string& shaderText);
+	void AddShaderUniforms();
 	void AddUniform(const std::string& uniformName, const std::string& uniformType, const std::vector<UniformStruct>& structs);
 	void CompileShader() const;
 
 	static int s_supportedOpenGLLevel;
 	static std::string s_glslVersion;
 	int m_program;
-	std::vector<int>                    m_shaders;
-	std::vector<std::string>            m_uniformNames;
-	std::vector<std::string>            m_uniformTypes;
-	std::map<std::string, unsigned int> m_uniformMap;
+	std::vector<int> m_shaders;
+	RBTree<std::string, unsigned int> m_uniformMap;
 };
 
 class Shader
@@ -76,10 +72,27 @@ public:
 
 	void Bind() const;
 
+	GLuint GetProgramID() const { return (GLuint)m_shaderData->GetProgram(); }
+
 	void SetUniformi(const std::string& uniformName, int value) const;
 	void SetUniformf(const std::string& uniformName, float value) const;
 	void SetUniformMatrix4f(const std::string& uniformName, const Matrix4f& value) const;
 	void SetUniformVec3f(const std::string& uniformName, const Vec3f& value) const;
+
+	inline unsigned int Unif(const std::string& uniformName) const
+	{
+		return m_shaderData->GetUniformMap().at(uniformName);
+	}
+
+	inline unsigned int operator[](const std::string& uniformName) const
+	{
+		return m_shaderData->GetUniformMap().at(uniformName);
+	}
+
+	inline unsigned int operator[](const char* uniformName) const
+	{
+		return m_shaderData->GetUniformMap().at(std::string(uniformName));
+	}
 protected:
 private:
 	static std::map<std::string, ShaderData*> s_resourceMap;

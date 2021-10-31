@@ -25,7 +25,6 @@ public:
 	inline const std::string& GetTitle() const { return m_title; }
 	inline Vec2f GetCenter() const { return Vec2f((float)m_width / 2.0f, (float)m_height / 2.0f); }
 	inline SDL_Window* GetSDLWindow() { return m_window; }
-	inline const Input& GetInput() const { return m_input; }
 
 	void SetFullScreen(bool value);
 protected:
@@ -36,8 +35,7 @@ private:
 	SDL_Window* m_window = nullptr;
 	SDL_GLContext m_glContext = nullptr;
 	bool m_isCloseRequested = false;
-	Input m_input;
 
-	Window(const Window& other) : m_input(this) {}
+	Window(const Window& other) {}
 	void operator=(const Window& other) {}
 };

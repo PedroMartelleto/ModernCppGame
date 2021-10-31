@@ -1,26 +1,15 @@
-// Small abstraction layer for dealing with shaders. Code adapted from https://github.com/BennyQBD/3DEngineCpp.
+﻿// Small abstraction layer for dealing with shaders. Code adapted from https://github.com/BennyQBD/3DEngineCpp.
 
 #include "Shader.h"
 
-//--------------------------------------------------------------------------------
-// Variable Initializations
-//--------------------------------------------------------------------------------
+
 std::map<std::string, ShaderData*> Shader::s_resourceMap;
 int ShaderData::s_supportedOpenGLLevel = 0;
 std::string ShaderData::s_glslVersion = "";
 
-//--------------------------------------------------------------------------------
-// Forward declarations
-//--------------------------------------------------------------------------------
-static void CheckShaderError(int shader, int flag, bool isProgram, const std::string& errorMessage);
-static std::vector<UniformStruct> FindUniformStructs(const std::string& shaderText);
-static std::string FindUniformStructName(const std::string& structStartToOpeningBrace);
-static std::vector<TypedData> FindUniformStructComponents(const std::string& openingBraceToClosingBrace);
 static std::string LoadShader(const std::string& fileName);
 
-//--------------------------------------------------------------------------------
-// Constructors/Destructors
-//--------------------------------------------------------------------------------
+
 ShaderData::ShaderData(const std::string& fileName)
 {
 	std::string actualFileName = fileName;
@@ -80,7 +69,7 @@ ShaderData::ShaderData(const std::string& fileName)
 		}
 	}
 
-	std::string shaderText = LoadShader(actualFileName + ".glsl");
+	std::string shaderText = LoadShader(actualFileName);
 
 	std::string vertexShaderText = "#version " + s_glslVersion + "\n#define VS_BUILD\n#define GLSL_VERSION " + s_glslVersion + "\n" + shaderText;
 	std::string fragmentShaderText = "#version " + s_glslVersion + "\n#define FS_BUILD\n#define GLSL_VERSION " + s_glslVersion + "\n" + shaderText;
@@ -93,7 +82,7 @@ ShaderData::ShaderData(const std::string& fileName)
 
 	CompileShader();
 
-	AddShaderUniforms(shaderText);
+	AddShaderUniforms();
 }
 
 ShaderData::~ShaderData()
@@ -138,13 +127,12 @@ Shader::~Shader()
 	}
 }
 
-//--------------------------------------------------------------------------------
-// Member Function Implementation
-//--------------------------------------------------------------------------------
+
 void Shader::Bind() const
 {
 	glUseProgram(m_shaderData->GetProgram());
 }
+
 
 void Shader::SetUniformi(const std::string& uniformName, int value) const
 {
@@ -228,7 +216,7 @@ void ShaderData::AddAllAttributes(const std::string& vertexShaderText, const std
 		{
 			std::string potentialCommentSection = vertexShaderText.substr(lastLineEnd, attributeLocation - lastLineEnd);
 
-			//Potential false positives are both in comments, and in macros.
+			// Potential false positives are both in comments, and in macros.
 			isCommented = potentialCommentSection.find("//") != std::string::npos || potentialCommentSection.find("#") != std::string::npos;
 		}
 
@@ -249,41 +237,29 @@ void ShaderData::AddAllAttributes(const std::string& vertexShaderText, const std
 	}
 }
 
-void ShaderData::AddShaderUniforms(const std::string& shaderText)
+void ShaderData::AddShaderUniforms()
 {
-	static const std::string UNIFORM_KEY = "uniform";
+	GLint numBlocks;
+	glGetProgramiv(m_program, GL_ACTIVE_UNIFORMS, &numBlocks);
+	
+	std::vector<std::string> nameList;
+	nameList.reserve(numBlocks);
 
-	std::vector<UniformStruct> structs = FindUniformStructs(shaderText);
+	GLchar* name = new GLchar[2048];
 
-	size_t uniformLocation = shaderText.find(UNIFORM_KEY);
-	while (uniformLocation != std::string::npos)
+	for (int i = 0; i < numBlocks; ++i)
 	{
-		bool isCommented = false;
-		size_t lastLineEnd = shaderText.rfind("\n", uniformLocation);
+		int length = 0, size = 0;
+		GLenum type = 0;
 
-		if (lastLineEnd != std::string::npos)
-		{
-			std::string potentialCommentSection = shaderText.substr(lastLineEnd, uniformLocation - lastLineEnd);
-			isCommented = potentialCommentSection.find("//") != std::string::npos;
-		}
+		glGetActiveUniform(m_program, (GLuint)i, 2048, &length, &size, &type, name);
 
-		if (!isCommented)
-		{
-			size_t begin = uniformLocation + UNIFORM_KEY.length();
-			size_t end = shaderText.find(";", begin);
-
-			std::string uniformLine = shaderText.substr(begin + 1, end - begin - 1);
-
-			begin = uniformLine.find(" ");
-			std::string uniformName = uniformLine.substr(begin + 1);
-			std::string uniformType = uniformLine.substr(0, begin);
-
-			m_uniformNames.push_back(uniformName);
-			m_uniformTypes.push_back(uniformType);
-			AddUniform(uniformName, uniformType, structs);
-		}
-		uniformLocation = shaderText.find(UNIFORM_KEY, uniformLocation + UNIFORM_KEY.length());
+		auto unifName = Utils::StringSplit(std::string(name), "[")[0];
+		m_uniformMap[unifName] = glGetUniformLocation(m_program, unifName.c_str());
+		assert(m_uniformMap[unifName] >= 0);
 	}
+
+	delete[] name;
 }
 
 void ShaderData::AddUniform(const std::string& uniformName, const std::string& uniformType, const std::vector<UniformStruct>& structs)
@@ -312,6 +288,8 @@ void ShaderData::AddUniform(const std::string& uniformName, const std::string& u
 	m_uniformMap.insert(std::pair<std::string, unsigned int>(uniformName, location));
 }
 
+static void CheckShaderError(int shader, int flag, bool isProgram, const std::string& errorMessage);
+
 void ShaderData::CompileShader() const
 {
 	glLinkProgram(m_program);
@@ -321,9 +299,6 @@ void ShaderData::CompileShader() const
 	CheckShaderError(m_program, GL_VALIDATE_STATUS, true, "Invalid shader program");
 }
 
-//--------------------------------------------------------------------------------
-// Static Function Implementations
-//--------------------------------------------------------------------------------
 static void CheckShaderError(int shader, int flag, bool isProgram, const std::string& errorMessage)
 {
 	GLint success = 0;
@@ -348,7 +323,7 @@ static void CheckShaderError(int shader, int flag, bool isProgram, const std::st
 static std::string LoadShader(const std::string& fileName)
 {
 	std::ifstream file;
-	file.open(("./res/shaders/" + fileName).c_str());
+	file.open(fileName.c_str());
 
 	std::string output;
 	std::string line;
@@ -378,82 +353,3 @@ static std::string LoadShader(const std::string& fileName)
 
 	return output;
 };
-
-static std::vector<TypedData> FindUniformStructComponents(const std::string& openingBraceToClosingBrace)
-{
-	static const char charsToIgnore[] = { ' ', '\n', '\t', '{' };
-	static const size_t UNSIGNED_NEG_ONE = (size_t)-1;
-
-	std::vector<TypedData> result;
-	std::vector<std::string> structLines = Utils::StringSplit(openingBraceToClosingBrace, ";");
-
-	for (unsigned int i = 0; i < structLines.size(); i++)
-	{
-		size_t nameBegin = UNSIGNED_NEG_ONE;
-		size_t nameEnd = UNSIGNED_NEG_ONE;
-
-		for (unsigned int j = 0; j < structLines[i].length(); j++)
-		{
-			bool isIgnoreableCharacter = false;
-
-			for (unsigned int k = 0; k < sizeof(charsToIgnore) / sizeof(char); k++)
-			{
-				if (structLines[i][j] == charsToIgnore[k])
-				{
-					isIgnoreableCharacter = true;
-					break;
-				}
-			}
-
-			if (nameBegin == UNSIGNED_NEG_ONE && isIgnoreableCharacter == false)
-			{
-				nameBegin = j;
-			}
-			else if (nameBegin != UNSIGNED_NEG_ONE && isIgnoreableCharacter)
-			{
-				nameEnd = j;
-				break;
-			}
-		}
-
-		if (nameBegin == UNSIGNED_NEG_ONE || nameEnd == UNSIGNED_NEG_ONE)
-			continue;
-
-		TypedData newData(
-			structLines[i].substr(nameEnd + 1),
-			structLines[i].substr(nameBegin, nameEnd - nameBegin));
-
-		result.push_back(newData);
-	}
-
-	return result;
-}
-
-static std::string FindUniformStructName(const std::string& structStartToOpeningBrace)
-{
-	return Utils::StringSplit(Utils::StringSplit(structStartToOpeningBrace, " ")[0], "\n")[0];
-}
-
-static std::vector<UniformStruct> FindUniformStructs(const std::string& shaderText)
-{
-	static const std::string STRUCT_KEY = "struct";
-	std::vector<UniformStruct> result;
-
-	size_t structLocation = shaderText.find(STRUCT_KEY);
-	while (structLocation != std::string::npos)
-	{
-		structLocation += STRUCT_KEY.length() + 1; //Ignore the struct keyword and space
-
-		size_t braceOpening = shaderText.find("{", structLocation);
-		size_t braceClosing = shaderText.find("}", braceOpening);
-
-		UniformStruct newStruct(
-			FindUniformStructName(shaderText.substr(structLocation, braceOpening - structLocation)),
-			FindUniformStructComponents(shaderText.substr(braceOpening, braceClosing - braceOpening)));
-
-		result.push_back(newStruct);
-		structLocation = shaderText.find(STRUCT_KEY, structLocation);
-	}
-
-	return result;
-}

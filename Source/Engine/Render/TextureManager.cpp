@@ -23,3 +23,13 @@ Ref<Texture> TextureManager::Get(const std::string& name, bool appendBasePath)
 		return (*findResult).second;
 	}
 }
+
+TextureManager::~TextureManager()
+{
+	DestroyAll();
+}
+
+void TextureManager::DestroyAll()
+{
+	m_resources.clear();
+}

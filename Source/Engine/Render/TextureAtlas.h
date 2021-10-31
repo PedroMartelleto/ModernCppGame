@@ -5,7 +5,7 @@
 class TextureAtlas
 {
 public:
-	static TextureAtlas* FromFile(const std::string& fileName);
+	static Ref<TextureAtlas> FromFile(const std::string& fileName);
 
 	Rect2D GetRegion(const std::string& name);
 	Rect2D GetAnimFrameRegion(const std::string& animName, int frame);

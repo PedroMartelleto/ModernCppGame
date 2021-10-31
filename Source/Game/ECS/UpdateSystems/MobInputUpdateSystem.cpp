@@ -9,18 +9,18 @@ void MobInputUpdateSystem::Update(GameCore* gameCore, float deltaTime)
 	{
 		auto& input = registry.get<PlayerInputComponent>(entity);
 		auto& mob = registry.get<MobComponent>(entity);
-		/*
-		mob.wantsToJump = IsKeyDown(input.JUMP);
+		
+		mob.wantsToJump = Input::IsKeyDown(input.JUMP);
 		mob.horizontalMoveDir = 0.0f;
 
-		if (IsKeyDown(input.MOVE_LEFT))
+		if (Input::IsKeyDown(input.MOVE_LEFT))
 		{
 			mob.horizontalMoveDir -= 1.0f;
 		}
 
-		if (IsKeyDown(input.MOVE_RIGHT))
+		if (Input::IsKeyDown(input.MOVE_RIGHT))
 		{
 			mob.horizontalMoveDir += 1.0f;
-		}*/
+		}
 	}
 }

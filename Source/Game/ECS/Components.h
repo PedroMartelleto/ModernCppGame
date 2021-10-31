@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Commons.h"
+#include "../../Engine/Commons.h"
 
 // We are using ECS, so we need to define components: minimal pieces of data used in the game
 
@@ -27,19 +27,16 @@ struct TextureRegionComponent
 	inline operator Rect2D () const { return Rect2D(texPos, texSize); }
 };
 
-class Texture2D;
-
 struct SpriteComponent
 {
-	Texture2D* texture;
+	Ref<Texture2D> texture;
 	int zIndex;
-	Vec2f pos = Vec2f::zero;
-	Vec2f size = Vec2f::zero;
-	RGBAColor tint = RGBAColor::WHITE;
-	float scale = 1.0f;
+	Vec2f pos = Vec2f(0, 0);
+	Vec2f size = Vec2f(0, 0);
+	Color4f tint = Colors::WHITE;
 
-	SpriteComponent(Texture2D* texture, int zIndex, const Vec2f& pos, const Vec2f& size, const RGBAColor& tint = RGBAColor::WHITE, float scale = 1.0f) :
-		texture(texture), pos(pos), size(size), tint(tint), zIndex(zIndex), scale(scale) {}
+	SpriteComponent(Ref<Texture2D> texture, int zIndex, const Vec2f& pos, const Vec2f& size, const Color4f& tint = Colors::WHITE) :
+		texture(texture), pos(pos), size(size), tint(tint), zIndex(zIndex) {}
 };
 
 struct MovementComponent
@@ -55,12 +52,12 @@ struct DEBUG_PhysicsBodyDrawComponent
 {
 	bool drawAABB;
 	bool drawPoly;
-	RGBAColor aabbColor;
-	RGBAColor polyColor;
+	Color4f aabbColor;
+	Color4f polyColor;
 	
 	DEBUG_PhysicsBodyDrawComponent(bool drawAABB, bool drawPoly,
-		const RGBAColor& aabbColor = RGBAColor::GREEN.Alpha(0.3f),
-		const RGBAColor& polyColor = RGBAColor::BLACK) :
+		const Color4f& aabbColor = Colors::Alpha(Colors::GREEN, 0.3f),
+		const Color4f& polyColor = Colors::BLACK) :
 		drawAABB(drawAABB), drawPoly(drawPoly), aabbColor(aabbColor), polyColor(polyColor) {}
 };
 

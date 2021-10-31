@@ -1,6 +1,6 @@
 #pragma once
 
-// Class that handles input in SDL2. Code from https://github.com/BennyQBD/3DEngineCpp/blob/master/src/core/input.h.
+// Class that handles input in SDL2. Code from https://github.com/BennyQBD/3DEngineCpp.
 #include "Math.h"
 
 class Window;
@@ -645,36 +645,36 @@ public:
 	static const int NUM_KEYS = 512;
 	static const int NUM_MOUSEBUTTONS = 256;
 
-	Input(Window* window);
+	static void Create(Window* window);
 
-	inline bool GetKey(int keyCode) const { return m_inputs[keyCode]; }
-	inline bool GetKeyDown(int keyCode) const { return m_downKeys[keyCode]; }
-	inline bool GetKeyUp(int keyCode) const { return m_upKeys[keyCode]; }
-	inline bool GetMouse(int keyCode) const { return m_mouseInput[keyCode]; }
-	inline bool GetMouseDown(int keyCode) const { return m_downMouse[keyCode]; }
-	inline bool GetMouseUp(int keyCode) const { return m_upMouse[keyCode]; }
-	inline Vec2f GetMousePosition() const { return Vec2f((float)m_mouseX, (float)m_mouseY); }
+	static inline bool IsKeyDown(int keyCode) { return m_inputs[keyCode]; }
+	static inline bool IsKeyPressed(int keyCode) { return m_downKeys[keyCode]; }
+	static inline bool IsKeyUp(int keyCode) { return m_upKeys[keyCode]; }
+	static inline bool IsMouseButtonDown(int keyCode) { return m_mouseInput[keyCode]; }
+	static inline bool IsMouseButtonPressed(int keyCode) { return m_downMouse[keyCode]; }
+	static inline bool IsMouseButtonUp(int keyCode) { return m_upMouse[keyCode]; }
+	static inline Vec2f GetMousePosition() { return Vec2f((float)m_mouseX, (float)m_mouseY); }
 
-	void SetCursor(bool value) const;
-	void SetMousePosition(const Vec2f& pos) const;
+	static void SetCursor(bool value);
+	static void SetMousePosition(const Vec2f& pos);
 
-	inline void SetKey(int keyCode, bool value) { m_inputs[keyCode] = value; }
-	inline void SetKeyDown(int keyCode, bool value) { m_downKeys[keyCode] = value; }
-	inline void SetKeyUp(int keyCode, bool value) { m_upKeys[keyCode] = value; }
-	inline void SetMouse(int keyCode, bool value) { m_mouseInput[keyCode] = value; }
-	inline void SetMouseDown(int keyCode, bool value) { m_downMouse[keyCode] = value; }
-	inline void SetMouseUp(int keyCode, bool value) { m_upMouse[keyCode] = value; }
-	inline void SetMouseX(int value) { m_mouseX = value; }
-	inline void SetMouseY(int value) { m_mouseY = value; }
+	static inline void SetKey(int keyCode, bool value) { m_inputs[keyCode] = value; }
+	static inline void SetKeyDown(int keyCode, bool value) { m_downKeys[keyCode] = value; }
+	static inline void SetKeyUp(int keyCode, bool value) { m_upKeys[keyCode] = value; }
+	static inline void SetMouse(int keyCode, bool value) { m_mouseInput[keyCode] = value; }
+	static inline void SetMouseDown(int keyCode, bool value) { m_downMouse[keyCode] = value; }
+	static inline void SetMouseUp(int keyCode, bool value) { m_upMouse[keyCode] = value; }
+	static inline void SetMouseX(int value) { m_mouseX = value; }
+	static inline void SetMouseY(int value) { m_mouseY = value; }
 protected:
 private:
-	bool m_inputs[NUM_KEYS];
-	bool m_downKeys[NUM_KEYS];
-	bool m_upKeys[NUM_KEYS];
-	bool m_mouseInput[NUM_MOUSEBUTTONS];
-	bool m_downMouse[NUM_MOUSEBUTTONS];
-	bool m_upMouse[NUM_MOUSEBUTTONS];
-	int  m_mouseX;
-	int  m_mouseY;
-	Window* m_window;
+	static bool m_inputs[NUM_KEYS];
+	static bool m_downKeys[NUM_KEYS];
+	static bool m_upKeys[NUM_KEYS];
+	static bool m_mouseInput[NUM_MOUSEBUTTONS];
+	static bool m_downMouse[NUM_MOUSEBUTTONS];
+	static bool m_upMouse[NUM_MOUSEBUTTONS];
+	static int  m_mouseX;
+	static int  m_mouseY;
+	static Window* m_window;
 };

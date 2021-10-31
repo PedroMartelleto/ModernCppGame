@@ -1,14 +1,12 @@
 #include "Tileset.h"
 
-Tileset::Tileset(const raylib::Texture2D& texture, int tileWidth, int tileHeight, TextureManager* textureManager) :
+Tileset::Tileset(Ref<Texture2D> texture, int tileWidth, int tileHeight, Ref<TextureManager> textureManager) :
 	tileWidth(tileWidth),
 	tileHeight(tileHeight),
 	textureManager(textureManager),
 	texture(texture),
 	tileCountWidth(0),
-	tileCountHeight(0)
-{
-}
+	tileCountHeight(0) {}
 
 Vec2f Tileset::TileSize() const
 {
@@ -28,8 +26,8 @@ Rect2D Tileset::GetTileRegion(TileID id) const
 	}
 
 	// Converts index to (x,y)
-	auto width = texture.width / tileWidth;
-	auto height = texture.height / tileHeight;
+	auto width = (int)texture->GetWidth() / tileWidth;
+	auto height = (int)texture->GetHeight() / tileHeight;
 	int tindex = ((int)id) - 1;
 	auto x = tindex % width;
 	auto y = (tindex / width) % height;

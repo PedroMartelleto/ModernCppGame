@@ -14,6 +14,7 @@ public:
 
 	inline int GetWidth()  const { return m_width; }
 	inline int GetHeight() const { return m_height; }
+	inline GLuint GetOpenGLID() const { return m_textureID[0]; }
 
 	virtual ~TextureData();
 protected:
@@ -36,8 +37,10 @@ private:
 class Texture
 {
 public:
-	Texture(const std::string& fileName, GLenum textureTarget = GL_TEXTURE_2D, GLfloat filter = GL_NEAREST_MIPMAP_NEAREST, GLenum internalFormat = GL_RGBA, GLenum format = GL_RGBA, bool clamp = false, GLenum attachment = GL_NONE);
-	Texture(int width = 0, int height = 0, unsigned char* data = 0, GLenum textureTarget = GL_TEXTURE_2D, GLfloat filter = GL_NEAREST_MIPMAP_NEAREST, GLenum internalFormat = GL_RGBA, GLenum format = GL_RGBA, bool clamp = false, GLenum attachment = GL_NONE);
+	Texture(const std::string& fileName, GLenum textureTarget = GL_TEXTURE_2D, GLfloat filter = GL_NEAREST,
+		GLenum internalFormat = GL_RGBA, GLenum format = GL_RGBA, bool clamp = false, GLenum attachment = GL_NONE);
+	Texture(int width = 0, int height = 0, unsigned char* data = 0, GLenum textureTarget = GL_TEXTURE_2D, GLfloat filter = GL_NEAREST,
+		GLenum internalFormat = GL_RGBA, GLenum format = GL_RGBA, bool clamp = false, GLenum attachment = GL_NONE);
 	Texture(const Texture& texture);
 	void operator=(Texture texture);
 	virtual ~Texture();
@@ -45,8 +48,9 @@ public:
 	void Bind(unsigned int unit = 0) const;
 	void BindAsRenderTarget() const;
 
-	inline int GetWidth()  const { return m_textureData->GetWidth(); }
-	inline int GetHeight() const { return m_textureData->GetHeight(); }
+	inline float GetWidth()  const { return (float)m_textureData->GetWidth(); }
+	inline float GetHeight() const { return (float)m_textureData->GetHeight(); }
+	inline GLuint GetID() const { return m_textureData->GetOpenGLID(); }
 
 	bool operator==(const Texture& texture) const { return m_textureData == texture.m_textureData; }
 	bool operator!=(const Texture& texture) const { return !operator==(texture); }
@@ -57,3 +61,5 @@ private:
 	TextureData* m_textureData;
 	std::string m_fileName;
 };
+
+typedef Texture Texture2D;

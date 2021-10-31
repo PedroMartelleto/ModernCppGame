@@ -50,22 +50,8 @@ void TextureData::InitTextures(unsigned char** data, GLfloat* filters, GLenum* i
 		}
 
 		glTexImage2D(m_textureTarget, 0, internalFormat[i], m_width, m_height, 0, format[i], GL_UNSIGNED_BYTE, data[i]);
-
-		if (filters[i] == GL_NEAREST_MIPMAP_NEAREST ||
-			filters[i] == GL_NEAREST_MIPMAP_LINEAR ||
-			filters[i] == GL_LINEAR_MIPMAP_NEAREST ||
-			filters[i] == GL_LINEAR_MIPMAP_LINEAR)
-		{
-			glGenerateMipmap(m_textureTarget);
-			GLfloat maxAnisotropy;
-			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
-			glTexParameterf(m_textureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT, Math::Clamp(0.0f, 8.0f, maxAnisotropy));
-		}
-		else
-		{
-			glTexParameteri(m_textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
-			glTexParameteri(m_textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
-		}
+		glTexParameteri(m_textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
+		glTexParameteri(m_textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 	}
 }
 
@@ -113,9 +99,6 @@ void TextureData::InitRenderTargets(GLenum* attachments)
 
 	glDrawBuffers(m_numTextures, drawBuffers);
 
-	//glDrawBuffer(GL_NONE);
-	//glReadBuffer(GL_NONE);
-
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		std::cerr << "Framebuffer creation failed!" << std::endl;
@@ -154,7 +137,7 @@ Texture::Texture(const std::string& fileName, GLenum textureTarget, GLfloat filt
 	else
 	{
 		int x, y, bytesPerPixel;
-		unsigned char* data = stbi_load(("./res/textures/" + fileName).c_str(), &x, &y, &bytesPerPixel, 4);
+		unsigned char* data = stbi_load(fileName.c_str(), &x, &y, &bytesPerPixel, 4);
 
 		if (data == NULL)
 		{

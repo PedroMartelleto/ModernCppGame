@@ -2,9 +2,10 @@
 
 ## TODO
 
-* Jump 
-
 * ENet
+
+* Better jump gravity & proper height
+* Fix graphics flickering
 
 * Projectiles
 

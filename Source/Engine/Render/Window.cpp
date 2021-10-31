@@ -5,7 +5,6 @@ Window::Window(int width, int height, const std::string & title) :
 	m_width(width),
 	m_height(height),
 	m_title(title),
-	m_input(this),
 	m_isCloseRequested(false)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -21,7 +20,7 @@ Window::Window(int width, int height, const std::string & title) :
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
+	
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -33,7 +32,6 @@ Window::Window(int width, int height, const std::string & title) :
 		fprintf(stderr, "Failed to create GL context.");
 	}
 
-	//SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
 	SDL_GL_SetSwapInterval(1);
 
 	glewExperimental = GL_TRUE;
@@ -56,14 +54,14 @@ void Window::Update()
 {
 	for (int i = 0; i < Input::NUM_MOUSEBUTTONS; i++)
 	{
-		m_input.SetMouseDown(i, false);
-		m_input.SetMouseUp(i, false);
+		Input::SetMouseDown(i, false);
+		Input::SetMouseUp(i, false);
 	}
 
 	for (int i = 0; i < Input::NUM_KEYS; i++)
 	{
-		m_input.SetKeyDown(i, false);
-		m_input.SetKeyUp(i, false);
+		Input::SetKeyDown(i, false);
+		Input::SetKeyUp(i, false);
 	}
 
 	SDL_Event e;
@@ -76,37 +74,37 @@ void Window::Update()
 
 		if (e.type == SDL_MOUSEMOTION)
 		{
-			m_input.SetMouseX(e.motion.x);
-			m_input.SetMouseY(e.motion.y);
+			Input::SetMouseX(e.motion.x);
+			Input::SetMouseY(e.motion.y);
 		}
 
 		if (e.type == SDL_KEYDOWN)
 		{
 			int value = e.key.keysym.scancode;
 
-			m_input.SetKey(value, true);
-			m_input.SetKeyDown(value, true);
+			Input::SetKey(value, true);
+			Input::SetKeyDown(value, true);
 		}
 		if (e.type == SDL_KEYUP)
 		{
 			int value = e.key.keysym.scancode;
 
-			m_input.SetKey(value, false);
-			m_input.SetKeyUp(value, true);
+			Input::SetKey(value, false);
+			Input::SetKeyUp(value, true);
 		}
 		if (e.type == SDL_MOUSEBUTTONDOWN)
 		{
 			int value = e.button.button;
 
-			m_input.SetMouse(value, true);
-			m_input.SetMouseDown(value, true);
+			Input::SetMouse(value, true);
+			Input::SetMouseDown(value, true);
 		}
 		if (e.type == SDL_MOUSEBUTTONUP)
 		{
 			int value = e.button.button;
 
-			m_input.SetMouse(value, false);
-			m_input.SetMouseUp(value, true);
+			Input::SetMouse(value, false);
+			Input::SetMouseUp(value, true);
 		}
 	}
 }

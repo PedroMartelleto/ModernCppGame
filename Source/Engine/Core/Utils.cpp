@@ -17,4 +17,10 @@ namespace Utils
 		res.push_back(str.substr(pos_start));
 		return res;
 	}
+	
+	std::string GetDirectoryPath(const std::string& filePath)
+	{
+		size_t pos = filePath.find_last_of("\\/");
+		return (std::string::npos == pos) ? "" : filePath.substr(0, pos);
+	}
 };

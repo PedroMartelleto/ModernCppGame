@@ -10,6 +10,9 @@ class TextureManager
 {
 public:
 	TextureManager(const std::string& basePath);
+	~TextureManager();
+
+	void DestroyAll();
 
 	Ref<Texture> Get(const std::string& name, bool appendBasePath = true);
 private:

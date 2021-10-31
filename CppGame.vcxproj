@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Render\Render2D.cpp" />
     <ClCompile Include="Source\Engine\Render\Shader.cpp" />
     <ClCompile Include="Source\Engine\Core\Core.cpp" />
     <ClCompile Include="Source\Engine\Core\Input.cpp" />
@@ -28,10 +29,20 @@
     <ClCompile Include="Source\Engine\Render\Texture.cpp" />
     <ClCompile Include="Source\Engine\Render\TextureAtlas.cpp" />
     <ClCompile Include="Source\Engine\Render\TextureManager.cpp" />
+    <ClCompile Include="Source\Engine\TileMap\TileMap.cpp" />
+    <ClCompile Include="Source\Engine\TileMap\TileMapLayer.cpp" />
+    <ClCompile Include="Source\Engine\TileMap\Tileset.cpp" />
+    <ClCompile Include="Source\Game\ECS\RenderSystems\SpriteRenderSystem.cpp" />
+    <ClCompile Include="Source\Game\ECS\UpdateSystems\MobBodyUpdateSystem.cpp" />
+    <ClCompile Include="Source\Game\ECS\UpdateSystems\MobInputUpdateSystem.cpp" />
+    <ClCompile Include="Source\Game\ECS\UpdateSystems\SpriteBodyUpdateSystem.cpp" />
+    <ClCompile Include="Source\Game\GameCore.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Engine\Render\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Engine.h" />
+    <ClInclude Include="Source\Engine\Render\Render2D.h" />
     <ClInclude Include="Source\Engine\Render\Shader.h" />
     <ClInclude Include="Source\Engine\Commons.h" />
     <ClInclude Include="Source\Engine\Core\Core.h" />
@@ -43,12 +54,24 @@
     <ClInclude Include="Source\Engine\Render\Texture.h" />
     <ClInclude Include="Source\Engine\Render\TextureAtlas.h" />
     <ClInclude Include="Source\Engine\Render\TextureManager.h" />
+    <ClInclude Include="Source\Engine\TileMap\TileMap.h" />
+    <ClInclude Include="Source\Engine\TileMap\TileMapLayer.h" />
+    <ClInclude Include="Source\Engine\TileMap\Tileset.h" />
+    <ClInclude Include="Source\Game\ECS\Components.h" />
+    <ClInclude Include="Source\Game\ECS\RenderSystems\SpriteRenderSystem.h" />
+    <ClInclude Include="Source\Game\ECS\System.h" />
+    <ClInclude Include="Source\Game\ECS\UpdateSystems\MobBodyUpdateSystem.h" />
+    <ClInclude Include="Source\Game\ECS\UpdateSystems\MobInputUpdateSystem.h" />
+    <ClInclude Include="Source\Game\ECS\UpdateSystems\SpriteBodyUpdateSystem.h" />
+    <ClInclude Include="Source\Game\GameCore.h" />
     <ClInclude Include="Source\Game\Globals.h" />
     <ClInclude Include="Source\Engine\Render\Window.h" />
+    <ClInclude Include="Source\Game\Physics\FixtureUserData.h" />
     <ClInclude Include="Source\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\GameData\MobData.json" />
+    <None Include="Resources\Shaders\Shader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source\README.md" />

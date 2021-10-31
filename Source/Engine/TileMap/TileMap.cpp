@@ -1,12 +1,13 @@
 #include "TileMap.h"
 #include "tinyxml2.h"
-#include "../Texture/TextureManager.h"
+#include "../Render/TextureManager.h"
 #include "../Core/Core.h"
+#include "../../Game/Globals.h"
 
-TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& fileName, TextureManager* textureManager) :
-	mapScale(MAP_SCALE)
+TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& fileName, Ref<TextureManager> textureManager) :
+	mapScale(mapScale)
 {
-	auto workingDir = std::string(raylib::GetDirectoryPath(fileName.c_str())) + "/";
+	auto workingDir = std::string(Utils::GetDirectoryPath(fileName.c_str())) + "/";
 
 	// Loads main XML
 	tinyxml2::XMLDocument mainXML;
@@ -18,7 +19,7 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& fileN
 	tinyxml2::XMLDocument tilesetXML;
 	auto tilesetPath = workingDir + root->FirstChildElement("tileset")->Attribute("source");
 	tilesetXML.LoadFile(tilesetPath.c_str());
-	auto tilesetFolder = std::string(raylib::GetDirectoryPath(tilesetPath.c_str())) + "/";
+	auto tilesetFolder = std::string(Utils::GetDirectoryPath(tilesetPath.c_str())) + "/";
 
 	auto tilesetElement = tilesetXML.FirstChildElement("tileset");
 	auto pathToImage = tilesetElement->FirstChildElement("image");
@@ -27,7 +28,7 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& fileN
 	auto texturePath = tilesetFolder + pathToImage->Attribute("source");
 	auto texture = textureManager->Get(texturePath, false);
 
-	tileset = new Tileset(texture, tileWidth, tileHeight, textureManager);
+	tileset = CreateRef<Tileset>(texture, tileWidth, tileHeight, textureManager);
 
 	// For each layer in the map...
 	for (auto element = root->FirstChildElement("layer"); element != NULL; element = element->NextSiblingElement("layer"))
@@ -58,7 +59,7 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& fileN
 			y += 1;
 		}
 
-		layers.push_back(new TileMapLayer(tiles, width, height, std::string(name), tileset));
+		layers.push_back(CreateRef<TileMapLayer>(tiles, width, height, std::string(name), tileset));
 	}
 
 	auto objectGroup = root->FirstChildElement("objectgroup");
@@ -69,7 +70,7 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& fileN
 	body = physicsWorld.CreateBody(&bodyDef);
 
 	auto objGroupElement = root->FirstChildElement("objectgroup");
-	auto scale = mapScale * PIXELS_TO_METERS;
+	auto scale = mapScale * Game::PIXELS_TO_METERS;
 
 	// For each collision object...
 	for (auto element = objGroupElement->FirstChildElement("object"); element != NULL; element = element->NextSiblingElement("object"))
@@ -120,7 +121,12 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& fileN
 
 TileMap::~TileMap()
 {
-	Destroy();
+	layers.clear();
+
+	if (tileset != nullptr)
+	{
+		tileset = nullptr;
+	}
 }
 
 unsigned char TileMap::GetTile(int layer, int x, int y) const
@@ -131,21 +137,4 @@ unsigned char TileMap::GetTile(int layer, int x, int y) const
 	}
 
 	return layers[layer]->GetTile(x, y);
-}
-
-void TileMap::Destroy()
-{
-	for (auto layer : layers)
-	{
-		layer->Destroy();
-		delete layer;
-	}
-
-	layers.clear();
-
-	if (tileset != nullptr)
-	{
-		delete tileset;
-		tileset = nullptr;
-	}
 }

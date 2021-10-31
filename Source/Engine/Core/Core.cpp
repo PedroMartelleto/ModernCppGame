@@ -1,6 +1,8 @@
 #include "Core.h"
-// #include "../Texture/TextureAtlas.h"
-// #include "../../Game/GameCore.h"
+#include "../Render/Render2D.h"
+#include "../Render/TextureManager.h"
+#include "../../Game/Globals.h"
+#include "../../Game/GameCore.h"
 #include <chrono>
 #include <thread>
 
@@ -9,21 +11,64 @@ Core::Core(int targetFPS) :
 {
 	m_frameTime = 1.0f / (float)targetFPS;
 	m_isRunning = false;
-	// gameCore = new GameCore(this);
+	gameCore = new GameCore(this);
 }
 
 void Core::Create()
 {
 	m_window = new Window(800, 600, "CppGame");
+	Input::Create(m_window);
+	Render2D::Create(m_window);
+	textureManager = CreateRef<TextureManager>("Resources/Sprites/");
 
-	// gameCore->Create();
+	gameCore->Create();
+}
+
+void Core::SetWindowSizeAndCenter(int width, int height)
+{
+	auto* window = m_window->GetSDLWindow();
+	SDL_SetWindowSize(window, width, height);
+	Render2D::Resize((float)width, (float)height);
+
+	SDL_DisplayMode displayMode;
+	SDL_GetCurrentDisplayMode(0, &displayMode);
+	SDL_SetWindowPosition(window, (displayMode.w - width) / 2, (displayMode.h - height) / 2);
+}
+
+void Core::Render()
+{
+	auto viewMatrix = Matrix4f(1.0f);
+	Render2D::BeginRender(viewMatrix);
+	Render2D::BeginBatch();
+
+	gameCore->Render();
+
+	for (const auto& rect : m_debugRects)
+	{
+		auto rectToDraw = rect.first;
+		Render2D::DrawRect(rect.first.pos, rect.first.size, 50, rect.second);
+	}
+
+	//for (const auto& line : m_debugLines)
+	//{
+	//	Render2D::DrawLine(line.start, line.end, line.thickness, line.color);
+	//}
+
+	m_debugRects.clear();
+	m_debugLines.clear();
+
+	Render2D::EndBatch();
+	Render2D::Flush();
 }
 
 void Core::Destroy()
 {
-	//gameCore->Destroy();
-	//delete gameCore;
+	textureManager->DestroyAll();
 
+	gameCore->Destroy();
+	delete gameCore;
+
+	Render2D::Destroy();
 	delete m_window;
 	SDL_Quit();
 }
@@ -91,52 +136,15 @@ void Core::Run()
 
 void Core::Update(float deltaTime)
 {
-	// gameCore->Update(deltaTime);
+	gameCore->Update(deltaTime);
 }
 
-void Core::Render()
-{	
-	glClearColor(1.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1.0, 1.0, 1.0);
-	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
-	glBegin(GL_POLYGON);
-	glVertex3f(0.25, 0.25, 0.0);
-	glVertex3f(0.75, 0.25, 0.0);
-	glVertex3f(0.75, 0.75, 0.0);
-	glVertex3f(0.25, 0.75, 0.0);
-	glEnd();
-	glFlush();
-
-	/*
-	raylib::BeginDrawing();
-	raylib::ClearBackground(RGBAColor::DARKGRAY);
-
-	gameCore->Render();
-
-	for (const auto& rect : m_debugRects)
-	{
-		auto rectToDraw = rect.first;
-		DrawRectangle((int) rectToDraw.x, (int) rectToDraw.y, (int) rectToDraw.width, (int) rectToDraw.height, rect.second);
-	}
-
-	for (const auto& line : m_debugLines)
-	{
-		raylib::DrawLineEx(line.start.raylib(), line.end.raylib(), line.thickness, line.color);
-	}
-
-	m_debugRects.clear();
-	
-	raylib::EndDrawing();*/
-}
-
-/*
-void Core::DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const RGBAColor& color)
+void Core::DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const Color4f& color)
 {
 	m_debugRects.push_back({ Rect2D(pos, size), color });
 }
 
-void Core::DEBUG_DrawBodyAABB(b2Body* body, const RGBAColor& color)
+void Core::DEBUG_DrawBodyAABB(b2Body* body, const Color4f& color)
 {
 	b2Fixture* fixture = body->GetFixtureList();
 
@@ -145,16 +153,16 @@ void Core::DEBUG_DrawBodyAABB(b2Body* body, const RGBAColor& color)
 		for (int childIndex = 0; childIndex < fixture->GetShape()->GetChildCount(); ++childIndex)
 		{
 			const auto& aabb = fixture->GetAABB(childIndex);
-			auto bottomRight = Vec2f(aabb.upperBound) * METERS_TO_PIXELS;
-			auto topLeft = Vec2f(aabb.lowerBound) * METERS_TO_PIXELS;
+			auto bottomRight = Vec2fFromB2(aabb.upperBound) * Game::METERS_TO_PIXELS;
+			auto topLeft = Vec2fFromB2(aabb.lowerBound) * Game::METERS_TO_PIXELS;
 
-			m_debugRects.push_back({ raylib::CreateRectangle(topLeft, (bottomRight - topLeft).Abs()), color });
+			m_debugRects.push_back({ Rect2D(topLeft, glm::abs(bottomRight - topLeft)), color });
 		}
 		fixture = fixture->GetNext();
 	}
 }
 
-void Core::DEBUG_DrawBody(b2Body* body, const RGBAColor& color)
+void Core::DEBUG_DrawBody(b2Body* body, const Color4f& color)
 {
 	b2Fixture* fixture = body->GetFixtureList();
 	DebugLineInfo line;
@@ -166,18 +174,18 @@ void Core::DEBUG_DrawBody(b2Body* body, const RGBAColor& color)
 		b2PolygonShape* polygonShape = (b2PolygonShape*)fixture->GetShape();
 		for (int i = 1; i < polygonShape->m_count; ++i)
 		{
-			line.start = Vec2f(polygonShape->m_vertices[i - 1]) * METERS_TO_PIXELS;
-			line.end = Vec2f(polygonShape->m_vertices[i]) * METERS_TO_PIXELS;
+			line.start = Vec2fFromB2(polygonShape->m_vertices[i - 1]) * Game::METERS_TO_PIXELS;
+			line.end = Vec2fFromB2(polygonShape->m_vertices[i]) * Game::METERS_TO_PIXELS;
 			m_debugLines.push_back(line);
 		}
-		line.start = Vec2f(polygonShape->m_vertices[polygonShape->m_count - 1]) * METERS_TO_PIXELS;
-		line.end = Vec2f(polygonShape->m_vertices[0]) * METERS_TO_PIXELS;
+		line.start = Vec2fFromB2(polygonShape->m_vertices[polygonShape->m_count - 1]) * Game::METERS_TO_PIXELS;
+		line.end = Vec2fFromB2(polygonShape->m_vertices[0]) * Game::METERS_TO_PIXELS;
 		m_debugLines.push_back(line);
 		fixture = fixture->GetNext();
 	}
 }
 
-void Core::DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const RGBAColor& color, float thickness)
+void Core::DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const Color4f& color, float thickness)
 {
 	DebugLineInfo dbLineInfo;
 	dbLineInfo.start = start;
@@ -185,4 +193,4 @@ void Core::DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const RGBAColor&
 	dbLineInfo.color = color;
 	dbLineInfo.thickness = thickness;
 	m_debugLines.push_back(dbLineInfo);
-}*/
+}

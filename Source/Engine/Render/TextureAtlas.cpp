@@ -1,9 +1,9 @@
 #include "TextureAtlas.h"
 #include <fstream>
 
-TextureAtlas* TextureAtlas::FromFile(const std::string& fileName)
+Ref<TextureAtlas> TextureAtlas::FromFile(const std::string& fileName)
 {
-	TextureAtlas* atlas = new TextureAtlas();
+	auto atlas = CreateRef<TextureAtlas>();
 	
 	std::ifstream file(fileName);
 
