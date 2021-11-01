@@ -15,13 +15,30 @@
 #include "SDL2/SDL.h"
 
 #include <iostream>
-#include "Engine/Core/Core.h"
+#include "Engine/Engine.h"
 
 int main(int argc, char* argv[])
 {
+    bool isServer = false;
+
+    if (argc > 1 && strcmp(argv[1], "server") == 0)
+    {
+        isServer = true;
+    }
+
+    if (isServer) LOGGER_MESSAGE("Initing Server...");
+    else LOGGER_MESSAGE("Initing Client...");
+
     SDL_SetMainReady();
 
-    Core core = Core(60);
+    if (enet_initialize() != 0)
+    {
+        fprintf(stderr, "An error occurred while initializing ENet!\n");
+        return EXIT_FAILURE;
+    }
+    atexit(enet_deinitialize);
+
+    Core core = Core(60, isServer ? HostType::SERVER : HostType::CLIENT);
 
     core.Create();
     core.Run();

@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Networking\Client.cpp" />
+    <ClCompile Include="Source\Game\Networking\Server.cpp" />
     <ClCompile Include="Source\Engine\Render\Render2D.cpp" />
     <ClCompile Include="Source\Engine\Render\Shader.cpp" />
     <ClCompile Include="Source\Engine\Core\Core.cpp" />
@@ -41,6 +43,9 @@
     <ClCompile Include="Source\Engine\Render\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Networking\Client.h" />
+    <ClInclude Include="Source\Game\Networking\NetworkHost.h" />
+    <ClInclude Include="Source\Game\Networking\Server.h" />
     <ClInclude Include="Source\Engine\Engine.h" />
     <ClInclude Include="Source\Engine\Render\Render2D.h" />
     <ClInclude Include="Source\Engine\Render\Shader.h" />

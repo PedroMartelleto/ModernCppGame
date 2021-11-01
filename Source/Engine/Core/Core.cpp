@@ -6,12 +6,13 @@
 #include <chrono>
 #include <thread>
 
-Core::Core(int targetFPS) :
-	m_window(nullptr)
+Core::Core(int targetFPS, HostType hostType) :
+	m_window(nullptr),
+	m_hostType(hostType)
 {
 	m_frameTime = 1.0f / (float)targetFPS;
 	m_isRunning = false;
-	gameCore = new GameCore(this);
+	gameCore = new GameCore(this, hostType);
 }
 
 void Core::Create()

@@ -16,10 +16,15 @@ struct DebugLineInfo
 	Color4f color;
 };
 
+enum class HostType
+{
+	CLIENT, SERVER
+};
+
 class Core
 {
 public:
-	Core(int targetFPS);
+	Core(int targetFPS, HostType hostType);
 
 	virtual void Create();
 	virtual void Destroy();
@@ -41,6 +46,7 @@ private:
 	float m_frameTime;
 	bool m_isRunning;
 	Window* m_window;
+	HostType m_hostType;
 
 	std::vector<std::pair<Rect2D, Color4f>> m_debugRects;
 	std::vector<DebugLineInfo> m_debugLines;

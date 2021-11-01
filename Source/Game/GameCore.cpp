@@ -48,10 +48,11 @@ struct WorldContactListener : public b2ContactListener
 
 WorldContactListener listener = WorldContactListener(nullptr);
 
-GameCore::GameCore(Core* core) :
+GameCore::GameCore(Core* core, HostType hostType) :
 	core(core),
 	map(nullptr),
-	physicsWorld(b2Vec2(0, 15.0f))
+	physicsWorld(b2Vec2(0, 15.0f)),
+	m_hostType(hostType)
 {
 	textureManager = CreateRef<TextureManager>("Resources/Sprites/");
 	atlas = TextureAtlas::FromFile("Resources/Sprites/DungeonTileset/Atlas.meta");
@@ -59,6 +60,15 @@ GameCore::GameCore(Core* core) :
 
 	listener = WorldContactListener(this);
 	physicsWorld.SetContactListener(&listener);
+
+	if (hostType == HostType::CLIENT)
+	{
+		m_host = new Client();
+	}
+	else if (hostType == HostType::SERVER)
+	{
+		m_host = new Server();
+	}
 }
 
 void GameCore::AddRenderSystem(Ref<RenderSystem> renderSystem)
@@ -105,6 +115,8 @@ b2Body* GameCore::CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size,
 
 void GameCore::Create()
 {
+	m_host->Connect();
+
 	map = CreateRef<TileMap>(physicsWorld, Game::MAP_SCALE, "Resources/Maps/Map1.tmx", textureManager);
 
 	std::ifstream mobDataFile("Resources/GameData/MobData.json");
@@ -152,6 +164,8 @@ void GameCore::Create()
 
 void GameCore::Update(float deltaTime)
 {
+	m_host->Update(deltaTime);
+
 	for (auto updateSystem : m_updateSystems)
 	{
 		updateSystem->Update(this, deltaTime);
@@ -200,6 +214,9 @@ void GameCore::Render()
 
 void GameCore::Destroy()
 {
+	m_host->Disconnect();
+	delete m_host;
+
 	m_updateSystems.clear();
 	m_renderSystems.clear();
 
