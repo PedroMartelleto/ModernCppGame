@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include <fstream>
 
 namespace Utils
 {
@@ -22,5 +23,13 @@ namespace Utils
 	{
 		size_t pos = filePath.find_last_of("\\/");
 		return (std::string::npos == pos) ? "" : filePath.substr(0, pos);
+	}
+
+	nlohmann::json LoadJSON(const std::string& filePath)
+	{
+		std::ifstream dataFile(filePath);
+		auto json = nlohmann::json::parse(dataFile);
+		dataFile.close();
+		return json;
 	}
 };

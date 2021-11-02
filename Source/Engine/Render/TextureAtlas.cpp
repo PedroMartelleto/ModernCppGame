@@ -45,7 +45,7 @@ Ref<TextureAtlas> TextureAtlas::FromFile(const std::string& fileName)
 	}
 	else
 	{
-		LOGGER_ERROR("Failed to load TextureAtlas from " + fileName);
+		DEBUG_LOG("IO", LOG_ERROR, "Failed to load TextureAtlas from %s", fileName.c_str());
 	}
 
 	return atlas;

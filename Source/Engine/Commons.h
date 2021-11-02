@@ -9,15 +9,16 @@
 #include <unordered_map>
 #include <iomanip>
 #include <sstream>
+#include <thread>
+#include <box2d/box2d.h>
+#include <entt/entt.hpp>
+#include <nlohmann/json.hpp>
+#include <SDL2/SDL.h>
+#include <gl/glew.h>
 #include "Core/Logger.h"
 #include "Core/Math.h"
 #include "Core/Timer.h"
 #include "Core/Utils.h"
-#include "box2d/box2d.h"
-#include "entt/entt.hpp"
-#include "nlohmann/json.hpp"
-#include "SDL2/SDL.h"
-#include "gl/glew.h"
 
 typedef unsigned char TileID;
 

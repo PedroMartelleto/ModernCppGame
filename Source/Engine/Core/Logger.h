@@ -2,28 +2,19 @@
 
 #include "../Commons.h"
 
-/// <summary>
-/// The logger verbose
-/// -1 = Nothing.
-///  0 = Msgs only.
-///  1 = Msgs + errors.
-///  2 = Msgs + errors + warnings.
-///  3 = Msgs + errors + warnings + debug.
-/// </summary>
-#define LOGGER_VERBOSE 3
+#define LOG_ERROR "ERR"
+#define LOG_MSG "MSG"
+#define LOG_ERROR "ERR"
+#define LOG_WARNING "WRN"
 
-#define LOGGER_MESSAGE(a) \
-    do { if (LOGGER_VERBOSE >= 0) std::cout << "[MSG]: " << (a) << "\n"; } while(false)
+#define LOGGER_DEST stderr
 
-#define LOGGER_ERROR(a) \
-    do { if (LOGGER_VERBOSE >= 1) std::cerr << "[ERR]: " << (a) << "\n"; } while(false)
+#ifndef __FILENAME__
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#endif
 
-#define LOGGER_WARNING(a) \
-    do { if (LOGGER_VERBOSE >= 2) std::cout << "[WRN]: " << (a) << "\n"; } while(false)
-
-#define LOGGER_DEBUG(a) \
-    do { if (LOGGER_VERBOSE >= 3) std::cout << "[DBG]: " << (a) << "\n"; } while(false)
+#define DEBUG_LOG(category, level, message, ...) \
+	do {  fprintf(LOGGER_DEST, "[%s %s] (%s:%d):  ", category, level, __FILENAME__, __LINE__); fprintf(LOGGER_DEST, message, ##__VA_ARGS__); fprintf(LOGGER_DEST, "\n"); } while (false)
 
 #define LOGGER_VAR(a) \
-    do { if (LOGGER_VERBOSE >= 3) std::cout << "[DBG]: " << #a " = " << (a) << "\n"; } while(false)
-
+    do { std::cout << "[DBG]: " << #a " = " << (a) << "\n"; } while (false)

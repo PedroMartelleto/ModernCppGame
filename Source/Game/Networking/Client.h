@@ -41,12 +41,12 @@ public:
 
 		if (enet_host_service(client, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
 		{
-			LOGGER_MESSAGE("Connection to server succeded.");
+			DEBUG_LOG("NET", LOG_MSG, "Connection to server succeded.");
 		}
 		else
 		{
 			enet_peer_reset(peer);
-			LOGGER_MESSAGE("Connection to server failed.");
+			DEBUG_LOG("NET", LOG_MSG, "Connection to server failed.");
 			return;
 		}
 	}
@@ -63,7 +63,7 @@ public:
 				enet_packet_destroy(event.packet);
 				break;
 			case ENET_EVENT_TYPE_DISCONNECT:
-				printf("Disconnection succeded.\n");
+				DEBUG_LOG("NET", LOG_MSG, "Disconnection succeded.");
 				break;
 			}
 		}
@@ -76,7 +76,7 @@ public:
 			switch (event.type)
 			{
 			case ENET_EVENT_TYPE_RECEIVE:
-				printf("A packet of length %u containing %s was from %x:%u on channel %u.\n",
+				DEBUG_LOG("NET", LOG_MSG, "A packet of length %u containing %s was from %x:%u on channel %u.",
 					event.packet->dataLength,
 					event.packet->data,
 					event.peer->address.host,
@@ -84,7 +84,7 @@ public:
 					event.channelID);
 				break;
 			case ENET_EVENT_TYPE_DISCONNECT:
-				printf("Server disconnected.\n");
+				DEBUG_LOG("NET", LOG_MSG, "Server disconnected.");
 				break;
 			}
 		}

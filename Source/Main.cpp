@@ -26,8 +26,14 @@ int main(int argc, char* argv[])
         isServer = true;
     }
 
-    if (isServer) LOGGER_MESSAGE("Initing Server...");
-    else LOGGER_MESSAGE("Initing Client...");
+    if (isServer)
+    {
+        DEBUG_LOG("NET", LOG_MSG, "Initializing Server...");
+    }
+    else
+    {
+        DEBUG_LOG("NET", LOG_MSG, "Initializing Client...");
+    }
 
     SDL_SetMainReady();
 

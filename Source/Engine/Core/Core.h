@@ -16,9 +16,9 @@ struct DebugLineInfo
 	Color4f color;
 };
 
-enum class HostType
+enum class HostType : uint8_t
 {
-	CLIENT, SERVER
+	NONE, CLIENT, SERVER
 };
 
 class Core

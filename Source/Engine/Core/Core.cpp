@@ -99,7 +99,7 @@ void Core::Run()
 		if (frameCounter >= 3.0)
 		{
 			double totalTime = ((1000.0 * frameCounter) / ((double)frames));
-			LOGGER_MESSAGE("Frame Time: " + std::to_string(round(totalTime*100)/100.0) + " ms");
+			DEBUG_LOG("CORE", LOG_MSG, "FrameTime = %.2f ms", (float)totalTime);
 			frames = 0;
 			frameCounter = 0;
 		}

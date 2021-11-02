@@ -4,6 +4,7 @@
 #include "ECS/UpdateSystems/MobInputUpdateSystem.h"
 #include "ECS/UpdateSystems/SpriteBodyUpdateSystem.h"
 #include "ECS/RenderSystems/SpriteRenderSystem.h"
+#include "GameData.h"
 
 int contactCount = 0;
 
@@ -54,6 +55,9 @@ GameCore::GameCore(Core* core, HostType hostType) :
 	physicsWorld(b2Vec2(0, 15.0f)),
 	m_hostType(hostType)
 {
+	GameData::Create("Resources/GameData/");
+	DEBUG_LOG("THREAD", LOG_MSG, "Number of parallel threads: %d", std::thread::hardware_concurrency());
+
 	textureManager = CreateRef<TextureManager>("Resources/Sprites/");
 	atlas = TextureAtlas::FromFile("Resources/Sprites/DungeonTileset/Atlas.meta");
 	registry = entt::registry();
@@ -61,14 +65,7 @@ GameCore::GameCore(Core* core, HostType hostType) :
 	listener = WorldContactListener(this);
 	physicsWorld.SetContactListener(&listener);
 
-	if (hostType == HostType::CLIENT)
-	{
-		m_host = new Client();
-	}
-	else if (hostType == HostType::SERVER)
-	{
-		m_host = new Server();
-	}
+	host = CreateRef<NetworkHost>(hostType, "127.0.0.1");
 }
 
 void GameCore::AddRenderSystem(Ref<RenderSystem> renderSystem)
@@ -101,57 +98,60 @@ b2Body* GameCore::CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size,
 	b2PolygonShape footShape;
 	footShape.SetAsBox(Game::PIXELS_TO_METERS * footSize.x / 2, Game::PIXELS_TO_METERS * footSize.y / 2, b2Vec2(0, Game::PIXELS_TO_METERS * (size.y / 2 + 1.0f)), 0.0f);
 
-	b2FixtureDef footFixDef;
-	footFixDef.shape = &footShape;
-	footFixDef.isSensor = true;
-	footFixDef.userData.pointer = reinterpret_cast<uintptr_t>(groundDetectionComponent);
-
 	b2Body* body = physicsWorld.CreateBody(&bodyDef);
 	body->CreateFixture(&fixtureDef);
-	body->CreateFixture(&footFixDef);
+
+	if (groundDetectionComponent != nullptr)
+	{
+		b2FixtureDef footFixDef;
+		footFixDef.shape = &footShape;
+		footFixDef.isSensor = true;
+		footFixDef.userData.pointer = reinterpret_cast<uintptr_t>(groundDetectionComponent);
+		body->CreateFixture(&footFixDef);
+	}
 
 	return body;
 }
 
-void GameCore::Create()
+void GameCore::SpawnPlayer(const std::string& charName, const Vec2f& tilePos, bool isLocal)
 {
-	m_host->Connect();
-
-	map = CreateRef<TileMap>(physicsWorld, Game::MAP_SCALE, "Resources/Maps/Map1.tmx", textureManager);
-
-	std::ifstream mobDataFile("Resources/GameData/MobData.json");
-	auto mobDataJson = json::parse(mobDataFile);
-
-	auto mapWidth = map->layers[0]->width;
-	auto mapHeight = map->layers[0]->height;
-	core->SetWindowSizeAndCenter((int)map->WidthInPixels(), (int)map->HeightInPixels());
-	
-	auto mobComponent = MobComponent();
-	Serialization::from_json(mobDataJson.at("knight"), mobComponent);
+	auto mobComponent = GameData::GetMobData(charName);
 
 	auto windowWidth = (float)Render2D::GetScreenWidth();
 	auto windowHeight = (float)Render2D::GetScreenHeight();
 
-	auto region = atlas->GetAnimFrameRegion("knight_m_idle_anim", 0);
-	auto size = region.size * Game::MAP_SCALE;
-	float heightOffset = 16.0f;
-	
+	auto region = atlas->GetAnimFrameRegion(charName + "_m_idle_anim", 0);
+
 	auto player = registry.create();
-	auto aabbSize = Vec2f(9 * Game::MAP_SCALE, 16 * Game::MAP_SCALE);
+	auto aabbSize = Vec2f(9, 16);
 
 	registry.emplace<GroundDetectionComponent>(player);
 
 	auto* groundDetectionComponent = registry.try_get<GroundDetectionComponent>(player);
-	registry.emplace<PhysicsBodyComponent>(player, CreateDynamicBoxBody(Vec2f(380, 200), aabbSize, Vec2f(0.9f, 0.2f), groundDetectionComponent));
-	registry.emplace<SpriteComponent>(player, textureManager->Get("DungeonTileset/Atlas.png"), 10000, -size/2.0f + Vec2f(-2.0f, -heightOffset), size, Colors::WHITE);
+	auto dynamicBody = CreateDynamicBoxBody(tilePos * map->scaledTileSize, aabbSize * Game::MAP_SCALE,
+									Vec2f(0.9f, 0.2f), isLocal ? groundDetectionComponent : nullptr);
+
+	registry.emplace<PhysicsBodyComponent>(player, dynamicBody);
+	registry.emplace<SpriteComponent>(player, textureManager->Get("DungeonTileset/Atlas.png"), 100,
+		(Vec2f(-0.3f, -5) - region.size / 2.0f) * Game::MAP_SCALE, region.size * Game::MAP_SCALE, Colors::WHITE);
 	registry.emplace<TextureRegionComponent>(player, region);
 
-	auto& playerInputComponent = registry.emplace<PlayerInputComponent>(player);
-	playerInputComponent.JUMP = Input::KEY_W;
-	playerInputComponent.MOVE_LEFT = Input::KEY_A;
-	playerInputComponent.MOVE_RIGHT = Input::KEY_D;
+	if (isLocal)
+	{
+		auto input = GameData::GetDefaultPlayerInput(0);
+		registry.emplace<PlayerInputComponent>(player, input);
+	}
 
 	registry.emplace<MobComponent>(player, mobComponent);
+}
+
+void GameCore::Create()
+{
+	map = CreateRef<TileMap>(physicsWorld, Game::MAP_SCALE, "Resources/Maps/Map1.tmx", textureManager);
+	core->SetWindowSizeAndCenter((int)map->WidthInPixels(), (int)map->HeightInPixels());
+	
+	SpawnPlayer("lizard", Vec2f(9, 8), m_hostType == HostType::CLIENT);
+	SpawnPlayer("wizzard", Vec2f(14, 8), m_hostType != HostType::CLIENT);
 
 	// Adds update systems
 	AddUpdateSystem(CreateRef<MobBodyUpdateSystem>());
@@ -164,7 +164,7 @@ void GameCore::Create()
 
 void GameCore::Update(float deltaTime)
 {
-	m_host->Update(deltaTime);
+	host->Update(deltaTime);
 
 	for (auto updateSystem : m_updateSystems)
 	{
@@ -214,8 +214,7 @@ void GameCore::Render()
 
 void GameCore::Destroy()
 {
-	m_host->Disconnect();
-	delete m_host;
+	host->Disconnect();
 
 	m_updateSystems.clear();
 	m_renderSystems.clear();

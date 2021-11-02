@@ -75,10 +75,13 @@
     <ClCompile Include="Source\Engine\TileMap\Tileset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Networking\Server.cpp">
+    <ClCompile Include="Source\Game\GameData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Networking\Client.cpp">
+    <ClCompile Include="Source\Game\Networking\NetworkHost.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Networking\BitBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -164,19 +167,20 @@
     <ClInclude Include="Source\Engine\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Game\Networking\Server.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Networking\Client.h">
+    <ClInclude Include="Source\Game\GameData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Networking\NetworkHost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Networking\BitBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\GameData\MobData.json" />
     <None Include="Resources\Shaders\Shader.glsl" />
+    <None Include="Resources\GameData\GameSettings.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source\README.md" />

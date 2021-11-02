@@ -1,0 +1,15 @@
+{
+  "fullUpdateTicks": 60,
+  "player": {
+    "actions": [
+      "JUMP",
+      "MOVE_LEFT",
+      "MOVE_RIGHT"
+    ],
+    "bindings": [
+      [
+        26, 4, 7
+      ]
+    ]
+  }
+}

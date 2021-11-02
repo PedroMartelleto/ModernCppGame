@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../Engine/Commons.h"
+#include "../../Engine/Engine.h"
+#include "../Networking/BitBuffer.h"
 
 // We are using ECS, so we need to define components: minimal pieces of data used in the game
 
@@ -92,15 +93,21 @@ struct MobComponent
 		density(density) {}
 };
 
+struct PlayerInputRequest
+{
+	int playerID;
+	BitBuffer8 inputs;
+};
+
+#define MAX_PLAYER_INPUTS 8
+
 struct PlayerInputComponent
 {
-	int JUMP;
-	int MOVE_RIGHT;
-	int MOVE_LEFT;
+	int inputCodes[MAX_PLAYER_INPUTS];
 };
 
 namespace Serialization
 {
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, name, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight, density)
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerInputComponent, JUMP, MOVE_RIGHT, MOVE_LEFT)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerInputComponent, inputCodes)
 }
