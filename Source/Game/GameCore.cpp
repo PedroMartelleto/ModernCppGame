@@ -138,21 +138,24 @@ void GameCore::SpawnPlayer(const std::string& charName, const Vec2f& tilePos, bo
 
 	if (isLocal)
 	{
-		auto input = GameData::GetDefaultPlayerInput(0);
+		auto input = GameData::CreateDefaultBinding(0);
 		registry.emplace<PlayerInputComponent>(player, input);
 	}
 
 	registry.emplace<MobComponent>(player, mobComponent);
 }
 
-void GameCore::Create()
+void GameCore::CreateMap()
 {
 	map = CreateRef<TileMap>(physicsWorld, Game::MAP_SCALE, "Resources/Maps/Map1.tmx", textureManager);
 	core->SetWindowSizeAndCenter((int)map->WidthInPixels(), (int)map->HeightInPixels());
-	
+
 	SpawnPlayer("lizard", Vec2f(9, 8), m_hostType == HostType::CLIENT);
 	SpawnPlayer("wizzard", Vec2f(14, 8), m_hostType != HostType::CLIENT);
+}
 
+void GameCore::Create()
+{
 	// Adds update systems
 	AddUpdateSystem(CreateRef<MobBodyUpdateSystem>());
 	AddUpdateSystem(CreateRef<MobInputUpdateSystem>());
@@ -160,11 +163,24 @@ void GameCore::Create()
 
 	// Adds render systems
 	AddRenderSystem(CreateRef<SpriteRenderSystem>());
+
+	if (m_hostType == HostType::SERVER)
+	{
+		CreateMap();
+		host->StartEventMonitoring();
+	}
+	else if (m_hostType == HostType::CLIENT)
+	{
+		// Waits for the "connect" event
+		host->StartEventMonitoring();
+
+		// TODO: Transfer Queue
+	}
 }
 
 void GameCore::Update(float deltaTime)
 {
-	host->Update(deltaTime);
+	if (map == nullptr) return;
 
 	for (auto updateSystem : m_updateSystems)
 	{
@@ -185,11 +201,11 @@ void GameCore::Render()
 			layer->Render(Vec2f(0, 0), map->mapScale, zIndex);
 			zIndex += 1;
 		}
-	}
 
-	for (auto renderSystem : m_renderSystems)
-	{
-		renderSystem->Render(this);
+		for (auto renderSystem : m_renderSystems)
+		{
+			renderSystem->Render(this);
+		}
 	}
 
 #ifdef _DEBUG
@@ -214,6 +230,7 @@ void GameCore::Render()
 
 void GameCore::Destroy()
 {
+	host->StopEventMonitoring();
 	host->Disconnect();
 
 	m_updateSystems.clear();

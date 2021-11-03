@@ -1,5 +1,8 @@
 #pragma once
 
+#define MAGIC_ENUM_RANGE_MIN 0
+#define MAGIC_ENUM_RANGE_MAX 128
+
 #include <string>
 #include <vector>
 #include <map>
@@ -10,15 +13,26 @@
 #include <iomanip>
 #include <sstream>
 #include <thread>
+#include <mutex>
+#include <semaphore>
+#include "magic_enum.h"
 #include <box2d/box2d.h>
 #include <entt/entt.hpp>
 #include <nlohmann/json.hpp>
 #include <SDL2/SDL.h>
 #include <gl/glew.h>
+#include <bitsery/bitsery.h>
+#include <bitsery/adapter/buffer.h>
+#include <bitsery/traits/vector.h>
+#include <zlib.h>
 #include "Core/Logger.h"
 #include "Core/Math.h"
 #include "Core/Timer.h"
 #include "Core/Utils.h"
+
+using NetworkBuffer = std::vector<uint8_t>;
+using OutputAdapter = bitsery::OutputBufferAdapter<NetworkBuffer>;
+using InputAdapter = bitsery::InputBufferAdapter<NetworkBuffer>;
 
 typedef unsigned char TileID;
 

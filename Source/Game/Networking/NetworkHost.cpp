@@ -1,6 +1,7 @@
 #include "NetworkHost.h"
 
-NetworkHost::NetworkHost(HostType type, const std::string& hostName)
+NetworkHost::NetworkHost(HostType type, const std::string& hostName) :
+	m_eventPollPauseSemaphore(1)
 {
 	if (type == HostType::SERVER)
 	{
@@ -46,21 +47,11 @@ void NetworkHost::Connect(const std::string& hostName)
 		DEBUG_LOG("NET", LOG_ERROR, "No available peers for initiating an enet connection.");
 		return;
 	}
-
-	if (enet_host_service(host, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
-	{
-		DEBUG_LOG("NET", LOG_MSG, "Connection to server succeded.");
-	}
-	else
-	{
-		enet_peer_reset(peer);
-		DEBUG_LOG("NET", LOG_MSG, "Connection to server failed.");
-	}
 }
 
-void NetworkHost::SendPacket(const void* data, int32_t dataLength, enet_uint32 flags, int channelID)
+void NetworkHost::SendPacket(const NetworkBuffer& buffer, enet_uint32 flags, int channelID)
 {
-	auto packet = enet_packet_create(data, dataLength, flags);
+	auto packet = enet_packet_create(&buffer[0], buffer.size(), flags);
 
 	if (peer != nullptr)
 	{
@@ -72,6 +63,12 @@ void NetworkHost::SendPacket(const void* data, int32_t dataLength, enet_uint32 f
 	}
 }
 
+void NetworkHost::SendPacket(const BitBuffer8& bitBuffer, PacketType type, enet_uint32 flags, int channelID)
+{
+	NetworkBuffer bufferToSend = { (uint8_t)type, bitBuffer.bits };
+	SendPacket(bufferToSend, flags, channelID);
+}
+
 /// <summary>
 /// Disconnects a client from the server.
 /// </summary>
@@ -80,6 +77,8 @@ void NetworkHost::Disconnect()
 	if (peer == nullptr) return;
 
 	enet_peer_disconnect(peer, 0);
+
+	ENetEvent event;
 
 	while (enet_host_service(host, &event, 0) > 0)
 	{
@@ -96,27 +95,74 @@ void NetworkHost::Disconnect()
 	}
 }
 
-void NetworkHost::Update(float deltaTime)
+void HandlePacket(const ENetEvent& event)
 {
-	while (enet_host_service(host, &event, 0) > 0)
+	auto packetData = event.packet->data;
+	auto dataLength = event.packet->dataLength;
+	auto packetType = (PacketType)packetData[0];
+
+	if (packetType < PacketType::Zero || packetType > PacketType::Max || dataLength <= 1) return;
+
+	auto bitBuffer = BitBuffer8(packetData[1]);
+	std::string packetName = std::string(magic_enum::enum_name(packetType));
+	std::string  bitBufferString = bitBuffer.ToString();
+	printf("A packet of length %u containing [%s %s] was received from %x:%u on channel %u.\n",
+		dataLength,
+		packetName.c_str(),
+		bitBufferString.c_str(),
+		event.peer->address.host,
+		event.peer->address.port,
+		event.channelID);
+}
+
+void NetworkHost::StartEventMonitoring()
+{
+	if (m_eventPoll == nullptr)
 	{
-		switch (event.type)
+		m_eventPoll = CreateRef<std::thread>(&NetworkHost::ProduceEvents, this);
+	}
+}
+
+void NetworkHost::StopEventMonitoring()
+{
+	// Requests the thread to stop and waits for it to happen.
+	m_stopPollStopRequest = true;
+	m_eventPoll->join();
+	m_eventPoll = nullptr;
+}
+
+void NetworkHost::ProduceEvents()
+{
+	ENetEvent event;
+
+	while (!m_stopPollStopRequest)
+	{
+		// If there is no pause request, this semaphore does nothing.
+		// If there is a pause request from the main thread, then this thread sleeps.
+		// It needs to be woken up by the main thread.
+		m_eventPollPauseSemaphore.acquire();
+
+		// Poll events
+		while (!m_stopPollStopRequest && enet_host_service(host, &event, 0) > 0)
 		{
-		case ENET_EVENT_TYPE_CONNECT: // Server-only
-			printf("A new client connected from %x:%u.\n", event.peer->address.host, event.peer->address.port);
-			break;
-		case ENET_EVENT_TYPE_RECEIVE: // Client or server
-			printf("A packet of length %u containing %s was from %x:%u on channel %u.\n",
-				event.packet->dataLength,
-				event.packet->data,
-				event.peer->address.host,
-				event.peer->address.port,
-				event.channelID);
-			break;
-		case ENET_EVENT_TYPE_DISCONNECT: // Server only
-			printf("Client %x:%u disconnected.\n", event.peer->address.host, event.peer->address.port);
-			event.peer->data = NULL;
-			break;
+			switch (event.type)
+			{
+			case ENET_EVENT_TYPE_CONNECT:
+				printf("A new client connected from %x:%u.\n", event.peer->address.host, event.peer->address.port);
+				// TODO: Make the player create the world
+				break;
+			case ENET_EVENT_TYPE_RECEIVE:
+				HandlePacket(event);
+				break;
+			case ENET_EVENT_TYPE_DISCONNECT:
+				printf("Client %x:%u disconnected.\n", event.peer->address.host, event.peer->address.port);
+				event.peer->data = NULL;
+				break;
+			}
+
+			if (m_stopPollStopRequest) break;
 		}
+
+		m_eventPollPauseSemaphore.release();
 	}
 }

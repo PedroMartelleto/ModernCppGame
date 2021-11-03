@@ -1,6 +1,6 @@
 {
   "fullUpdateTicks": 60,
-  "player": {
+  "input": {
     "actions": [
       "JUMP",
       "MOVE_LEFT",

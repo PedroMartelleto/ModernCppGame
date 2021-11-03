@@ -71,7 +71,10 @@ struct GroundDetectionComponent
 
 struct MobComponent
 {
+	static uint16_t globalMobID;
+
 	std::string name = "";
+	uint16_t mobID = 0;
 	float horizontalImpulse = 0.0f;
 	float maxHorizontalSpeed = 0.0f;
 	float horizontalDragForce = 0.0f;
@@ -90,7 +93,13 @@ struct MobComponent
 		jumpHeight(jumpHeight),
 		horizontalMoveDir(0.0f),
 		wantsToJump(false),
-		density(density) {}
+		density(density)
+	{
+		MobComponent::globalMobID += 1;
+		mobID = MobComponent::globalMobID;
+	}
+	
+	NetworkBuffer CreateEventPacket() const;
 };
 
 struct PlayerInputRequest

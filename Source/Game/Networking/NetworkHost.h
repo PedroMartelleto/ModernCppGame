@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../Engine/Engine.h"
+#include "Packet.h"
+#include "BitBuffer.h"
 
 /// <summary>
 /// Helper class to deal with ENet UDP networking.
@@ -15,7 +17,6 @@ public:
 	ENetHost* host = nullptr;
 	ENetPeer* peer = nullptr;
 	ENetAddress address = ENetAddress();
-	ENetEvent event = ENetEvent();
 	HostType type = HostType::NONE;
 
 	NetworkHost(HostType type, const std::string& hostName = "");
@@ -30,13 +31,32 @@ public:
 	/// <summary>
 	/// Sends a packet. If host type is client, sends to the server. Otherwise, broadcasts to all clients.
 	/// </summary>
-	void SendPacket(const void* data, int32_t dataLength, enet_uint32 flags, int channelID);
+	void SendPacket(const NetworkBuffer& buffer, enet_uint32 flags, int channelID);
+
+	/// <summary>
+	/// Sends a bit buffer packet.
+	/// </summary>
+	void SendPacket(const BitBuffer8& bitBuffer, PacketType type, enet_uint32 flags, int channelID);
 
 	/// <summary>
 	/// Disconnects a client from the server.
 	/// </summary>
 	void Disconnect();
 
-	void Update(float deltaTime);
+	/// <summary>
+	/// Starts a new thread (producer) that produces events for the main thread (consumer).
+	/// </summary>
+	void StartEventMonitoring();
+
+	/// <summary>
+	/// Stops the thread created.
+	/// </summary>
+	void StopEventMonitoring();
+private:
+	Ref<std::thread> m_eventPoll = nullptr;
+	std::binary_semaphore m_eventPollPauseSemaphore;
+	bool m_stopPollStopRequest = false;
+
+	void ProduceEvents();
 };
 

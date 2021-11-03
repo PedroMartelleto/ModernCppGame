@@ -18,6 +18,7 @@ public:
 	void Render();
 	void Destroy();
 private:
+	void CreateMap();
 	void SpawnPlayer(const std::string& charName, const Vec2f& tilePos, bool isLocal);
 
 	b2Body* CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, GroundDetectionComponent* groundDetectionComponent);
