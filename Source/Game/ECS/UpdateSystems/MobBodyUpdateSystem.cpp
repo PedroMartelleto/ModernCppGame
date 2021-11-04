@@ -31,6 +31,7 @@ void MobBodyUpdateSystem::Update(GameCore* gameCore, float deltaTime)
 		// Air drag
 		float Cd = 1.05f;
 		float v = body.body->GetLinearVelocity().x;
+
 		if (fabsf(v) > 0.0001f)
 		{
 			auto appliedDrag = b2Vec2(-0.5f * v * Cd * mob.horizontalDragForce, 0);

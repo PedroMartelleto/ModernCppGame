@@ -1,32 +1,22 @@
 #include "TileMap.h"
-#include "tinyxml2.h"
 #include "../Render/TextureManager.h"
 #include "../Core/Core.h"
 #include "../../Game/Globals.h"
 
-TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& fileName, Ref<TextureManager> textureManager) :
+// Global constant for now
+const std::string tilesetTexturePath = "Resources/Sprites/Desert/Atlas.png";
+const int tilesetTileSize = 16;
+
+TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, Ref<TextureManager> textureManager) :
 	mapScale(mapScale)
 {
-	auto workingDir = std::string(Utils::GetDirectoryPath(fileName.c_str())) + "/";
+	tinyxml2::XMLDocument mapXML;
+	mapXML.Parse(mapXMLData.c_str(), mapXMLData.size());
 
-	// Loads main XML
-	tinyxml2::XMLDocument mainXML;
-	mainXML.LoadFile(fileName.c_str());
-
-	auto root = mainXML.FirstChildElement("map");
-
-	// Loads tileset file
-	tinyxml2::XMLDocument tilesetXML;
-	auto tilesetPath = workingDir + root->FirstChildElement("tileset")->Attribute("source");
-	tilesetXML.LoadFile(tilesetPath.c_str());
-	auto tilesetFolder = std::string(Utils::GetDirectoryPath(tilesetPath.c_str())) + "/";
-
-	auto tilesetElement = tilesetXML.FirstChildElement("tileset");
-	auto pathToImage = tilesetElement->FirstChildElement("image");
-	auto tileWidth = tilesetElement->IntAttribute("tilewidth");
-	auto tileHeight = tilesetElement->IntAttribute("tileheight");
-	auto texturePath = tilesetFolder + pathToImage->Attribute("source");
-	auto texture = textureManager->Get(texturePath, false);
+	auto root = mapXML.FirstChildElement("map");
+	auto tileWidth = tilesetTileSize;
+	auto tileHeight = tilesetTileSize;
+	auto texture = textureManager->Get(tilesetTexturePath, false);
 
 	tileset = CreateRef<Tileset>(texture, tileWidth, tileHeight, textureManager);
 

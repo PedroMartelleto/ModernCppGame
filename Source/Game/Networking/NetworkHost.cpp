@@ -1,55 +1,79 @@
 #include "NetworkHost.h"
+#include "../GameCore.h"
+#include "../GameData.h"
+#include "../ECS/Components.h"
 
-NetworkHost::NetworkHost(HostType type, const std::string& hostName) :
-	m_eventPollPauseSemaphore(1)
+#define CONNECT_TIMEOUT 5000
+#define DISCONNECT_TIMEOUT 3000
+
+NetworkHost::NetworkHost(GameCore* gameCore, HostType type, const std::string& hostName) :
+	gameCore(gameCore),
+	type(type)
 {
+	assert(type != HostType::NONE);
+
 	if (type == HostType::SERVER)
 	{
 		assert(hostName.length() > 0);
 		address.host = ENET_HOST_ANY;
 		address.port = GAME_PORT;
-		host = enet_host_create(&address, MAX_PLAYERS, MAX_CHANNELS, 0, 0);
+		m_host = enet_host_create(&address, MAX_PLAYERS, MAX_CHANNELS, 0, 0);
+		m_host->checksum = enet_crc32;
 	}
 	else
 	{
-		host = enet_host_create(nullptr, 1, MAX_CHANNELS, 0, 0);
+		m_host = enet_host_create(nullptr, 1, MAX_CHANNELS, 0, 0);
 		enet_address_set_host(&address, hostName.c_str());
 		address.port = GAME_PORT;
-
-		Connect(hostName.c_str());
+		m_host->checksum = enet_crc32;
 	}
 
-	if (host == nullptr)
+	if (m_host == nullptr)
 	{
 		DEBUG_LOG("NET", LOG_ERROR, "An error occurred while trying to create an enet host.");
+		return;
+	}
+
+	if (type == HostType::CLIENT)
+	{
+		Connect(hostName.c_str(), 0);
 	}
 }
 
 NetworkHost::~NetworkHost()
 {
-	Disconnect();
-	enet_host_destroy(host);
+	enet_host_destroy(m_host);
 }
 
 /// <summary>
 /// Connects a client to a server.
 /// </summary>
 /// <param name="hostName">Host name of the server.</param>
-void NetworkHost::Connect(const std::string& hostName)
+void NetworkHost::Connect(const std::string& hostName, uint8_t mobTypeID)
 {
 	enet_address_set_host(&address, hostName.c_str());
 	address.port = GAME_PORT;
 
-	peer = enet_host_connect(host, &address, MAX_CHANNELS, 0);
+	peer = enet_host_connect(m_host, &address, MAX_CHANNELS, mobTypeID);
 
-	if (host == NULL)
+	if (m_host == NULL)
 	{
 		DEBUG_LOG("NET", LOG_ERROR, "No available peers for initiating an enet connection.");
 		return;
 	}
+
+	ENetEvent event;
+	if (enet_host_service(m_host, &event, CONNECT_TIMEOUT) > 0)
+	{
+		if (event.type == ENET_EVENT_TYPE_CONNECT)
+		{
+			DEBUG_LOG("NET", LOG_MSG, "Client connection successful.");
+			return;
+		}
+	}
 }
 
-void NetworkHost::SendPacket(const NetworkBuffer& buffer, enet_uint32 flags, int channelID)
+void NetworkHost::SendPacket(const NetworkBuffer& buffer, enet_uint32 flags, int channelID) const
 {
 	auto packet = enet_packet_create(&buffer[0], buffer.size(), flags);
 
@@ -59,14 +83,16 @@ void NetworkHost::SendPacket(const NetworkBuffer& buffer, enet_uint32 flags, int
 	}
 	else
 	{
-		enet_host_broadcast(host, channelID, packet);
+		enet_host_broadcast(m_host, channelID, packet);
 	}
 }
 
-void NetworkHost::SendPacket(const BitBuffer8& bitBuffer, PacketType type, enet_uint32 flags, int channelID)
+void NetworkHost::SendPacket(const PacketData& packetData, enet_uint32 flags, int channelID) const
 {
-	NetworkBuffer bufferToSend = { (uint8_t)type, bitBuffer.bits };
-	SendPacket(bufferToSend, flags, channelID);
+	json dataToSend;
+	Serialization::to_json(dataToSend, packetData);
+	const NetworkBuffer& buffer = json::to_cbor(dataToSend);
+	SendPacket(buffer, flags, channelID);
 }
 
 /// <summary>
@@ -80,89 +106,115 @@ void NetworkHost::Disconnect()
 
 	ENetEvent event;
 
-	while (enet_host_service(host, &event, 0) > 0)
+	// Poll events
+	if (enet_host_service(m_host, &event, DISCONNECT_TIMEOUT) > 0 && event.type == ENET_EVENT_TYPE_DISCONNECT)
 	{
-		switch (event.type)
+		DEBUG_LOG("NET", LOG_MSG, "Disconnected from server successfully.");
+	}
+}
+
+void NetworkHost::HandlePacket(const ENetEvent& event)
+{
+	auto packet = event.packet;
+
+	if (packet == nullptr) return;
+
+	printf("[%s] A packet of length %u was received from %x:%u on channel %u with contents [", std::string(magic_enum::enum_name(type)).c_str(), event.packet->dataLength, event.peer->address.host, event.peer->address.port, event.channelID);
+	
+	auto data = (uint8_t*)packet->data;
+	auto bytes = NetworkBuffer(data, data + packet->dataLength);
+	json receivedData = json::from_cbor(bytes);
+	PacketData packetData;
+	Serialization::from_json(receivedData, packetData);
+
+	if (packetData.events.size() != packetData.types.size()) return;
+
+	for (uint32_t i = 0; i < packetData.events.size(); ++i)
+	{
+		EventType packetType = packetData.types[i];
+		const json& j = packetData.events[i];
+		printf("%s", std::string(magic_enum::enum_name(packetType)).c_str());
+
+		if (i + 1 < packetData.events.size()) printf(", ");
+
+		switch (packetType)
 		{
-		case ENET_EVENT_TYPE_RECEIVE:
-			enet_packet_destroy(event.packet);
+		case EventType::MobPositionsBuffer:
+			eventQueue.Enqueue(packetType, Utils::RefFromJSON<MobPositionsEvent>(j));
 			break;
-		case ENET_EVENT_TYPE_DISCONNECT:
-			DEBUG_LOG("NET", LOG_MSG, "Disconnection succeded.");
-			peer = nullptr;
+		case EventType::Map:
+			eventQueue.Enqueue(packetType, Utils::RefFromJSON<MapDataEvent>(j));
+			break;
+		case EventType::SpawnPlayer:
+			eventQueue.Enqueue(packetType, Utils::RefFromJSON<SpawnPlayerEvent>(j));
 			break;
 		}
 	}
+	printf("]\n");
 }
 
-void HandlePacket(const ENetEvent& event)
+void NetworkHost::ServerHandleNewConnection(ENetPeer* peer, uint8_t mobTypeID)
 {
-	auto packetData = event.packet->data;
-	auto dataLength = event.packet->dataLength;
-	auto packetType = (PacketType)packetData[0];
+	// Sends spawn player request to spawn the current players
+	std::vector<json> events;
+	std::vector<EventType> eventTypes;
 
-	if (packetType < PacketType::Zero || packetType > PacketType::Max || dataLength <= 1) return;
+	events.push_back(Utils::ToJSON(MapDataEvent{ Utils::LoadFile(gameCore->mapFilepath) }));
+	eventTypes.push_back(EventType::Map);
 
-	auto bitBuffer = BitBuffer8(packetData[1]);
-	std::string packetName = std::string(magic_enum::enum_name(packetType));
-	std::string  bitBufferString = bitBuffer.ToString();
-	printf("A packet of length %u containing [%s %s] was received from %x:%u on channel %u.\n",
-		dataLength,
-		packetName.c_str(),
-		bitBufferString.c_str(),
-		event.peer->address.host,
-		event.peer->address.port,
-		event.channelID);
-}
-
-void NetworkHost::StartEventMonitoring()
-{
-	if (m_eventPoll == nullptr)
+	for (const auto& mobPair : gameCore->mobs)
 	{
-		m_eventPoll = CreateRef<std::thread>(&NetworkHost::ProduceEvents, this);
+		const auto& mob = mobPair.second;
+		const auto& mobComponent = gameCore->registry.get<MobComponent>(mob);
+		const auto* localInputComponent = gameCore->registry.try_get<LocalInputComponent>(mob);
+		auto hostType = localInputComponent == nullptr ? HostType::CLIENT : HostType::SERVER;
+
+		if (mobComponent.isPlayer)
+		{
+			events.push_back(Utils::ToJSON(SpawnPlayerEvent{ mobComponent.mobID, hostType, 8, 8, mobComponent.name }));
+			eventTypes.push_back(EventType::SpawnPlayer);
+		}
 	}
+
+	// Also adds the newly connected player for spawning
+	auto newPlayerSpawnEvent = SpawnPlayerEvent{ gameCore->CreateMobID(), HostType::CLIENT, 12, 8, GameData::GetMobNameFromTypeID(mobTypeID) };
+	events.push_back(Utils::ToJSON(newPlayerSpawnEvent));
+	eventTypes.push_back(EventType::SpawnPlayer);
+
+	// Add the player locally (to this server)
+	eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(newPlayerSpawnEvent));
+
+	auto packetData = PacketData{events, eventTypes};
+
+	// Sends response to client
+	json packetJson;
+	Serialization::to_json(packetJson, packetData);
+	NetworkBuffer bufferToSend = json::to_cbor(packetJson);
+	auto packet = enet_packet_create(&bufferToSend[0], bufferToSend.size(), ENET_PACKET_FLAG_RELIABLE);
+	enet_peer_send(peer, 0, packet);
 }
 
-void NetworkHost::StopEventMonitoring()
-{
-	// Requests the thread to stop and waits for it to happen.
-	m_stopPollStopRequest = true;
-	m_eventPoll->join();
-	m_eventPoll = nullptr;
-}
-
-void NetworkHost::ProduceEvents()
+void NetworkHost::PollEvents()
 {
 	ENetEvent event;
 
-	while (!m_stopPollStopRequest)
+	// Poll events
+	while (enet_host_service(m_host, &event, 0) > 0)
 	{
-		// If there is no pause request, this semaphore does nothing.
-		// If there is a pause request from the main thread, then this thread sleeps.
-		// It needs to be woken up by the main thread.
-		m_eventPollPauseSemaphore.acquire();
-
-		// Poll events
-		while (!m_stopPollStopRequest && enet_host_service(host, &event, 0) > 0)
+		if (event.type == ENET_EVENT_TYPE_CONNECT)
 		{
-			switch (event.type)
-			{
-			case ENET_EVENT_TYPE_CONNECT:
-				printf("A new client connected from %x:%u.\n", event.peer->address.host, event.peer->address.port);
-				// TODO: Make the player create the world
-				break;
-			case ENET_EVENT_TYPE_RECEIVE:
-				HandlePacket(event);
-				break;
-			case ENET_EVENT_TYPE_DISCONNECT:
-				printf("Client %x:%u disconnected.\n", event.peer->address.host, event.peer->address.port);
-				event.peer->data = NULL;
-				break;
-			}
-
-			if (m_stopPollStopRequest) break;
+			printf("[%s] A new client connected from %x:%u.\n", std::string(magic_enum::enum_name(type)).c_str(), event.peer->address.host, event.peer->address.port);
+			if (type == HostType::SERVER) ServerHandleNewConnection(event.peer, (uint8_t)event.data);
 		}
-
-		m_eventPollPauseSemaphore.release();
+		else if (event.type == ENET_EVENT_TYPE_RECEIVE)
+		{
+			HandlePacket(event);
+			enet_packet_destroy(event.packet);
+		}
+		else if (event.type == ENET_EVENT_TYPE_DISCONNECT)
+		{
+			printf("[%s] Client %x:%u disconnected.\n", std::string(magic_enum::enum_name(type)).c_str(), event.peer->address.host, event.peer->address.port);
+			event.peer->data = NULL;
+		}
 	}
 }

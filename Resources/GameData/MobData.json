@@ -1,5 +1,6 @@
 {
   "knight": {
+    "isPlayer":  true,
     "name": "knight",
     "horizontalImpulse": 4.0,
     "maxHorizontalSpeed": 8.0,
@@ -8,6 +9,7 @@
     "density": 1
   },
   "elf": {
+    "isPlayer": true,
     "name": "elf",
     "horizontalImpulse": 4.0,
     "maxHorizontalSpeed": 8.0,
@@ -16,6 +18,7 @@
     "density": 1
   },
   "wizzard": {
+    "isPlayer": true,
     "name": "wizzard",
     "horizontalImpulse": 4.0,
     "maxHorizontalSpeed": 8.0,
@@ -24,6 +27,7 @@
     "density": 1
   },
   "lizard": {
+    "isPlayer": true,
     "name": "lizard",
     "horizontalImpulse": 4.0,
     "maxHorizontalSpeed": 8.0,

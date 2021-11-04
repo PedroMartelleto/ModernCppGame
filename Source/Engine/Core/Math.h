@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <string>
+#include <nlohmann/json.hpp>
 #include "box2d/box2d.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -72,4 +73,14 @@ namespace Colors
 	{
 		return Color4f(color.x, color.y, color.z, alpha);
 	}
+}
+
+namespace Serialization
+{
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(b2Vec2, x, y)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(b2Vec3, x, y, z)
+
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vec2f, x, y)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vec3f, x, y, z)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Color4f, x, y, y, z)
 }

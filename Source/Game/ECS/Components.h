@@ -69,12 +69,13 @@ struct GroundDetectionComponent
 	GroundDetectionComponent() {}
 };
 
+using MobID = uint32_t;
+
 struct MobComponent
 {
-	static uint16_t globalMobID;
-
+	bool isPlayer = false;
 	std::string name = "";
-	uint16_t mobID = 0;
+	MobID mobID = 0;
 	float horizontalImpulse = 0.0f;
 	float maxHorizontalSpeed = 0.0f;
 	float horizontalDragForce = 0.0f;
@@ -83,22 +84,6 @@ struct MobComponent
 	float density = 0.0f;
 	bool wantsToJump = 0.0f;
 
-	MobComponent() = default;
-
-	MobComponent(const std::string& name, float horizontalImpulse, float maxHorizontalSpeed, float horizontalDragForce, float jumpHeight, float density) :
-		name(name),
-		horizontalImpulse(horizontalImpulse),
-		maxHorizontalSpeed(maxHorizontalSpeed),
-		horizontalDragForce(horizontalDragForce),
-		jumpHeight(jumpHeight),
-		horizontalMoveDir(0.0f),
-		wantsToJump(false),
-		density(density)
-	{
-		MobComponent::globalMobID += 1;
-		mobID = MobComponent::globalMobID;
-	}
-	
 	NetworkBuffer CreateEventPacket() const;
 };
 
@@ -110,13 +95,13 @@ struct PlayerInputRequest
 
 #define MAX_PLAYER_INPUTS 8
 
-struct PlayerInputComponent
+struct LocalInputComponent
 {
 	int inputCodes[MAX_PLAYER_INPUTS];
 };
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, name, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight, density)
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerInputComponent, inputCodes)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, isPlayer, name, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight, density)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

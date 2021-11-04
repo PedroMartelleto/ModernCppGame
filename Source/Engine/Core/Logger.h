@@ -16,5 +16,7 @@
 #define DEBUG_LOG(category, level, message, ...) \
 	do {  fprintf(LOGGER_DEST, "[%s %s] (%s:%d):  ", category, level, __FILENAME__, __LINE__); fprintf(LOGGER_DEST, message, ##__VA_ARGS__); fprintf(LOGGER_DEST, "\n"); } while (false)
 
+#define LOGGER_ENUM(a) LOGGER_VAR(magic_enum::enum_name(a))
+
 #define LOGGER_VAR(a) \
     do { std::cout << "[DBG]: " << #a " = " << (a) << "\n"; } while (false)

@@ -3,11 +3,12 @@
 #include "TileMapLayer.h"
 #include "Tileset.h"
 #include "../Core/Math.h"
+#include <tinyxml2.h>
 
 class TileMap
 {
 public:
-	TileMap(b2World& physicsWorld, float mapScale, const std::string& fileName, Ref<TextureManager> textureManager);
+	TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, Ref<TextureManager> textureManager);
 	~TileMap();
 
 	TileID GetTile(int layer, int x, int y) const;

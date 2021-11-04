@@ -2,8 +2,6 @@
 #include "../GameData.h"
 #include "../Networking/Packet.h"
 
-uint16_t MobComponent::globalMobID = 0;
-
 NetworkBuffer MobComponent::CreateEventPacket() const
 {
 	BitBuffer8 buffer;
@@ -11,6 +9,6 @@ NetworkBuffer MobComponent::CreateEventPacket() const
 	buffer.Set(GameData::GetMobActionBit("MOVE_LEFT"), horizontalMoveDir < 0.0f);
 	buffer.Set(GameData::GetMobActionBit("MOVE_RIGHT"), horizontalMoveDir > 0.0f);
 
-	NetworkBuffer net = { (uint8_t) PacketType::MobEventBuffer, buffer.bits };
+	NetworkBuffer net = { (NetworkByte) EventType::MobEventBuffer, buffer.bits };
 	return net;
 }

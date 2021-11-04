@@ -1,6 +1,10 @@
 #pragma once
 
 #include "../../Engine/Commons.h"
+#include <enet/enet.h>
+
+typedef enet_uint8 NetworkByte;
+using NetworkBuffer = std::vector<NetworkByte>;
 
 #define MAX_BIT_BUFFER_SIZE 32
 
@@ -52,25 +56,13 @@ public:
 private:
 };
 
-typedef BitBuffer<uint8_t> BitBuffer8;
-typedef BitBuffer<uint16_t> BitBuffer16;
-typedef BitBuffer<uint32_t> BitBuffer32;
+typedef BitBuffer<NetworkByte> BitBuffer8;
+typedef BitBuffer<int16_t> BitBuffer16;
+typedef BitBuffer<int32_t> BitBuffer32;
 
 namespace Serialization
 {
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BitBuffer<uint8_t>, bits)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BitBuffer<uint16_t>, bits)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BitBuffer<uint32_t>, bits)
-}
-
-namespace bitsery
-{
-	template <typename S>
-	void serialize(S& s, BitBuffer8& bitBuffer) { s.value1b(bitBuffer.bits); }
-
-	template <typename S>
-	void serialize(S& s, BitBuffer16& bitBuffer) { s.value2b(bitBuffer.bits); }
-
-	template <typename S>
-	void serialize(S& s, BitBuffer32& bitBuffer) { s.value4b(bitBuffer.bits); }
 }

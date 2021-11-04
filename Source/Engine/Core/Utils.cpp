@@ -32,4 +32,13 @@ namespace Utils
 		dataFile.close();
 		return json;
 	}
+
+	std::string LoadFile(const std::string& filePath)
+	{
+		std::ifstream dataFile(filePath);
+		std::stringstream buffer;
+		buffer << dataFile.rdbuf();
+		dataFile.close();
+		return buffer.str();
+	}
 };

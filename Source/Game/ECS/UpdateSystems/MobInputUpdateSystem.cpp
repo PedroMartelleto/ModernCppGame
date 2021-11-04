@@ -6,9 +6,9 @@ void MobInputUpdateSystem::Update(GameCore* gameCore, float deltaTime)
 	auto& registry = gameCore->registry;
 
 	// Movevement of controllable entities
-	for (auto entity : registry.view<PlayerInputComponent, MobComponent>())
+	for (auto entity : registry.view<LocalInputComponent, MobComponent>())
 	{
-		auto& input = registry.get<PlayerInputComponent>(entity);
+		auto& input = registry.get<LocalInputComponent>(entity);
 		auto& mob = registry.get<MobComponent>(entity);
 
 		mob.wantsToJump = Input::IsKeyDown(input.inputCodes[GameData::GetMobActionBit("JUMP")]);
@@ -28,7 +28,8 @@ void MobInputUpdateSystem::Update(GameCore* gameCore, float deltaTime)
 
 		if (anyInput)
 		{
-			gameCore->host->SendPacket(mob.CreateEventPacket(), ENET_PACKET_FLAG_RELIABLE, 0);
+			// TODO: Not this
+			// gameCore->host->SendPacket(mob.CreateEventPacket(), ENET_PACKET_FLAG_RELIABLE, 0);
 		}
 	}
 }

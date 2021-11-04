@@ -5,6 +5,7 @@
 #include "ECS/UpdateSystems/SpriteBodyUpdateSystem.h"
 #include "ECS/RenderSystems/SpriteRenderSystem.h"
 #include "GameData.h"
+#include "Networking/EventHandler.h"
 
 int contactCount = 0;
 
@@ -53,8 +54,11 @@ GameCore::GameCore(Core* core, HostType hostType) :
 	core(core),
 	map(nullptr),
 	physicsWorld(b2Vec2(0, 15.0f)),
-	m_hostType(hostType)
+	m_hostType(hostType),
+	mapFilepath("Resources/Maps/Map1.tmx")
 {
+	assert(m_hostType == HostType::CLIENT || m_hostType == HostType::SERVER);
+
 	GameData::Create("Resources/GameData/");
 	DEBUG_LOG("THREAD", LOG_MSG, "Number of parallel threads: %d", std::thread::hardware_concurrency());
 
@@ -64,8 +68,6 @@ GameCore::GameCore(Core* core, HostType hostType) :
 
 	listener = WorldContactListener(this);
 	physicsWorld.SetContactListener(&listener);
-
-	host = CreateRef<NetworkHost>(hostType, "127.0.0.1");
 }
 
 void GameCore::AddRenderSystem(Ref<RenderSystem> renderSystem)
@@ -76,6 +78,13 @@ void GameCore::AddRenderSystem(Ref<RenderSystem> renderSystem)
 void GameCore::AddUpdateSystem(Ref<UpdateSystem> updateSystem)
 {
 	m_updateSystems.push_back(updateSystem);
+}
+
+MobID GameCore::CreateMobID()
+{
+	assert(m_hostType == HostType::SERVER);
+	m_globalMobID += 1;
+	return m_globalMobID;
 }
 
 b2Body* GameCore::CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, GroundDetectionComponent* groundDetectionComponent)
@@ -113,9 +122,15 @@ b2Body* GameCore::CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size,
 	return body;
 }
 
-void GameCore::SpawnPlayer(const std::string& charName, const Vec2f& tilePos, bool isLocal)
+void GameCore::SpawnPlayer(MobID playerID, const std::string& charName, const Vec2f& tilePos, bool isLocal)
 {
-	auto mobComponent = GameData::GetMobData(charName);
+	if (map == nullptr)
+	{
+		DEBUG_LOG("CORE", LOG_ERROR, "Map cannot be nullptr when SpawnPlayer is called.");
+		return;
+	}
+
+	auto mobComponent = GameData::GetMobData(charName, playerID);
 
 	auto windowWidth = (float)Render2D::GetScreenWidth();
 	auto windowHeight = (float)Render2D::GetScreenHeight();
@@ -139,19 +154,17 @@ void GameCore::SpawnPlayer(const std::string& charName, const Vec2f& tilePos, bo
 	if (isLocal)
 	{
 		auto input = GameData::CreateDefaultBinding(0);
-		registry.emplace<PlayerInputComponent>(player, input);
+		registry.emplace<LocalInputComponent>(player, input);
 	}
 
 	registry.emplace<MobComponent>(player, mobComponent);
+	mobs[mobComponent.mobID] = player;
 }
 
-void GameCore::CreateMap()
+void GameCore::SetupServer()
 {
-	map = CreateRef<TileMap>(physicsWorld, Game::MAP_SCALE, "Resources/Maps/Map1.tmx", textureManager);
-	core->SetWindowSizeAndCenter((int)map->WidthInPixels(), (int)map->HeightInPixels());
-
-	SpawnPlayer("lizard", Vec2f(9, 8), m_hostType == HostType::CLIENT);
-	SpawnPlayer("wizzard", Vec2f(14, 8), m_hostType != HostType::CLIENT);
+	host->eventQueue.Enqueue(EventType::Map, CreateRef<MapDataEvent>(MapDataEvent{ Utils::LoadFile(mapFilepath) }));
+	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 9, 8, "wizzard" }));
 }
 
 void GameCore::Create()
@@ -164,22 +177,19 @@ void GameCore::Create()
 	// Adds render systems
 	AddRenderSystem(CreateRef<SpriteRenderSystem>());
 
+	host = CreateRef<NetworkHost>(this, m_hostType, "127.0.0.1");
+
 	if (m_hostType == HostType::SERVER)
 	{
-		CreateMap();
-		host->StartEventMonitoring();
-	}
-	else if (m_hostType == HostType::CLIENT)
-	{
-		// Waits for the "connect" event
-		host->StartEventMonitoring();
-
-		// TODO: Transfer Queue
-	}
+		SetupServer();
+	}	
 }
 
 void GameCore::Update(float deltaTime)
 {
+	host->PollEvents();
+	EventHandler::HandleEvents(this);
+
 	if (map == nullptr) return;
 
 	for (auto updateSystem : m_updateSystems)
@@ -188,6 +198,31 @@ void GameCore::Update(float deltaTime)
 	}
 
 	physicsWorld.Step(deltaTime, 6, 2);
+	
+	if (m_frameCounter % 10 == 0 && m_hostType == HostType::SERVER)
+	{
+		json pos;
+		json vel;
+
+		for (auto entity : registry.view<PhysicsBodyComponent, MobComponent>())
+		{
+			auto& body = registry.get<PhysicsBodyComponent>(entity);
+			auto& mob = registry.get<MobComponent>(entity);
+
+			pos[std::to_string(mob.mobID)] = Utils::ToJSON(body.body->GetPosition());
+			vel[std::to_string(mob.mobID)] = Utils::ToJSON(body.body->GetLinearVelocity());
+			LOGGER_VAR(mob.mobID);
+		}
+
+		host->SendPacket(PacketData{ { Utils::ToJSON(MobPositionsEvent{json(pos), json(vel)}) }, { EventType::MobPositionsBuffer } }, 0, 0);
+	}
+
+	m_frameCounter += 1;
+
+	if (m_frameCounter > UINT64_MAX - 10)
+	{
+		m_frameCounter = 0;
+	}
 }
 
 void GameCore::Render()
@@ -230,7 +265,6 @@ void GameCore::Render()
 
 void GameCore::Destroy()
 {
-	host->StopEventMonitoring();
 	host->Disconnect();
 
 	m_updateSystems.clear();

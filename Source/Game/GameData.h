@@ -7,9 +7,10 @@ class GameData
 {
 public:
 	static void Create(const std::string& folderPath);
-
-	static MobComponent GetMobData(const std::string& mobName);
-	static PlayerInputComponent CreateDefaultBinding(int playerID);
+	
+	static std::string GetMobNameFromTypeID(uint8_t mobTypeID);
+	static MobComponent GetMobData(const std::string& mobName, MobID mobID);
+	static LocalInputComponent CreateDefaultBinding(int playerID);
 
 	inline static int GetMobActionBit(const std::string& actionName)
 	{
@@ -18,6 +19,7 @@ public:
 private:
 	static nlohmann::json s_mobData;
 	static nlohmann::json s_gameSettings;
+	static std::vector<std::string> s_mobNames;
 	static std::unordered_map<std::string, int> s_mobActions;
 };
 

@@ -3,6 +3,7 @@
 #include "../../Engine/Engine.h"
 #include "Packet.h"
 #include "BitBuffer.h"
+#include "EventQueue.h"
 
 /// <summary>
 /// Helper class to deal with ENet UDP networking.
@@ -10,53 +11,45 @@
 class NetworkHost
 {
 public:
-	static const int GAME_PORT = 7777;
+	static const int GAME_PORT = 8888;
 	static const int MAX_PLAYERS = 8;
-	static const int MAX_CHANNELS = 1;
+	static const int MAX_CHANNELS = 2;
 
-	ENetHost* host = nullptr;
 	ENetPeer* peer = nullptr;
 	ENetAddress address = ENetAddress();
-	HostType type = HostType::NONE;
+	const HostType type;
+	GameCore* gameCore;
+	EventQueue eventQueue;
 
-	NetworkHost(HostType type, const std::string& hostName = "");
+	NetworkHost(GameCore* gameCore, HostType type, const std::string& hostName = "");
 	~NetworkHost();
 
 	/// <summary>
 	/// Connects a client to a server.
 	/// </summary>
 	/// <param name="hostName">Host name of the server.</param>
-	void Connect(const std::string& hostName);
+	void Connect(const std::string& hostName, uint8_t mobTypeID);
 
 	/// <summary>
 	/// Sends a packet. If host type is client, sends to the server. Otherwise, broadcasts to all clients.
 	/// </summary>
-	void SendPacket(const NetworkBuffer& buffer, enet_uint32 flags, int channelID);
+	void SendPacket(const PacketData& packetData, enet_uint32 flags, int channelID) const;
 
 	/// <summary>
-	/// Sends a bit buffer packet.
+	/// Sends a packet. If host type is client, sends to the server. Otherwise, broadcasts to all clients.
 	/// </summary>
-	void SendPacket(const BitBuffer8& bitBuffer, PacketType type, enet_uint32 flags, int channelID);
+	void SendPacket(const NetworkBuffer& buffer, enet_uint32 flags, int channelID) const;
+	
+	void PollEvents();
 
 	/// <summary>
 	/// Disconnects a client from the server.
 	/// </summary>
 	void Disconnect();
-
-	/// <summary>
-	/// Starts a new thread (producer) that produces events for the main thread (consumer).
-	/// </summary>
-	void StartEventMonitoring();
-
-	/// <summary>
-	/// Stops the thread created.
-	/// </summary>
-	void StopEventMonitoring();
 private:
-	Ref<std::thread> m_eventPoll = nullptr;
-	std::binary_semaphore m_eventPollPauseSemaphore;
-	bool m_stopPollStopRequest = false;
+	ENetHost* m_host = nullptr;
 
-	void ProduceEvents();
+	void HandlePacket(const ENetEvent& event);
+	void ServerHandleNewConnection(ENetPeer* peer, uint8_t mobTypeID);
 };
 

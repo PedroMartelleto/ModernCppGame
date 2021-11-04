@@ -3,13 +3,17 @@
 #include "BitBuffer.h"
 #include "../../Engine/Commons.h"
 
-enum class PacketType : uint8_t
+/// <summary>
+/// Used in packets and externally to handle network-related events.
+/// </summary>
+enum class EventType : NetworkByte
 {
     Zero,
     
     // Client or server
     MobEventBuffer,
-    
+    MobPositionsBuffer,
+
     // Server only
     SpawnPlayer,
     Map,
@@ -17,17 +21,13 @@ enum class PacketType : uint8_t
     Max
 };
 
-namespace Packet
+struct PacketData
 {
-    void InsertType(PacketType type, NetworkBuffer& data);
-}
+    std::vector<json> events;
+    std::vector<EventType> types;
+};
 
-namespace bitsery
+namespace Serialization
 {
-    template <typename S>
-    void serialize(S& s, Vec2f& v)
-    {
-        s.value4b(v.x);
-        s.value4b(v.y);
-    }
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PacketData, events, types)
 }
