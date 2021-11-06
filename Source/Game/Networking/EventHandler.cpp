@@ -1,4 +1,5 @@
 #include "EventHandler.h"
+#include "../GameData.h"
 
 namespace EventHandler
 {
@@ -12,13 +13,41 @@ namespace EventHandler
 			auto event = queue.Dequeue();
 			switch (event.type)
 			{
+				case EventType::MobInputsEvent:
+				{
+					auto ev = std::static_pointer_cast<MobInputsEvent>(event.data);
+					for (auto& entity : registry.view<MobComponent>())
+					{
+						auto& mob = registry.get<MobComponent>(entity);
+						if (ev->bitBuffers.find(std::to_string(mob.mobID)) != ev->bitBuffers.end())
+						{
+							auto bitBuffer = Utils::FromJSON<BitBuffer8>(ev->bitBuffers[std::to_string(mob.mobID)]);
+							mob.wantsToJump = bitBuffer.Get(GameData::GetMobActionBit("JUMP"));
+							mob.horizontalMoveDir = 0.0f;
+
+							if (bitBuffer.Get(GameData::GetMobActionBit("MOVE_LEFT")))
+							{
+								mob.horizontalMoveDir -= 1.0f;
+							}
+
+							if (bitBuffer.Get(GameData::GetMobActionBit("MOVE_RIGHT")))
+							{
+								mob.horizontalMoveDir += 1.0f;
+							}
+						}
+					}
+				}
+				break;
 				case EventType::MobPositionsBuffer:
 				{
 					auto ev = std::static_pointer_cast<MobPositionsEvent>(event.data);
 					for (auto& entity : registry.view<PhysicsBodyComponent, MobComponent>())
 					{
+						// TODO: figure out how to "sort things out" on the client
+						// TODO: only send "input updates", not things every frame
+						// TODO: input backtracking, delay the client
 						// TODO: std::to_string is a bad solution
-						// TODO: Client-side prediction
+
 						auto* body = registry.get<PhysicsBodyComponent>(entity).body;
 						auto& mob = registry.get<MobComponent>(entity);
 						auto newPos = Utils::FromJSON<b2Vec2>(ev->pos[std::to_string(mob.mobID)]);

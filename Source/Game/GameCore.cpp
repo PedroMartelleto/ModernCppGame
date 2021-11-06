@@ -211,7 +211,6 @@ void GameCore::Update(float deltaTime)
 
 			pos[std::to_string(mob.mobID)] = Utils::ToJSON(body.body->GetPosition());
 			vel[std::to_string(mob.mobID)] = Utils::ToJSON(body.body->GetLinearVelocity());
-			LOGGER_VAR(mob.mobID);
 		}
 
 		host->SendPacket(PacketData{ { Utils::ToJSON(MobPositionsEvent{json(pos), json(vel)}) }, { EventType::MobPositionsBuffer } }, 0, 0);

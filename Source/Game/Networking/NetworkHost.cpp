@@ -119,7 +119,7 @@ void NetworkHost::HandlePacket(const ENetEvent& event)
 
 	if (packet == nullptr) return;
 
-	printf("[%s] A packet of length %u was received from %x:%u on channel %u with contents [", std::string(magic_enum::enum_name(type)).c_str(), event.packet->dataLength, event.peer->address.host, event.peer->address.port, event.channelID);
+	// printf("[%s] A packet of length %u was received from %x:%u on channel %u with contents [", std::string(magic_enum::enum_name(type)).c_str(), event.packet->dataLength, event.peer->address.host, event.peer->address.port, event.channelID);
 	
 	auto data = (uint8_t*)packet->data;
 	auto bytes = NetworkBuffer(data, data + packet->dataLength);
@@ -133,7 +133,7 @@ void NetworkHost::HandlePacket(const ENetEvent& event)
 	{
 		EventType packetType = packetData.types[i];
 		const json& j = packetData.events[i];
-		printf("%s", std::string(magic_enum::enum_name(packetType)).c_str());
+		//printf("%s", std::string(magic_enum::enum_name(packetType)).c_str());
 
 		if (i + 1 < packetData.events.size()) printf(", ");
 
@@ -148,9 +148,12 @@ void NetworkHost::HandlePacket(const ENetEvent& event)
 		case EventType::SpawnPlayer:
 			eventQueue.Enqueue(packetType, Utils::RefFromJSON<SpawnPlayerEvent>(j));
 			break;
+		case EventType::MobInputsEvent:
+			eventQueue.Enqueue(packetType, Utils::RefFromJSON<MobInputsEvent>(j));
+			break;
 		}
 	}
-	printf("]\n");
+	//printf("]\n");
 }
 
 void NetworkHost::ServerHandleNewConnection(ENetPeer* peer, uint8_t mobTypeID)

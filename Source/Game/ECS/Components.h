@@ -84,7 +84,7 @@ struct MobComponent
 	float density = 0.0f;
 	bool wantsToJump = 0.0f;
 
-	NetworkBuffer CreateEventPacket() const;
+	BitBuffer8 CreateEventBitBuffer() const;
 };
 
 struct PlayerInputRequest

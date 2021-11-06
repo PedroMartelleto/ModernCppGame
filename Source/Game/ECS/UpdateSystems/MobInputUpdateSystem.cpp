@@ -4,6 +4,7 @@
 void MobInputUpdateSystem::Update(GameCore* gameCore, float deltaTime)
 {
 	auto& registry = gameCore->registry;
+	json bitBuffers;
 
 	// Movevement of controllable entities
 	for (auto entity : registry.view<LocalInputComponent, MobComponent>())
@@ -24,12 +25,17 @@ void MobInputUpdateSystem::Update(GameCore* gameCore, float deltaTime)
 			mob.horizontalMoveDir += 1.0f;
 		}
 
-		bool anyInput = mob.wantsToJump || fabsf(mob.horizontalMoveDir) > 0.001f;
+		bitBuffers[std::to_string(mob.mobID)] = Utils::ToJSON(mob.CreateEventBitBuffer());
+	}
 
-		if (anyInput)
-		{
-			// TODO: Not this
-			// gameCore->host->SendPacket(mob.CreateEventPacket(), ENET_PACKET_FLAG_RELIABLE, 0);
-		}
+	if (gameCore->m_frameCounter % 2 == 0)
+	{
+		std::vector<json> events;
+		std::vector<EventType> eventTypes;
+
+		events.push_back(Utils::ToJSON(MobInputsEvent{ bitBuffers }));
+		eventTypes.push_back(EventType::MobInputsEvent);
+
+		gameCore->host->SendPacket(PacketData{ events, eventTypes }, ENET_PACKET_FLAG_RELIABLE, 0);
 	}
 }

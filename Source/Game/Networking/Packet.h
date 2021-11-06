@@ -11,7 +11,7 @@ enum class EventType : NetworkByte
     Zero,
     
     // Client or server
-    MobEventBuffer,
+    MobInputsEvent,
     MobPositionsBuffer,
 
     // Server only
