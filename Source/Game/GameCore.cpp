@@ -7,49 +7,6 @@
 #include "GameData.h"
 #include "Networking/EventHandler.h"
 
-int contactCount = 0;
-
-struct WorldContactListener : public b2ContactListener
-{
-	GameCore* gameCore;
-
-	WorldContactListener(GameCore* gameCore) : gameCore(gameCore) {}
-
-	void BeginContact(b2Contact* contact) override
-	{
-		auto fixtureA = contact->GetFixtureA();
-		auto fixtureB = contact->GetFixtureB();
-
-		if (fixtureA->GetUserData().pointer == NULL && fixtureB->GetUserData().pointer == NULL) return;
-
-		if (fixtureA->IsSensor() ^ fixtureB->IsSensor())
-		{
-			contactCount += 1;
-		}
-
-		auto userData = fixtureA->GetUserData().pointer == NULL ? fixtureB->GetUserData().pointer : fixtureA->GetUserData().pointer;
-		reinterpret_cast<GroundDetectionComponent*>(userData)->isGrounded = contactCount > 0;
-	}
-
-	void EndContact(b2Contact* contact) override
-	{
-		auto fixtureA = contact->GetFixtureA();
-		auto fixtureB = contact->GetFixtureB();
-
-		if (fixtureA->GetUserData().pointer == NULL && fixtureB->GetUserData().pointer == NULL) return;
-
-		if (fixtureA->IsSensor() ^ fixtureB->IsSensor())
-		{
-			contactCount -= 1;
-		}
-
-		auto userData = fixtureA->GetUserData().pointer == NULL ? fixtureB->GetUserData().pointer : fixtureA->GetUserData().pointer;
-		reinterpret_cast<GroundDetectionComponent*>(userData)->isGrounded = contactCount > 0;
-	}
-};
-
-WorldContactListener listener = WorldContactListener(nullptr);
-
 GameCore::GameCore(Core* core, HostType hostType) :
 	core(core),
 	map(nullptr),
@@ -60,14 +17,13 @@ GameCore::GameCore(Core* core, HostType hostType) :
 	assert(m_hostType == HostType::CLIENT || m_hostType == HostType::SERVER);
 
 	GameData::Create("Resources/GameData/");
-	DEBUG_LOG("THREAD", LOG_MSG, "Number of parallel threads: %d", std::thread::hardware_concurrency());
 
 	textureManager = CreateRef<TextureManager>("Resources/Sprites/");
 	atlas = TextureAtlas::FromFile("Resources/Sprites/DungeonTileset/Atlas.meta");
 	registry = entt::registry();
 
-	listener = WorldContactListener(this);
-	physicsWorld.SetContactListener(&listener);
+	worldContactListener = CreateRef<WorldContactListener>(this);
+	physicsWorld.SetContactListener(worldContactListener.get());
 }
 
 void GameCore::AddRenderSystem(Ref<RenderSystem> renderSystem)
@@ -83,11 +39,11 @@ void GameCore::AddUpdateSystem(Ref<UpdateSystem> updateSystem)
 MobID GameCore::CreateMobID()
 {
 	assert(m_hostType == HostType::SERVER);
-	m_globalMobID += 1;
-	return m_globalMobID;
+	globalMobID += 1;
+	return globalMobID;
 }
 
-b2Body* GameCore::CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, GroundDetectionComponent* groundDetectionComponent)
+b2Body* GameCore::CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, SensorComponent* sensorComponent)
 {
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
@@ -110,16 +66,22 @@ b2Body* GameCore::CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size,
 	b2Body* body = physicsWorld.CreateBody(&bodyDef);
 	body->CreateFixture(&fixtureDef);
 
-	if (groundDetectionComponent != nullptr)
+	if (sensorComponent != nullptr)
 	{
 		b2FixtureDef footFixDef;
 		footFixDef.shape = &footShape;
 		footFixDef.isSensor = true;
-		footFixDef.userData.pointer = reinterpret_cast<uintptr_t>(groundDetectionComponent);
+		DefineFixtureData(&footFixDef, new FixtureUserData{ sensorComponent });
 		body->CreateFixture(&footFixDef);
 	}
 
 	return body;
+}
+
+void GameCore::DefineFixtureData(b2FixtureDef* fixtureDef, FixtureUserData* fixtureData)
+{
+	m_fixturesUserData.push_back(fixtureData);
+	fixtureDef->userData.pointer = reinterpret_cast<uintptr_t>(m_fixturesUserData.back());
 }
 
 void GameCore::SpawnPlayer(MobID playerID, const std::string& charName, const Vec2f& tilePos, bool isLocal)
@@ -140,11 +102,11 @@ void GameCore::SpawnPlayer(MobID playerID, const std::string& charName, const Ve
 	auto player = registry.create();
 	auto aabbSize = Vec2f(9, 16);
 
-	registry.emplace<GroundDetectionComponent>(player);
+	registry.emplace<SensorComponent>(player);
 
-	auto* groundDetectionComponent = registry.try_get<GroundDetectionComponent>(player);
+	auto* sensorComponent = registry.try_get<SensorComponent>(player);
 	auto dynamicBody = CreateDynamicBoxBody(tilePos * map->scaledTileSize, aabbSize * Game::MAP_SCALE,
-									Vec2f(0.9f, 0.2f), isLocal ? groundDetectionComponent : nullptr);
+											Vec2f(0.9f, 0.2f), sensorComponent);
 
 	registry.emplace<PhysicsBodyComponent>(player, dynamicBody);
 	registry.emplace<SpriteComponent>(player, textureManager->Get("DungeonTileset/Atlas.png"), 100,
@@ -182,46 +144,48 @@ void GameCore::Create()
 	if (m_hostType == HostType::SERVER)
 	{
 		SetupServer();
-	}	
+	}
+	else if (m_hostType == HostType::CLIENT)
+	{
+		clientPrediction = CreateRef<ClientSidePrediction>(this);
+	}
+}
+
+void GameCore::PhysicsStep(float deltaTime)
+{
+	physicsWorld.Step(deltaTime, 6, 2);
 }
 
 void GameCore::Update(float deltaTime)
 {
+	// Poll events from the network
 	host->PollEvents();
+
 	EventHandler::HandleEvents(this);
 
+	// If there is no map, there is nothing to update
 	if (map == nullptr) return;
 
+	// Update client prediction
+	if (clientPrediction != nullptr) clientPrediction->Update(deltaTime);
+
+	// Calls update systems and runs step in physics world
 	for (auto updateSystem : m_updateSystems)
 	{
 		updateSystem->Update(this, deltaTime);
 	}
 
-	physicsWorld.Step(deltaTime, 6, 2);
-	
-	if (m_frameCounter % 10 == 0 && m_hostType == HostType::SERVER)
+	PhysicsStep(deltaTime);
+
+	// Server streams a world snapshot to all clients
+	if (frameCounter % GameData::GetWorldSnapshotTickRate() == 0 && m_hostType == HostType::SERVER)
 	{
-		json pos;
-		json vel;
-
-		for (auto entity : registry.view<PhysicsBodyComponent, MobComponent>())
-		{
-			auto& body = registry.get<PhysicsBodyComponent>(entity);
-			auto& mob = registry.get<MobComponent>(entity);
-
-			pos[std::to_string(mob.mobID)] = Utils::ToJSON(body.body->GetPosition());
-			vel[std::to_string(mob.mobID)] = Utils::ToJSON(body.body->GetLinearVelocity());
-		}
-
-		host->SendPacket(PacketData{ { Utils::ToJSON(MobPositionsEvent{json(pos), json(vel)}) }, { EventType::MobPositionsBuffer } }, 0, 0);
+		WorldSnapshotEvent event;
+		event.Save(this);
+		host->SendPacket(PacketData{ { Utils::ToJSON(event) }, { EventType::WorldSnapshot } }, 0, 0);
 	}
 
-	m_frameCounter += 1;
-
-	if (m_frameCounter > UINT64_MAX - 10)
-	{
-		m_frameCounter = 0;
-	}
+	frameCounter += 1;
 }
 
 void GameCore::Render()
@@ -229,11 +193,11 @@ void GameCore::Render()
 	// Draws the tile map
 	if (map != nullptr)
 	{
-		int zIndex = 10;
+		int mapZIndex = 10;
 		for (auto layer : map->layers)
 		{
-			layer->Render(Vec2f(0, 0), map->mapScale, zIndex);
-			zIndex += 1;
+			layer->Render(Vec2f(0, 0), map->mapScale, mapZIndex);
+			mapZIndex += 1;
 		}
 
 		for (auto renderSystem : m_renderSystems)
@@ -274,4 +238,10 @@ void GameCore::Destroy()
 		textureManager->DestroyAll();
 		textureManager = nullptr;
 	}
+
+	for (auto* fixtureData : m_fixturesUserData)
+	{
+		delete fixtureData;
+	}
+	m_fixturesUserData.clear();
 }

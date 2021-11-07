@@ -8,8 +8,13 @@
     ],
     "bindings": [
       [
-        26, 4, 7
+        26,
+        4,
+        7
       ]
     ]
+  },
+  "network": {
+    "worldSnapshotTickRate": 10
   }
 }

@@ -62,11 +62,18 @@ struct DEBUG_PhysicsBodyDrawComponent
 		drawAABB(drawAABB), drawPoly(drawPoly), aabbColor(aabbColor), polyColor(polyColor) {}
 };
 
-struct GroundDetectionComponent
+struct SensorComponent
 {
-	bool isGrounded = false;
+	static const int GroundSensor = 0;
 
-	GroundDetectionComponent() {}
+	int contactCount[1] = { 0 };
+
+	SensorComponent() {}
+	
+	inline bool IsGrounded()
+	{
+		return contactCount[SensorComponent::GroundSensor] > 0;
+	}
 };
 
 using MobID = uint32_t;

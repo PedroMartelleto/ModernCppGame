@@ -12,6 +12,11 @@ public:
 	static MobComponent GetMobData(const std::string& mobName, MobID mobID);
 	static LocalInputComponent CreateDefaultBinding(int playerID);
 
+	inline static int GetWorldSnapshotTickRate()
+	{
+		return (int) s_gameSettings["network"]["worldSnapshotTickRate"];
+	}
+
 	inline static int GetMobActionBit(const std::string& actionName)
 	{
 		return s_mobActions[actionName];

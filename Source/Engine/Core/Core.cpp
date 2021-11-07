@@ -17,7 +17,7 @@ Core::Core(int targetFPS, HostType hostType) :
 
 void Core::Create()
 {
-	m_window = new Window(800, 600, "CppGame");
+	m_window = new Window(800, 600, m_hostType == HostType::SERVER ? "Server" : "Client");
 	Input::Create(m_window);
 	Render2D::Create(m_window);
 	textureManager = CreateRef<TextureManager>("Resources/Sprites/");

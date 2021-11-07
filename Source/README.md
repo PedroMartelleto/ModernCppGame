@@ -2,23 +2,23 @@
 
 ## TODO
 
-* Think about how to send the data
+* Input prediction + sync inputs and snapshots + toggle
 
-* Simple producer/consumer network event handler
-	- Example: Counting events. In this usage scenario an event handler will 'give' a semaphore each time an event occurs (incrementing the semaphore count value), and a handler task will 'take' a semaphore each time it processes an event (decrementing the semaphore count value). The count value is therefore the difference between the number of events that have occurred and the number that have been processed. In this case it is desirable for the count value to be zero when the semaphore is created.
-
-* Retry client connection when it fails
+* Threads: enemy spawning/AI
 
 * Basic game UI
-
-* Better jump gravity & proper height
 
 * Projectiles
 
 * Life
 
-* Menu
+
+* std::to_string is not a great solution
+
+* Retry client connection when it fails
+
+* Better jump gravity & proper height
 
 * More maps
 
-* Other game modes and Enemies
+* Other game modes and enemies

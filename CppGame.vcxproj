@@ -19,8 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Networking\ClientSidePrediction.cpp" />
+    <ClCompile Include="Source\Game\Networking\EventHandler.cpp" />
     <ClCompile Include="Source\Game\ECS\Components.cpp" />
     <ClCompile Include="Source\Game\Networking\BitBuffer.cpp" />
+    <ClCompile Include="Source\Game\Networking\EventQueue.cpp" />
     <ClCompile Include="Source\Game\Networking\NetworkHost.cpp" />
     <ClCompile Include="Source\Game\GameData.cpp" />
     <ClCompile Include="Source\Engine\Render\Render2D.cpp" />
@@ -41,11 +44,15 @@
     <ClCompile Include="Source\Game\ECS\UpdateSystems\MobInputUpdateSystem.cpp" />
     <ClCompile Include="Source\Game\ECS\UpdateSystems\SpriteBodyUpdateSystem.cpp" />
     <ClCompile Include="Source\Game\GameCore.cpp" />
-    <ClCompile Include="Source\Game\Networking\Packet.cpp" />
+    <ClCompile Include="Source\Game\Physics\WorldContactListener.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Engine\Render\Window.cpp" />
+    <ClCompile Include="Source\Game\Physics\WorldSnapshotEvent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Networking\ClientSidePrediction.h" />
+    <ClInclude Include="Source\Game\Networking\EventHandler.h" />
+    <ClInclude Include="Source\Game\Networking\Events.h" />
     <ClInclude Include="Source\Engine\magic_enum.h" />
     <ClInclude Include="Source\Game\Networking\Packet.h" />
     <ClInclude Include="Source\Game\Networking\BitBuffer.h" />
@@ -76,8 +83,10 @@
     <ClInclude Include="Source\Game\GameCore.h" />
     <ClInclude Include="Source\Game\Globals.h" />
     <ClInclude Include="Source\Engine\Render\Window.h" />
-    <ClInclude Include="Source\Game\Physics\FixtureUserData.h" />
+    <ClInclude Include="Source\Game\Physics\WorldContactListener.h" />
     <ClInclude Include="Source\stb_image.h" />
+    <ClInclude Include="Source\Game\Networking\EventQueue.h" />
+    <ClInclude Include="Source\Game\Physics\WorldSnapshotEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\GameData\MobData.json" />

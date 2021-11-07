@@ -119,7 +119,7 @@ void NetworkHost::HandlePacket(const ENetEvent& event)
 
 	if (packet == nullptr) return;
 
-	// printf("[%s] A packet of length %u was received from %x:%u on channel %u with contents [", std::string(magic_enum::enum_name(type)).c_str(), event.packet->dataLength, event.peer->address.host, event.peer->address.port, event.channelID);
+	//printf("[%s] A packet of length %u was received from %x:%u on channel %u with contents \n[", std::string(magic_enum::enum_name(type)).c_str(), event.packet->dataLength, event.peer->address.host, event.peer->address.port, event.channelID);
 	
 	auto data = (uint8_t*)packet->data;
 	auto bytes = NetworkBuffer(data, data + packet->dataLength);
@@ -139,8 +139,8 @@ void NetworkHost::HandlePacket(const ENetEvent& event)
 
 		switch (packetType)
 		{
-		case EventType::MobPositionsBuffer:
-			eventQueue.Enqueue(packetType, Utils::RefFromJSON<MobPositionsEvent>(j));
+		case EventType::WorldSnapshot:
+			eventQueue.Enqueue(packetType, Utils::RefFromJSON<WorldSnapshotEvent>(j));
 			break;
 		case EventType::Map:
 			eventQueue.Enqueue(packetType, Utils::RefFromJSON<MapDataEvent>(j));
@@ -148,7 +148,7 @@ void NetworkHost::HandlePacket(const ENetEvent& event)
 		case EventType::SpawnPlayer:
 			eventQueue.Enqueue(packetType, Utils::RefFromJSON<SpawnPlayerEvent>(j));
 			break;
-		case EventType::MobInputsEvent:
+		case EventType::MobInputs:
 			eventQueue.Enqueue(packetType, Utils::RefFromJSON<MobInputsEvent>(j));
 			break;
 		}
@@ -165,11 +165,10 @@ void NetworkHost::ServerHandleNewConnection(ENetPeer* peer, uint8_t mobTypeID)
 	events.push_back(Utils::ToJSON(MapDataEvent{ Utils::LoadFile(gameCore->mapFilepath) }));
 	eventTypes.push_back(EventType::Map);
 
-	for (const auto& mobPair : gameCore->mobs)
+	for (const auto& [mobID, entity]: gameCore->mobs)
 	{
-		const auto& mob = mobPair.second;
-		const auto& mobComponent = gameCore->registry.get<MobComponent>(mob);
-		const auto* localInputComponent = gameCore->registry.try_get<LocalInputComponent>(mob);
+		const auto& mobComponent = gameCore->registry.get<MobComponent>(entity);
+		const auto* localInputComponent = gameCore->registry.try_get<LocalInputComponent>(entity);
 		auto hostType = localInputComponent == nullptr ? HostType::CLIENT : HostType::SERVER;
 
 		if (mobComponent.isPlayer)

@@ -11,8 +11,8 @@ enum class EventType : NetworkByte
     Zero,
     
     // Client or server
-    MobInputsEvent,
-    MobPositionsBuffer,
+    MobInputs,
+    WorldSnapshot,
 
     // Server only
     SpawnPlayer,

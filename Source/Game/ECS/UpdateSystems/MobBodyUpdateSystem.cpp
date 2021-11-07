@@ -12,9 +12,9 @@ void MobBodyUpdateSystem::Update(GameCore* gameCore, float deltaTime)
 
 		if (mob.wantsToJump)
 		{
-			auto* groundDetection = registry.try_get<GroundDetectionComponent>(entity);
+			auto* sensorComponent = registry.try_get<SensorComponent>(entity);
 
-			if (groundDetection != nullptr && groundDetection->isGrounded)
+			if (sensorComponent != nullptr && sensorComponent->IsGrounded())
 			{
 				auto impulse = b2Vec2(0.0f, -mob.jumpHeight * body.body->GetMass());
 				body.body->ApplyLinearImpulse(impulse, b2Vec2(0, 0), true);

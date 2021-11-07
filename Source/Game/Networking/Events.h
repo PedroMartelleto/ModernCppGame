@@ -2,6 +2,7 @@
 
 #include "../../Engine/Engine.h"
 #include "../ECS/Components.h"
+#include "../Physics/WorldSnapshotEvent.h"
 
 struct MapDataEvent
 {
@@ -17,12 +18,6 @@ struct SpawnPlayerEvent
 	std::string charName;
 };
 
-struct MobPositionsEvent
-{
-	json pos;
-	json vel;
-};
-
 struct MobInputsEvent
 {
 	json bitBuffers;
@@ -32,7 +27,6 @@ namespace Serialization
 {
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MapDataEvent, mapXMLContents)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpawnPlayerEvent, mobID, type, tileX, tileY, charName)
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobPositionsEvent, pos, vel)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobInputsEvent, bitBuffers)
 }
 

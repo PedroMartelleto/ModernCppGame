@@ -5,6 +5,8 @@
 #include "Globals.h"
 #include "Networking/NetworkHost.h"
 #include "Networking/EventQueue.h"
+#include "Networking/ClientSidePrediction.h"
+#include "Physics/WorldContactListener.h"
 
 struct RenderSystem;
 struct UpdateSystem;
@@ -16,6 +18,8 @@ public:
 
 	void SpawnPlayer(MobID playerID, const std::string& charName, const Vec2f& tilePos, bool isLocal);
 
+	void PhysicsStep(float deltaTime);
+
 	void Create();
 	void Update(float deltaTime);
 	void Render();
@@ -25,26 +29,36 @@ public:
 private:
 	void SetupServer();
 
-	b2Body* CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, GroundDetectionComponent* groundDetectionComponent);
+	b2Body* CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, SensorComponent* groundDetectionComponent);
+	void DefineFixtureData(b2FixtureDef* fixtureDef, FixtureUserData* fixtureData);
 
 	void AddRenderSystem(Ref<RenderSystem> system);
 	void AddUpdateSystem(Ref<UpdateSystem> system);
 public:
-	std::unordered_map<MobID, entt::entity> mobs;
 	Core* core;
+	const std::string mapFilepath;
+	entt::registry registry; // ECS registry
+	uint64_t frameCounter = 0;
+	MobID globalMobID = 0;
+	std::unordered_map<MobID, entt::entity> mobs;
+
+	// Physics
+	Ref<WorldContactListener> worldContactListener;
+	b2World physicsWorld;
+
+	// Networking
 	Ref<NetworkHost> host = nullptr;
+	Ref<ClientSidePrediction> clientPrediction = nullptr;
+
+	// Rendering
 	Ref<TextureManager> textureManager;
 	Ref<TextureAtlas> atlas;
 	Ref<TileMap> map;
-	b2World physicsWorld;
-	entt::registry registry;
-	const std::string mapFilepath;
-	uint64_t m_frameCounter = 0;
-	
-	MobID m_globalMobID = 0;
 private:
+	const HostType m_hostType;
 	Array<Ref<RenderSystem>> m_renderSystems;
 	Array<Ref<UpdateSystem>> m_updateSystems;
-	const HostType m_hostType;
+
+	Array<FixtureUserData*> m_fixturesUserData;
 };
 

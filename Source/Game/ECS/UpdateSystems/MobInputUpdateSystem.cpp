@@ -28,13 +28,13 @@ void MobInputUpdateSystem::Update(GameCore* gameCore, float deltaTime)
 		bitBuffers[std::to_string(mob.mobID)] = Utils::ToJSON(mob.CreateEventBitBuffer());
 	}
 
-	if (gameCore->m_frameCounter % 2 == 0)
+	if (gameCore->frameCounter % 2 == 0)
 	{
 		std::vector<json> events;
 		std::vector<EventType> eventTypes;
 
 		events.push_back(Utils::ToJSON(MobInputsEvent{ bitBuffers }));
-		eventTypes.push_back(EventType::MobInputsEvent);
+		eventTypes.push_back(EventType::MobInputs);
 
 		gameCore->host->SendPacket(PacketData{ events, eventTypes }, ENET_PACKET_FLAG_RELIABLE, 0);
 	}
