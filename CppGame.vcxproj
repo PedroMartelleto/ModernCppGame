@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Projectiles\Projectile.cpp" />
+    <ClCompile Include="Source\Game\ECS\RenderSystems.cpp" />
     <ClCompile Include="Source\Game\Networking\ClientSidePrediction.cpp" />
     <ClCompile Include="Source\Game\Networking\EventHandler.cpp" />
     <ClCompile Include="Source\Game\ECS\Components.cpp" />
@@ -39,17 +41,17 @@
     <ClCompile Include="Source\Engine\TileMap\TileMap.cpp" />
     <ClCompile Include="Source\Engine\TileMap\TileMapLayer.cpp" />
     <ClCompile Include="Source\Engine\TileMap\Tileset.cpp" />
-    <ClCompile Include="Source\Game\ECS\RenderSystems\SpriteRenderSystem.cpp" />
-    <ClCompile Include="Source\Game\ECS\UpdateSystems\MobBodyUpdateSystem.cpp" />
-    <ClCompile Include="Source\Game\ECS\UpdateSystems\MobInputUpdateSystem.cpp" />
-    <ClCompile Include="Source\Game\ECS\UpdateSystems\SpriteBodyUpdateSystem.cpp" />
     <ClCompile Include="Source\Game\GameCore.cpp" />
     <ClCompile Include="Source\Game\Physics\WorldContactListener.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Engine\Render\Window.cpp" />
     <ClCompile Include="Source\Game\Physics\WorldSnapshotEvent.cpp" />
+    <ClCompile Include="Source\Game\ECS\UpdateSystems.cpp" />
+    <ClCompile Include="Source\Game\Spawner.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Projectiles\Projectile.h" />
+    <ClInclude Include="Source\Game\ECS\RenderSystems.h" />
     <ClInclude Include="Source\Game\Networking\ClientSidePrediction.h" />
     <ClInclude Include="Source\Game\Networking\EventHandler.h" />
     <ClInclude Include="Source\Game\Networking\Events.h" />
@@ -75,11 +77,6 @@
     <ClInclude Include="Source\Engine\TileMap\TileMapLayer.h" />
     <ClInclude Include="Source\Engine\TileMap\Tileset.h" />
     <ClInclude Include="Source\Game\ECS\Components.h" />
-    <ClInclude Include="Source\Game\ECS\RenderSystems\SpriteRenderSystem.h" />
-    <ClInclude Include="Source\Game\ECS\System.h" />
-    <ClInclude Include="Source\Game\ECS\UpdateSystems\MobBodyUpdateSystem.h" />
-    <ClInclude Include="Source\Game\ECS\UpdateSystems\MobInputUpdateSystem.h" />
-    <ClInclude Include="Source\Game\ECS\UpdateSystems\SpriteBodyUpdateSystem.h" />
     <ClInclude Include="Source\Game\GameCore.h" />
     <ClInclude Include="Source\Game\Globals.h" />
     <ClInclude Include="Source\Engine\Render\Window.h" />
@@ -87,6 +84,8 @@
     <ClInclude Include="Source\stb_image.h" />
     <ClInclude Include="Source\Game\Networking\EventQueue.h" />
     <ClInclude Include="Source\Game\Physics\WorldSnapshotEvent.h" />
+    <ClInclude Include="Source\Game\ECS\UpdateSystems.h" />
+    <ClInclude Include="Source\Game\Spawner.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\GameData\MobData.json" />
@@ -108,26 +107,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

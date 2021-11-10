@@ -159,17 +159,23 @@ void Render2D::Flush(const Matrix4f& transformMatrix)
 	s_data.textureIDToIndex[s_data.textureIndexToID[0]] = 0;
 }
 
-void Render2D::DrawRect(const Vec2f& pos, const Vec2f& size, int z, Ref<Texture> texture, const Color4f& color)
+void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, Ref<Texture> texture, const Color4f& color)
 {
-	DrawRect(pos, size, z, Rect2D(0, 0, texture->GetWidth(), texture->GetHeight()), texture, color);
+	DrawRect(pos, angle, size, z, Rect2D(0, 0, texture->GetWidth(), texture->GetHeight()), texture, color);
 }
 
-void Render2D::DrawRect(const Vec2f& pos, const Vec2f& size, int z, const Color4f& color)
+void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Color4f& color)
 {
-	DrawRect(pos, size, z, Rect2D(0, 0, 1, 1), nullptr, color);
+	DrawRect(pos, angle, size, z, Rect2D(0, 0, 1, 1), nullptr, color);
 }
 
-void Render2D::DrawRect(const Vec2f& pos, const Vec2f& size, int z, const Rect2D& region, Ref<Texture> texture, const Color4f& color)
+void RotateVecAroundCenter(Vec3f& vec, const Vec3f& center, const Matrix4f& matrix)
+{
+	Vec4f r = (matrix * Vec4f(vec - center, 1.0f));
+	vec = Vec3f(r.x, r.y, r.z) + center;
+}
+
+void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Rect2D& region, Ref<Texture> texture, const Color4f& color)
 {
 	// If our current batch is too big...
 	if (s_data.indexCount >= MaxIndexCount)
@@ -181,14 +187,14 @@ void Render2D::DrawRect(const Vec2f& pos, const Vec2f& size, int z, const Rect2D
 	}
 
 	float texIndex = 0.0f;
-	auto norm = Rect2D(region);
+	auto normRegion = Rect2D(region);
 
 	if (texture != nullptr)
 	{
-		norm.pos.x /= texture->GetWidth();
-		norm.size.x /= texture->GetWidth();
-		norm.pos.y /= texture->GetHeight();
-		norm.size.y /= texture->GetHeight();
+		normRegion.pos.x /= texture->GetWidth();
+		normRegion.size.x /= texture->GetWidth();
+		normRegion.pos.y /= texture->GetHeight();
+		normRegion.size.y /= texture->GetHeight();
 
 		auto textureID = texture->GetID();
 
@@ -215,12 +221,26 @@ void Render2D::DrawRect(const Vec2f& pos, const Vec2f& size, int z, const Rect2D
 	}
 
 	float zFloat = -(1.0f - (float)z / (float)MAX_Z) * 50.0f;
-	Vec2f offset = Vec2f(norm.size.x < 0.0f ? -norm.size.x : 0.0f, norm.size.y < 0.0f ? -norm.size.y : 0.0f);
+	Vec2f offset = Vec2f(normRegion.size.x < 0.0f ? -normRegion.size.x : 0.0f, normRegion.size.y < 0.0f ? -normRegion.size.y : 0.0f);
+	auto topLeft = Vec3f(pos.x, pos.y, zFloat);
+	auto topRight = Vec3f(pos.x + size.x, pos.y, zFloat);
+	auto bottomRight = Vec3f(pos.x + size.x, pos.y + size.y, zFloat);
+	auto bottomLeft = Vec3f(pos.x, pos.y + size.y, zFloat);
 
-	AddVertex(Vec3f(pos.x, pos.y, zFloat), color, norm.pos + offset, texIndex);
-	AddVertex(Vec3f(pos.x + size.x, pos.y, zFloat), color, Vec2f(norm.pos.x + norm.size.x, norm.pos.y) + offset, texIndex);
-	AddVertex(Vec3f(pos.x + size.x, pos.y + size.y, zFloat), color, norm.pos + norm.size + offset, texIndex);
-	AddVertex(Vec3f(pos.x, pos.y + size.y, zFloat), color, Vec2f(norm.pos.x, norm.pos.y + norm.size.y) + offset, texIndex);
+	if (fabsf(angle) > 0.0001f)
+	{
+		auto center = Vec3f(pos.x + size.x/2, pos.y + size.y/2, zFloat);
+		auto rotMatrix = glm::rotate(Matrix4f(1.0f), angle, Vec3f(0, 0, 1));
+		RotateVecAroundCenter(topLeft, center, rotMatrix);
+		RotateVecAroundCenter(topRight, center, rotMatrix);
+		RotateVecAroundCenter(bottomLeft, center, rotMatrix);
+		RotateVecAroundCenter(bottomRight, center, rotMatrix);
+	}
+
+	AddVertex(topLeft, color, normRegion.pos + offset, texIndex);
+	AddVertex(topRight, color, Vec2f(normRegion.pos.x + normRegion.size.x, normRegion.pos.y) + offset, texIndex);
+	AddVertex(bottomRight, color, normRegion.pos + normRegion.size + offset, texIndex);
+	AddVertex(bottomLeft, color, Vec2f(normRegion.pos.x, normRegion.pos.y + normRegion.size.y) + offset, texIndex);
 
 	s_data.indexCount += 6;
 }

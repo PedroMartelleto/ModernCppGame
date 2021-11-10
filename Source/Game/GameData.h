@@ -12,6 +12,8 @@ public:
 	static MobComponent GetMobData(const std::string& mobName, MobID mobID);
 	static LocalInputComponent CreateDefaultBinding(int playerID);
 
+	static ProjectileComponent GetProjectileData(const std::string& projectileName);
+
 	inline static int GetWorldSnapshotTickRate()
 	{
 		return (int) s_gameSettings["network"]["worldSnapshotTickRate"];
@@ -24,6 +26,7 @@ public:
 private:
 	static nlohmann::json s_mobData;
 	static nlohmann::json s_gameSettings;
+	static nlohmann::json s_projectileData;
 	static std::vector<std::string> s_mobNames;
 	static std::unordered_map<std::string, int> s_mobActions;
 };

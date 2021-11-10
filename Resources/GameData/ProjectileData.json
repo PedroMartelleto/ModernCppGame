@@ -1,8 +1,16 @@
 {
   "arrow": {
-    "spriteName": "weapon_regular_sword"
+    "flyingSpriteName": "weapon_regular_sword",
+    "readySpriteName": "weapon_regular_sword",
+    "speed": 1.0,
+    "density": 1.0,
+    "baseAngle":  90.0
   },
   "sword": {
-    "spriteName": "weapon_arrow"
+    "flyingSpriteName": "weapon_arrow",
+    "readySpriteName": "weapon_arrow",
+    "speed": 1.0,
+    "density": 1.0,
+    "baseAngle": 90.0
   }
 }

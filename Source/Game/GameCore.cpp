@@ -1,9 +1,7 @@
 #include "GameCore.h"
 #include "ECS/Components.h"
-#include "ECS/UpdateSystems/MobBodyUpdateSystem.h"
-#include "ECS/UpdateSystems/MobInputUpdateSystem.h"
-#include "ECS/UpdateSystems/SpriteBodyUpdateSystem.h"
-#include "ECS/RenderSystems/SpriteRenderSystem.h"
+#include "ECS/RenderSystems.h"
+#include "ECS/UpdateSystems.h"
 #include "GameData.h"
 #include "Networking/EventHandler.h"
 
@@ -26,16 +24,6 @@ GameCore::GameCore(Core* core, HostType hostType) :
 	physicsWorld.SetContactListener(worldContactListener.get());
 }
 
-void GameCore::AddRenderSystem(Ref<RenderSystem> renderSystem)
-{
-	m_renderSystems.push_back(renderSystem);
-}
-
-void GameCore::AddUpdateSystem(Ref<UpdateSystem> updateSystem)
-{
-	m_updateSystems.push_back(updateSystem);
-}
-
 MobID GameCore::CreateMobID()
 {
 	assert(m_hostType == HostType::SERVER);
@@ -43,84 +31,10 @@ MobID GameCore::CreateMobID()
 	return globalMobID;
 }
 
-b2Body* GameCore::CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, SensorComponent* sensorComponent)
-{
-	b2BodyDef bodyDef;
-	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(position.x * Game::PIXELS_TO_METERS, position.y * Game::PIXELS_TO_METERS);
-	bodyDef.fixedRotation = true;
-	bodyDef.allowSleep = false;
-
-	b2PolygonShape box;
-	box.SetAsBox(Game::PIXELS_TO_METERS * size.x / 2, Game::PIXELS_TO_METERS * size.y / 2);
-	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &box;
-	fixtureDef.friction = 0.0f;
-	fixtureDef.density = 1.0f;
-
-	auto footSize = size * footRatio;
-	
-	b2PolygonShape footShape;
-	footShape.SetAsBox(Game::PIXELS_TO_METERS * footSize.x / 2, Game::PIXELS_TO_METERS * footSize.y / 2, b2Vec2(0, Game::PIXELS_TO_METERS * (size.y / 2 + 1.0f)), 0.0f);
-
-	b2Body* body = physicsWorld.CreateBody(&bodyDef);
-	body->CreateFixture(&fixtureDef);
-
-	if (sensorComponent != nullptr)
-	{
-		b2FixtureDef footFixDef;
-		footFixDef.shape = &footShape;
-		footFixDef.isSensor = true;
-		DefineFixtureData(&footFixDef, new FixtureUserData{ sensorComponent });
-		body->CreateFixture(&footFixDef);
-	}
-
-	return body;
-}
-
 void GameCore::DefineFixtureData(b2FixtureDef* fixtureDef, FixtureUserData* fixtureData)
 {
 	m_fixturesUserData.push_back(fixtureData);
 	fixtureDef->userData.pointer = reinterpret_cast<uintptr_t>(m_fixturesUserData.back());
-}
-
-void GameCore::SpawnPlayer(MobID playerID, const std::string& charName, const Vec2f& tilePos, bool isLocal)
-{
-	if (map == nullptr)
-	{
-		DEBUG_LOG("CORE", LOG_ERROR, "Map cannot be nullptr when SpawnPlayer is called.");
-		return;
-	}
-
-	auto mobComponent = GameData::GetMobData(charName, playerID);
-
-	auto windowWidth = (float)Render2D::GetScreenWidth();
-	auto windowHeight = (float)Render2D::GetScreenHeight();
-
-	auto region = atlas->GetAnimFrameRegion(charName + "_m_idle_anim", 0);
-
-	auto player = registry.create();
-	auto aabbSize = Vec2f(9, 16);
-
-	registry.emplace<SensorComponent>(player);
-
-	auto* sensorComponent = registry.try_get<SensorComponent>(player);
-	auto dynamicBody = CreateDynamicBoxBody(tilePos * map->scaledTileSize, aabbSize * Game::MAP_SCALE,
-											Vec2f(0.9f, 0.2f), sensorComponent);
-
-	registry.emplace<PhysicsBodyComponent>(player, dynamicBody);
-	registry.emplace<SpriteComponent>(player, textureManager->Get("DungeonTileset/Atlas.png"), 100,
-		(Vec2f(-0.3f, -5) - region.size / 2.0f) * Game::MAP_SCALE, region.size * Game::MAP_SCALE, Colors::WHITE);
-	registry.emplace<TextureRegionComponent>(player, region);
-
-	if (isLocal)
-	{
-		auto input = GameData::CreateDefaultBinding(0);
-		registry.emplace<LocalInputComponent>(player, input);
-	}
-
-	registry.emplace<MobComponent>(player, mobComponent);
-	mobs[mobComponent.mobID] = player;
 }
 
 void GameCore::SetupServer()
@@ -133,14 +47,6 @@ void GameCore::SetupServer()
 
 void GameCore::Create()
 {
-	// Adds update systems
-	AddUpdateSystem(CreateRef<MobBodyUpdateSystem>());
-	AddUpdateSystem(CreateRef<MobInputUpdateSystem>());
-	AddUpdateSystem(CreateRef<SpriteBodyUpdateSystem>());
-
-	// Adds render systems
-	AddRenderSystem(CreateRef<SpriteRenderSystem>());
-
 	host = CreateRef<NetworkHost>(this, m_hostType, "127.0.0.1");
 
 	if (m_hostType == HostType::SERVER)
@@ -172,9 +78,9 @@ void GameCore::Update(float deltaTime)
 	if (clientPrediction != nullptr) clientPrediction->Update(deltaTime);
 
 	// Calls update systems and runs step in physics world
-	for (auto updateSystem : m_updateSystems)
+	for (const auto& updateSystem : UpdateSystems::updateSystems)
 	{
-		updateSystem->Update(this, deltaTime);
+		updateSystem(this, deltaTime);
 	}
 
 	PhysicsStep(deltaTime);
@@ -202,9 +108,9 @@ void GameCore::Render()
 			mapZIndex += 1;
 		}
 
-		for (auto renderSystem : m_renderSystems)
+		for (const auto& renderSystem : RenderSystems::renderSystems)
 		{
-			renderSystem->Render(this);
+			renderSystem(this);
 		}
 	}
 
@@ -231,9 +137,6 @@ void GameCore::Render()
 void GameCore::Destroy()
 {
 	host->Disconnect();
-
-	m_updateSystems.clear();
-	m_renderSystems.clear();
 
 	if (textureManager != nullptr)
 	{

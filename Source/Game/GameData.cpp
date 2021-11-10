@@ -2,6 +2,7 @@
 
 nlohmann::json GameData::s_mobData;
 nlohmann::json GameData::s_gameSettings;
+nlohmann::json GameData::s_projectileData;
 std::unordered_map<std::string, int> GameData::s_mobActions;
 std::vector<std::string> GameData::s_mobNames;
 
@@ -9,6 +10,7 @@ void GameData::Create(const std::string& folderPath)
 {
 	s_mobData = Utils::LoadJSON(folderPath + "MobData.json");
 	s_gameSettings = Utils::LoadJSON(folderPath + "GameSettings.json");
+	s_projectileData = Utils::LoadJSON(folderPath + "ProjectileData.json");
 
 	for (auto it = s_mobData.begin(); it != s_mobData.end(); ++it)
 	{
@@ -20,6 +22,13 @@ void GameData::Create(const std::string& folderPath)
 	{
 		s_mobActions[playerActions[i]] = i;
 	}
+}
+
+ProjectileComponent GameData::GetProjectileData(const std::string& projectileName)
+{
+	auto projectileComponent = ProjectileComponent();
+	Serialization::from_json(s_projectileData.at(projectileName), projectileComponent);
+	return projectileComponent;
 }
 
 std::string GameData::GetMobNameFromTypeID(uint8_t typeID)

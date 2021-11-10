@@ -2,6 +2,7 @@
 
 #include "../../Engine/Engine.h"
 #include "../Networking/BitBuffer.h"
+#include "../Projectiles/Projectile.h"
 
 // We are using ECS, so we need to define components: minimal pieces of data used in the game
 
@@ -76,41 +77,39 @@ struct SensorComponent
 	}
 };
 
-struct ProjectileDirection
+using MobID = uint32_t;
+
+struct ProjectileComponent
 {
-	bool up;
-	bool right;
-	bool down;
-	bool left;
-
-	inline Vec2f AsVector() const
-	{
-		float yDir = up ? 1.0f : 0.0f;
-		if (down) yDir -= 1.0f;
-
-		float xDir = right ? 1.0f : 0.0f;
-		if (left) xDir -= 1.0f;
-
-		return Vec2f(xDir, yDir);
-	}
+	b2Body* body;
+	float speed;
+	float density;
+	std::string flyingSpriteName;
+	std::string readySpriteName;
+	float baseAngle;
 };
 
-using MobID = uint32_t;
+struct ProjectileInventoryComponent
+{
+	std::vector<ProjectileComponent> projectiles;
+};
 
 struct MobComponent
 {
+	MobID mobID = 0;
 	bool isPlayer = false;
 	std::string name = "";
-	MobID mobID = 0;
+	float density = 0.0f;
+
 	float horizontalImpulse = 0.0f;
 	float maxHorizontalSpeed = 0.0f;
 	float horizontalDragForce = 0.0f;
-	float jumpHeight = 0.0f;
 	float horizontalMoveDir = 0.0f;
-	float density = 0.0f;
-	
-	ProjectileDirection shootDirection;
+
+	float jumpHeight = 0.0f;
 	bool wantsToJump = false;
+
+	ProjectileDirection shootDirection;
 	bool wantsToShoot = false;
 
 	BitBuffer8 CreateEventBitBuffer() const;
@@ -125,6 +124,7 @@ struct LocalInputComponent
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, isPlayer, name, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight, density)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProjectileComponent, speed, density, flyingSpriteName, readySpriteName, baseAngle)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

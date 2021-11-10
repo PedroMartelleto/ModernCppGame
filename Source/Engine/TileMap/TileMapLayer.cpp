@@ -39,7 +39,7 @@ void TileMapLayer::Render(const Vec2f& position, float scale, int zIndex)
 			{
 				auto region = tileset->GetTileRegion(id);
 				auto drawPos = position + Vec2f((float)x, (float)y) * tileSize;
-				Render2D::DrawRect(drawPos, tileSize, zIndex, region, tileset->texture, Colors::WHITE);
+				Render2D::DrawRect(drawPos, 0.0f, tileSize, zIndex, region, tileset->texture, Colors::WHITE);
 			}
 		}
 	}

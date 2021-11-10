@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Engine/Engine.h"
-#include "ECS/System.h"
 #include "Globals.h"
 #include "Networking/NetworkHost.h"
 #include "Networking/EventQueue.h"
@@ -16,8 +15,6 @@ class GameCore
 public:
 	GameCore(Core* core, HostType hostType);
 
-	void SpawnPlayer(MobID playerID, const std::string& charName, const Vec2f& tilePos, bool isLocal);
-
 	void PhysicsStep(float deltaTime);
 
 	void Create();
@@ -26,14 +23,10 @@ public:
 	void Destroy();
 
 	MobID CreateMobID();
+
+	void DefineFixtureData(b2FixtureDef* fixtureDef, FixtureUserData* fixtureData);
 private:
 	void SetupServer();
-
-	b2Body* CreateDynamicBoxBody(const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, SensorComponent* groundDetectionComponent);
-	void DefineFixtureData(b2FixtureDef* fixtureDef, FixtureUserData* fixtureData);
-
-	void AddRenderSystem(Ref<RenderSystem> system);
-	void AddUpdateSystem(Ref<UpdateSystem> system);
 public:
 	Core* core;
 	const std::string mapFilepath;
@@ -41,6 +34,7 @@ public:
 	uint64_t frameCounter = 0;
 	MobID globalMobID = 0;
 	std::unordered_map<MobID, entt::entity> mobs;
+	int localPlayerCount = 0;
 
 	// Physics
 	Ref<WorldContactListener> worldContactListener;
@@ -55,10 +49,8 @@ public:
 	Ref<TextureAtlas> atlas;
 	Ref<TileMap> map;
 private:
-	const HostType m_hostType;
-	Array<Ref<RenderSystem>> m_renderSystems;
-	Array<Ref<UpdateSystem>> m_updateSystems;
 
+	const HostType m_hostType;
 	Array<FixtureUserData*> m_fixturesUserData;
 };
 

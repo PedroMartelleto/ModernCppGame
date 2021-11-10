@@ -1,5 +1,6 @@
 #include "EventHandler.h"
 #include "../GameData.h"
+#include "../Spawner.h"
 
 namespace EventHandler
 {
@@ -55,7 +56,7 @@ namespace EventHandler
 				{
 					auto ev = std::static_pointer_cast<SpawnPlayerEvent>(event.data);
 					bool isLocal = ev->type == gameCore->host->type;
-					gameCore->SpawnPlayer(ev->mobID, ev->charName, Vec2f((float)ev->tileX, (float)ev->tileY), isLocal);
+					Spawner::SpawnPlayer(gameCore, ev->mobID, ev->charName, Vec2f((float)ev->tileX, (float)ev->tileY), isLocal);
 				}
 				break;
 			}
