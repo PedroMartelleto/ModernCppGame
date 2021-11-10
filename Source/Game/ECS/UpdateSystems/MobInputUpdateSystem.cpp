@@ -25,6 +25,16 @@ void MobInputUpdateSystem::Update(GameCore* gameCore, float deltaTime)
 			mob.horizontalMoveDir += 1.0f;
 		}
 
+		auto left = input.inputCodes[GameData::GetMobActionBit("MOVE_LEFT")];
+		auto up = input.inputCodes[GameData::GetMobActionBit("MOVE_UP")];
+		auto right = input.inputCodes[GameData::GetMobActionBit("MOVE_RIGHT")];
+		auto down = input.inputCodes[GameData::GetMobActionBit("MOVE_DOWN")];
+		mob.shootDirection.left = Input::IsKeyDown(left);
+		mob.shootDirection.up = Input::IsKeyDown(up);
+		mob.shootDirection.right = Input::IsKeyDown(right);
+		mob.shootDirection.down = Input::IsKeyDown(down);
+		// TODO: Shoot "prepare"
+
 		bitBuffers[std::to_string(mob.mobID)] = Utils::ToJSON(mob.CreateEventBitBuffer());
 	}
 

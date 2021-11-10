@@ -91,6 +91,7 @@
   <ItemGroup>
     <None Include="Resources\GameData\MobData.json" />
     <None Include="Resources\GameData\GameSettings.json" />
+    <None Include="Resources\GameData\ProjectileData.json" />
     <None Include="Resources\Shaders\Shader.glsl" />
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +102,7 @@
     <ProjectGuid>{86A80A52-84B5-40BF-B2B6-8F4773DB74B0}</ProjectGuid>
     <RootNamespace>CppGame</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Server</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

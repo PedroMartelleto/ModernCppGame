@@ -1,0 +1,8 @@
+{
+  "arrow": {
+    "spriteName": "weapon_regular_sword"
+  },
+  "sword": {
+    "spriteName": "weapon_arrow"
+  }
+}

@@ -26,10 +26,10 @@ class Core
 public:
 	Core(int targetFPS, HostType hostType);
 
-	virtual void Create();
-	virtual void Destroy();
-	virtual void Render();
-	virtual void Update(float deltaTime);
+	void Create();
+	void Destroy();
+	void Render();
+	void Update(float deltaTime);
 	
 	void Run();
 

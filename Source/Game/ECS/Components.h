@@ -76,6 +76,25 @@ struct SensorComponent
 	}
 };
 
+struct ProjectileDirection
+{
+	bool up;
+	bool right;
+	bool down;
+	bool left;
+
+	inline Vec2f AsVector() const
+	{
+		float yDir = up ? 1.0f : 0.0f;
+		if (down) yDir -= 1.0f;
+
+		float xDir = right ? 1.0f : 0.0f;
+		if (left) xDir -= 1.0f;
+
+		return Vec2f(xDir, yDir);
+	}
+};
+
 using MobID = uint32_t;
 
 struct MobComponent
@@ -89,15 +108,12 @@ struct MobComponent
 	float jumpHeight = 0.0f;
 	float horizontalMoveDir = 0.0f;
 	float density = 0.0f;
-	bool wantsToJump = 0.0f;
+	
+	ProjectileDirection shootDirection;
+	bool wantsToJump = false;
+	bool wantsToShoot = false;
 
 	BitBuffer8 CreateEventBitBuffer() const;
-};
-
-struct PlayerInputRequest
-{
-	int playerID;
-	BitBuffer8 inputs;
 };
 
 #define MAX_PLAYER_INPUTS 8

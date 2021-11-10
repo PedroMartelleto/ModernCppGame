@@ -4,14 +4,16 @@
     "actions": [
       "JUMP",
       "MOVE_LEFT",
-      "MOVE_RIGHT"
+      "MOVE_RIGHT",
+      "SHOOT_LEFT",
+      "SHOOT_RIGHT",
+      "SHOOT_UP",
+      "SHOOT_DOWN",
+      "SHOOT"
     ],
     "bindings": [
-      [
-        26,
-        4,
-        7
-      ]
+      [ 26, 4, 7, 13, 15, 12, 14, 0 ],
+      [ 82, 80, 81, 89, 91, 93, 90, 0 ]
     ]
   },
   "network": {

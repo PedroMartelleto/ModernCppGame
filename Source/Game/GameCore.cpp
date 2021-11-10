@@ -126,7 +126,9 @@ void GameCore::SpawnPlayer(MobID playerID, const std::string& charName, const Ve
 void GameCore::SetupServer()
 {
 	host->eventQueue.Enqueue(EventType::Map, CreateRef<MapDataEvent>(MapDataEvent{ Utils::LoadFile(mapFilepath) }));
-	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 9, 8, "wizzard" }));
+
+	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 9, 8, "knight" }));
+	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 14, 8, "elf" }));
 }
 
 void GameCore::Create()

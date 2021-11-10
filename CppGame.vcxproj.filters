@@ -220,6 +220,7 @@
     <None Include="Resources\GameData\MobData.json" />
     <None Include="Resources\Shaders\Shader.glsl" />
     <None Include="Resources\GameData\GameSettings.json" />
+    <None Include="Resources\GameData\ProjectileData.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source\README.md" />

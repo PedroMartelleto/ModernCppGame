@@ -2,9 +2,11 @@
 
 ## TODO
 
-* Input prediction + sync inputs and snapshots + toggle
+* Stop networking and finish the game w/ threads
+	* Arrows
+	* Pathfinding on a separate thread
 
-* Threads: enemy spawning/AI
+* Networking: Input prediction + sync inputs and snapshots + toggle
 
 * Basic game UI
 
