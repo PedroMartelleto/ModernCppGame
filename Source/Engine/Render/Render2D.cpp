@@ -5,8 +5,6 @@ Shader* Render2D::shader = nullptr;
 Matrix4f Render2D::orthoMatrix = Matrix4f(1.0f);
 Window* Render2D::s_window = nullptr;
 
-const int MAX_Z = 100000;
-
 void Render2D::Create(Window* window)
 {
 	s_window = window;
@@ -101,7 +99,7 @@ void Render2D::Create(Window* window)
 
 void Render2D::Resize(float width, float height)
 {
-	orthoMatrix = glm::ortho(0.0f, width, height, 0.0f, -0.01f, 100.0f);
+	orthoMatrix = glm::ortho(0.0f, width, height, 0.0f, NEAR_PLANE, FAR_PLANE);
 	glViewport(0, 0, (int)width, (int)height);
 }
 
@@ -169,7 +167,7 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 	DrawRect(pos, angle, size, z, Rect2D(0, 0, 1, 1), nullptr, color);
 }
 
-void RotateVecAroundCenter(Vec3f& vec, const Vec3f& center, const Matrix4f& matrix)
+inline void RotateVecAroundCenter(Vec3f& vec, const Vec3f& center, const Matrix4f& matrix)
 {
 	Vec4f r = (matrix * Vec4f(vec - center, 1.0f));
 	vec = Vec3f(r.x, r.y, r.z) + center;
@@ -220,7 +218,7 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 		}
 	}
 
-	float zFloat = -(1.0f - (float)z / (float)MAX_Z) * 50.0f;
+	float zFloat = -(1.0f - (float)z / (float)MAX_Z) * FAR_PLANE;
 	Vec2f offset = Vec2f(normRegion.width < 0.0f ? -normRegion.width : 0.0f, normRegion.height < 0.0f ? -normRegion.height : 0.0f);
 	auto topLeft = Vec3f(pos.x, pos.y, zFloat);
 	auto topRight = Vec3f(pos.x + size.x, pos.y, zFloat);

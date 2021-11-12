@@ -41,6 +41,10 @@ struct RendererData
 class Render2D
 {
 public:
+	static const int MAX_Z = 100000;
+	inline static const float NEAR_PLANE = -0.01f;
+	inline static const float FAR_PLANE = 10.0f;
+
 	static const size_t MaxQuadCount = 1024;
 	static const size_t MaxVertexCount = MaxQuadCount * 4;
 	static const size_t MaxIndexCount = MaxQuadCount * 6;

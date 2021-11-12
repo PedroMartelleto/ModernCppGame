@@ -4,7 +4,17 @@
 
 struct FixtureUserData
 {
-	SensorComponent* sensor;
+	SensorComponent* sensor = nullptr;
+
+	/// <summary>
+	/// If this fixture belongs to a projectile, this variable points to the projectile component
+	/// </summary>
+	ProjectileComponent* projectileComponent = nullptr;
+
+	/// <summary>
+	/// If this fixture belongs to a mob, this variable points to the mob component
+	/// </summary>
+	MobComponent* mobComponent = nullptr;
 };
 
 struct WorldContactListener : public b2ContactListener

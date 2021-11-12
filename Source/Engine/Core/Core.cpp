@@ -44,10 +44,10 @@ void Core::Render()
 
 	gameCore->Render();
 
-	for (const auto& rect : m_debugRects)
+	for (const auto& rectTuple : m_debugRects)
 	{
-		auto rectToDraw = rect.first;
-		Render2D::DrawRect(rect.first.pos(), 0.0f, rect.first.size(), 50, rect.second);
+		auto [ rect, color, z ] = rectTuple;
+		Render2D::DrawRect(rect.pos(), 0.0f, rect.size(), (int)z, color);
 	}
 
 	//for (const auto& line : m_debugLines)
@@ -140,9 +140,9 @@ void Core::Update(float deltaTime)
 	gameCore->Update(deltaTime);
 }
 
-void Core::DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const Color4f& color)
+void Core::DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const Color4f& color, float z)
 {
-	m_debugRects.push_back({ Rect2D(pos, size), color });
+	m_debugRects.push_back(std::tuple<Rect2D,Color4f,float>(Rect2D(pos, size), color, z));
 }
 
 void Core::DEBUG_DrawBodyAABB(b2Body* body, const Color4f& color)
@@ -157,7 +157,7 @@ void Core::DEBUG_DrawBodyAABB(b2Body* body, const Color4f& color)
 			auto bottomRight = Vec2fFromB2(aabb.upperBound) * Game::METERS_TO_PIXELS;
 			auto topLeft = Vec2fFromB2(aabb.lowerBound) * Game::METERS_TO_PIXELS;
 
-			m_debugRects.push_back({ Rect2D(topLeft, glm::abs(bottomRight - topLeft)), color });
+			m_debugRects.push_back({ Rect2D(topLeft, glm::abs(bottomRight - topLeft)), fixture->IsSensor() ? Colors::RED : color, fixture->IsSensor() ? 10000.0f : 1000.0f });
 		}
 		fixture = fixture->GetNext();
 	}

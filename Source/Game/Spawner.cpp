@@ -1,10 +1,19 @@
 #include "Spawner.h"
 #include "GameCore.h"
 #include "GameData.h"
+#include "Physics/WorldContactListener.h"
+
+FixtureUserData* CreateFixtureUserData(entt::registry& registry, entt::entity entity)
+{
+	return new FixtureUserData{
+		registry.try_get<SensorComponent>(entity), registry.try_get<ProjectileComponent>(entity), registry.try_get<MobComponent>(entity)
+	};
+}
 
 namespace Spawner
 {
-	b2Body* CreateDynamicBoxBody(GameCore* gameCore, float density, const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, SensorComponent* sensorComponent)
+	b2Body* CreateDynamicBoxBody(GameCore* gameCore, float density, const Vec2f& position, const Vec2f& size, const SensorPlacement& sensorPlacement,
+								 const Vec2f& sensorRatio, FixtureUserData* fixtureUserData)
 	{
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
@@ -19,21 +28,22 @@ namespace Spawner
 		fixtureDef.friction = 0.0f;
 		fixtureDef.density = density;
 
-		auto footSize = size * footRatio;
-
-		b2PolygonShape footShape;
-		footShape.SetAsBox(Game::PIXELS_TO_METERS * footSize.x / 2, Game::PIXELS_TO_METERS * footSize.y / 2, b2Vec2(0, Game::PIXELS_TO_METERS * (size.y / 2 + 1.0f)), 0.0f);
+		auto sensorSize = size * sensorRatio;
 
 		b2Body* body = gameCore->physicsWorld.CreateBody(&bodyDef);
 		body->CreateFixture(&fixtureDef);
 
-		if (sensorComponent != nullptr)
+		if (fixtureUserData != nullptr)
 		{
-			b2FixtureDef footFixDef;
-			footFixDef.shape = &footShape;
-			footFixDef.isSensor = true;
-			gameCore->DefineFixtureData(&footFixDef, new FixtureUserData{ sensorComponent });
-			body->CreateFixture(&footFixDef);
+			b2PolygonShape sensorShape;
+			sensorShape.SetAsBox(Game::PIXELS_TO_METERS * sensorSize.x / 2, Game::PIXELS_TO_METERS * sensorSize.y / 2,
+				b2Vec2(0, Game::PIXELS_TO_METERS * (size.y / 2 + 2.0f) * (sensorPlacement == SensorPlacement::Bottom ? 1 : -1)), 0.0f);
+
+			b2FixtureDef sensorDef;
+			sensorDef.shape = &sensorShape;
+			sensorDef.isSensor = true;
+			gameCore->DefineFixtureData(&sensorDef, fixtureUserData);
+			body->CreateFixture(&sensorDef);
 		}
 
 		return body;
@@ -57,11 +67,12 @@ namespace Spawner
 
 		auto region = gameCore->atlas->GetAnimFrameRegion(charName + "_m_idle_anim", 0);
 
-		gameCore->registry.emplace<SensorComponent>(player);
+		registry.emplace<SensorComponent>(player);
 
-		auto* sensorComponent = registry.try_get<SensorComponent>(player);
 		auto dynamicBody = CreateDynamicBoxBody(gameCore, mobComponent.density, tilePos * map->scaledTileSize,
-			mobComponent.GetAABB().size() * map->mapScale, Vec2f(0.9f, 0.2f), sensorComponent);
+			mobComponent.GetAABB().size() * map->mapScale, SensorPlacement::Bottom, Vec2f(0.9f, 0.2f),
+			CreateFixtureUserData(registry, player)
+		);
 
 		registry.emplace<PhysicsBodyComponent>(player, dynamicBody);
 		registry.emplace<SpriteComponent>(player, gameCore->textureManager->Get("DungeonTileset/Atlas.png"), 100,
@@ -97,8 +108,14 @@ namespace Spawner
 		}
 
 		auto entity = gameCore->registry.create();
+		
+		registry.emplace<ProjectileComponent>(entity, projectileData);
+		registry.emplace<SensorComponent>(entity);
+
 		auto region = gameCore->atlas->GetRegion(projectileData.flyingSpriteName);
-		auto dynamicBody = CreateDynamicBoxBody(gameCore, projectileData.density, pos, projectileData.GetAABB().size() * map->mapScale, Vec2f(0.0f, 0.0f), nullptr);
+		auto dynamicBody = CreateDynamicBoxBody(
+			gameCore, projectileData.density, pos, projectileData.GetAABB().size() * map->mapScale,
+			SensorPlacement::Top, Vec2f(1.1f, 0.3f), CreateFixtureUserData(registry, entity));
 		auto drawSize = region.size() * map->mapScale;
 
 		registry.emplace<PhysicsBodyComponent>(entity, dynamicBody);

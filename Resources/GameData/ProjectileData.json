@@ -3,10 +3,11 @@
     "flyingSpriteName": "weapon_regular_sword",
     "readySpriteName": "weapon_regular_sword",
     "initialSpeed": 5.2,
-    "density": 1.2,
+    "density": 1.1,
     "baseAngle": 90.0,
     "linearDamping": 1.0,
     "angularDamping": 2.0,
+    "damage": 2,
     "aabb": {
       "x": 0,
       "y": 0,
@@ -22,6 +23,7 @@
     "baseAngle": 90.0,
     "linearDamping": 1.0,
     "angularDamping": 2.0,
+    "damage": 1,
     "aabb": {
       "x": 1,
       "y": 0,

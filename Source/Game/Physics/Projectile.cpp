@@ -2,7 +2,7 @@
 #include "../Spawner.h"
 #include "../GameCore.h"
 
-// TODO: Stick to walls, Sensor, damage
+// TODO: Stick to walls
 // TODO: Small input delay for removing direction
 // TODO: Handle looping of non-fixed rotation projectiles
 

@@ -35,7 +35,7 @@ namespace UpdateSystems
 			{
 				auto* sensorComponent = registry.try_get<SensorComponent>(entity);
 
-				if (sensorComponent != nullptr && sensorComponent->IsGrounded())
+				if (sensorComponent != nullptr && sensorComponent->IsColliding())
 				{
 					auto impulse = b2Vec2(0.0f, -mob.jumpHeight * body.body->GetMass());
 					body.body->ApplyLinearImpulse(impulse, b2Vec2(0, 0), true);

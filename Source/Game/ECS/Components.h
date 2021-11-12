@@ -17,6 +17,12 @@ struct PhysicsBodyComponent
 	inline operator b2Body* () { return body; }
 };
 
+struct ProjectileComponent
+{
+	ProjectileData projectileData;
+	bool hasHitAnything = false;
+};
+
 struct TextureRegionComponent
 {
 	Vec2f texPos;
@@ -63,20 +69,6 @@ struct DEBUG_PhysicsBodyDrawComponent
 		drawAABB(drawAABB), drawPoly(drawPoly), aabbColor(aabbColor), polyColor(polyColor) {}
 };
 
-struct SensorComponent
-{
-	static const int GroundSensor = 0;
-
-	int contactCount[1] = { 0 };
-
-	SensorComponent() {}
-	
-	inline bool IsGrounded()
-	{
-		return contactCount[SensorComponent::GroundSensor] > 0;
-	}
-};
-
 using MobID = uint32_t;
 
 struct ProjectileInventoryComponent
@@ -99,6 +91,7 @@ public:
 
 	ProjectileDirection shootDirection;
 	
+	int health = 3;
 	bool isPlayer = false;
 	bool wantsToJump = false;
 	bool wantsToShoot = false;
@@ -111,6 +104,21 @@ public:
 	inline Rect2D GetAABB() const { return Rect2D(aabb["x"], aabb["y"], aabb["width"], aabb["height"]); }
 };
 
+
+struct SensorComponent
+{
+	static const int GroundSensor = 0;
+
+	int contactCount[1] = { 0 };
+
+	SensorComponent() {}
+
+	inline bool IsColliding()
+	{
+		return contactCount[SensorComponent::GroundSensor] > 0;
+	}
+};
+
 #define MAX_PLAYER_INPUTS 8
 
 struct LocalInputComponent
@@ -120,6 +128,6 @@ struct LocalInputComponent
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight, aabb)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, health, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight, aabb)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

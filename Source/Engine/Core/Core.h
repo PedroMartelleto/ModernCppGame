@@ -35,7 +35,7 @@ public:
 
 	void SetWindowSizeAndCenter(int width, int height);
 
-	void DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const Color4f& color);
+	void DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const Color4f& color, float z);
 	void DEBUG_DrawBodyAABB(b2Body* body, const Color4f& color);
 	void DEBUG_DrawBody(b2Body* body, const Color4f& color);
 	void DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const Color4f& color = Colors::RED, float thickness = 4.0f);
@@ -48,7 +48,7 @@ private:
 	Window* m_window;
 	HostType m_hostType;
 
-	std::vector<std::pair<Rect2D, Color4f>> m_debugRects;
+	std::vector<std::tuple<Rect2D, Color4f, float>> m_debugRects;
 	std::vector<DebugLineInfo> m_debugLines;
 };
 

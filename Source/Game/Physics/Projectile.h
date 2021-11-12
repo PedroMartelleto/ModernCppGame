@@ -27,6 +27,7 @@ struct ProjectileData
 	float baseAngle;
 	float linearDamping;
 	float angularDamping;
+	int damage;
 
 	nlohmann::json aabb;
 
@@ -40,5 +41,5 @@ namespace Projectile
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProjectileData, initialSpeed, density, flyingSpriteName, readySpriteName, baseAngle, aabb)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProjectileData, initialSpeed, density, flyingSpriteName, readySpriteName, baseAngle, aabb, damage)
 }

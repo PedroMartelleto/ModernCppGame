@@ -48,6 +48,7 @@
     <ClCompile Include="Source\Game\Physics\WorldSnapshotEvent.cpp" />
     <ClCompile Include="Source\Game\ECS\UpdateSystems.cpp" />
     <ClCompile Include="Source\Game\Spawner.cpp" />
+    <ClCompile Include="Source\Game\Physics\WorldInteractionHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Physics\Projectile.h" />
@@ -86,6 +87,7 @@
     <ClInclude Include="Source\Game\Physics\WorldSnapshotEvent.h" />
     <ClInclude Include="Source\Game\ECS\UpdateSystems.h" />
     <ClInclude Include="Source\Game\Spawner.h" />
+    <ClInclude Include="Source\Game\Physics\WorldInteractionHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\GameData\MobData.json" />

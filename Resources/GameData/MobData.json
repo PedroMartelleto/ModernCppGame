@@ -1,5 +1,6 @@
 {
   "knight": {
+    "health":  2,
     "density": 1,
     "horizontalDragForce": 10.0,
     "horizontalImpulse": 4.0,
@@ -11,10 +12,11 @@
       "x": 0,
       "y": 6,
       "width": 11,
-      "height":  16
+      "height": 16
     }
   },
   "elf": {
+    "health": 1,
     "density": 1,
     "horizontalDragForce": 10.0,
     "horizontalImpulse": 4.0,
@@ -30,6 +32,7 @@
     }
   },
   "wizzard": {
+    "health": 1,
     "density": 1,
     "horizontalDragForce": 10.0,
     "horizontalImpulse": 4.0,
@@ -45,6 +48,7 @@
     }
   },
   "lizard": {
+    "health": 1,
     "density": 1,
     "horizontalDragForce": 10.0,
     "horizontalImpulse": 4.0,
