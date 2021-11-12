@@ -12,7 +12,7 @@ public:
 	static MobComponent GetMobData(const std::string& mobName, MobID mobID);
 	static LocalInputComponent CreateDefaultBinding(int playerID);
 
-	static ProjectileComponent GetProjectileData(const std::string& projectileName);
+	static ProjectileData GetProjectileData(const std::string& projectileName);
 
 	inline static int GetWorldSnapshotTickRate()
 	{

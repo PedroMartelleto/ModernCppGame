@@ -1,16 +1,32 @@
 {
-  "arrow": {
+  "sword": {
     "flyingSpriteName": "weapon_regular_sword",
     "readySpriteName": "weapon_regular_sword",
-    "speed": 1.0,
-    "density": 1.0,
-    "baseAngle":  90.0
+    "initialSpeed": 5.2,
+    "density": 1.2,
+    "baseAngle": 90.0,
+    "linearDamping": 1.0,
+    "angularDamping": 2.0,
+    "aabb": {
+      "x": 0,
+      "y": 0,
+      "width": 5,
+      "height": 20
+    }
   },
-  "sword": {
+  "arrow": {
     "flyingSpriteName": "weapon_arrow",
     "readySpriteName": "weapon_arrow",
-    "speed": 1.0,
+    "initialSpeed": 5.2,
     "density": 1.0,
-    "baseAngle": 90.0
+    "baseAngle": 90.0,
+    "linearDamping": 1.0,
+    "angularDamping": 2.0,
+    "aabb": {
+      "x": 1,
+      "y": 0,
+      "width": 3,
+      "height": 20
+    }
   }
 }

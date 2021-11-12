@@ -4,7 +4,7 @@
 
 namespace Spawner
 {
-	b2Body* CreateDynamicBoxBody(GameCore* gameCore, const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, SensorComponent* sensorComponent)
+	b2Body* CreateDynamicBoxBody(GameCore* gameCore, float density, const Vec2f& position, const Vec2f& size, const Vec2f& footRatio, SensorComponent* sensorComponent)
 	{
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
@@ -17,7 +17,7 @@ namespace Spawner
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &box;
 		fixtureDef.friction = 0.0f;
-		fixtureDef.density = 1.0f;
+		fixtureDef.density = density;
 
 		auto footSize = size * footRatio;
 
@@ -56,20 +56,24 @@ namespace Spawner
 		registry.emplace<MobComponent>(player, mobComponent);
 
 		auto region = gameCore->atlas->GetAnimFrameRegion(charName + "_m_idle_anim", 0);
-		auto aabbSize = Vec2f(9, 16);
 
 		gameCore->registry.emplace<SensorComponent>(player);
 
 		auto* sensorComponent = registry.try_get<SensorComponent>(player);
-		auto dynamicBody = CreateDynamicBoxBody(gameCore, tilePos * map->scaledTileSize, aabbSize * Game::MAP_SCALE,
-			Vec2f(0.9f, 0.2f), sensorComponent);
+		auto dynamicBody = CreateDynamicBoxBody(gameCore, mobComponent.density, tilePos * map->scaledTileSize,
+			mobComponent.GetAABB().size() * map->mapScale, Vec2f(0.9f, 0.2f), sensorComponent);
 
 		registry.emplace<PhysicsBodyComponent>(player, dynamicBody);
 		registry.emplace<SpriteComponent>(player, gameCore->textureManager->Get("DungeonTileset/Atlas.png"), 100,
-			(Vec2f(-0.3f, -5) - region.size / 2.0f) * Game::MAP_SCALE, region.size * Game::MAP_SCALE, Colors::WHITE);
+			-(mobComponent.GetAABB().pos() + region.size()/2.0f) * map->mapScale, region.size() * map->mapScale, Colors::WHITE);
 		registry.emplace<TextureRegionComponent>(player, region);
 
-		registry.emplace<ProjectileInventoryComponent>(player, ProjectileInventoryComponent{ { GameData::GetProjectileData("arrow") }});
+		std::vector<ProjectileData> temp;
+		for (int i = 0; i < 50; ++i)
+		{
+			temp.push_back(rand() % 2 == 0 ? GameData::GetProjectileData("arrow") : GameData::GetProjectileData("sword"));
+		}
+		registry.emplace<ProjectileInventoryComponent>(player, ProjectileInventoryComponent{ temp });
 
 		if (isLocal)
 		{
@@ -79,5 +83,29 @@ namespace Spawner
 		}
 
 		gameCore->mobs[mobComponent.mobID] = player;
+	}
+
+	entt::entity SpawnProjectile(GameCore* gameCore, const Vec2f& pos, const ProjectileData& projectileData)
+	{
+		auto& registry = gameCore->registry;
+		auto map = gameCore->map;
+
+		if (map == nullptr)
+		{
+			DEBUG_LOG("CORE", LOG_ERROR, "Map cannot be nullptr when SpawnProjectile is called.");
+			return entt::null;
+		}
+
+		auto entity = gameCore->registry.create();
+		auto region = gameCore->atlas->GetRegion(projectileData.flyingSpriteName);
+		auto dynamicBody = CreateDynamicBoxBody(gameCore, projectileData.density, pos, projectileData.GetAABB().size() * map->mapScale, Vec2f(0.0f, 0.0f), nullptr);
+		auto drawSize = region.size() * map->mapScale;
+
+		registry.emplace<PhysicsBodyComponent>(entity, dynamicBody);
+		registry.emplace<SpriteComponent>(entity, gameCore->textureManager->Get("DungeonTileset/Atlas.png"),
+			100, -(projectileData.GetAABB().pos() * map->mapScale + drawSize/2.0f), drawSize, Colors::WHITE);
+		registry.emplace<TextureRegionComponent>(entity, region);
+
+		return entity;
 	}
 }

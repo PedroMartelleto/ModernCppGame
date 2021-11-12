@@ -69,16 +69,17 @@ namespace RenderSystems
 			{
 				const auto& sprite = registry.get<SpriteComponent>(entity);
 				const auto& body = registry.get<PhysicsBodyComponent>(entity);
-				const auto& projectile = inventory.projectiles[0];
+				const auto& projectile = inventory.projectiles.back();
 
 				auto drawPos = GetBodyDrawPos(sprite, &body);
 
+				auto projectileDir = glm::normalize(mob.shootDirection.AsVector());
 				float projectileAngle = mob.shootDirection.AsAngle() + glm::radians(projectile.baseAngle);
 
 				Rect2D region = gameCore->atlas->GetRegion(projectile.readySpriteName);
-				Vec2f size = region.size * Game::MAP_SCALE;
+				Vec2f size = region.size() * gameCore->map->mapScale;
 
-				Render2D::DrawRect(drawPos, projectileAngle, size, sprite.zIndex + 100, region, sprite.texture, sprite.tint);
+				Render2D::DrawRect(drawPos + projectileDir * sprite.size/2.0f + Vec2f(8, 12), projectileAngle, size, sprite.zIndex + 100, region, sprite.texture, sprite.tint);
 			}
 		}
 	}

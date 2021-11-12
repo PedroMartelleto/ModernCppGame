@@ -47,7 +47,7 @@ void Core::Render()
 	for (const auto& rect : m_debugRects)
 	{
 		auto rectToDraw = rect.first;
-		Render2D::DrawRect(rect.first.pos, 0.0f, rect.first.size, 50, rect.second);
+		Render2D::DrawRect(rect.first.pos(), 0.0f, rect.first.size(), 50, rect.second);
 	}
 
 	//for (const auto& line : m_debugLines)

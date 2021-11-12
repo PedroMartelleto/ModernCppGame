@@ -191,10 +191,10 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 
 	if (texture != nullptr)
 	{
-		normRegion.pos.x /= texture->GetWidth();
-		normRegion.size.x /= texture->GetWidth();
-		normRegion.pos.y /= texture->GetHeight();
-		normRegion.size.y /= texture->GetHeight();
+		normRegion.x /= texture->GetWidth();
+		normRegion.width /= texture->GetWidth();
+		normRegion.y /= texture->GetHeight();
+		normRegion.height /= texture->GetHeight();
 
 		auto textureID = texture->GetID();
 
@@ -221,7 +221,7 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 	}
 
 	float zFloat = -(1.0f - (float)z / (float)MAX_Z) * 50.0f;
-	Vec2f offset = Vec2f(normRegion.size.x < 0.0f ? -normRegion.size.x : 0.0f, normRegion.size.y < 0.0f ? -normRegion.size.y : 0.0f);
+	Vec2f offset = Vec2f(normRegion.width < 0.0f ? -normRegion.width : 0.0f, normRegion.height < 0.0f ? -normRegion.height : 0.0f);
 	auto topLeft = Vec3f(pos.x, pos.y, zFloat);
 	auto topRight = Vec3f(pos.x + size.x, pos.y, zFloat);
 	auto bottomRight = Vec3f(pos.x + size.x, pos.y + size.y, zFloat);
@@ -237,10 +237,10 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 		RotateVecAroundCenter(bottomRight, center, rotMatrix);
 	}
 
-	AddVertex(topLeft, color, normRegion.pos + offset, texIndex);
-	AddVertex(topRight, color, Vec2f(normRegion.pos.x + normRegion.size.x, normRegion.pos.y) + offset, texIndex);
-	AddVertex(bottomRight, color, normRegion.pos + normRegion.size + offset, texIndex);
-	AddVertex(bottomLeft, color, Vec2f(normRegion.pos.x, normRegion.pos.y + normRegion.size.y) + offset, texIndex);
+	AddVertex(topLeft, color, normRegion.pos() + offset, texIndex);
+	AddVertex(topRight, color, Vec2f(normRegion.x + normRegion.width, normRegion.y) + offset, texIndex);
+	AddVertex(bottomRight, color, normRegion.pos() + normRegion.size() + offset, texIndex);
+	AddVertex(bottomLeft, color, Vec2f(normRegion.x, normRegion.y + normRegion.height) + offset, texIndex);
 
 	s_data.indexCount += 6;
 }

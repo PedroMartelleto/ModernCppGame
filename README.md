@@ -3,7 +3,10 @@
 ## TODO
 
 * Stop networking and finish the game w/ threads
-	* Arrows
+	* Collision size and pos data for each mob
+	* Actually shoot projectiles (SpawnProjectileEvent)
+	* Inventory render
+	* Simple projectile collision
 	* Pathfinding on a separate thread
 
 * Networking: Input prediction + sync inputs and snapshots + toggle

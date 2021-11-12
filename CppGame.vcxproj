@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Game\Projectiles\Projectile.cpp" />
+    <ClCompile Include="Source\Game\Physics\Projectile.cpp" />
     <ClCompile Include="Source\Game\ECS\RenderSystems.cpp" />
     <ClCompile Include="Source\Game\Networking\ClientSidePrediction.cpp" />
     <ClCompile Include="Source\Game\Networking\EventHandler.cpp" />
@@ -50,7 +50,7 @@
     <ClCompile Include="Source\Game\Spawner.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Game\Projectiles\Projectile.h" />
+    <ClInclude Include="Source\Game\Physics\Projectile.h" />
     <ClInclude Include="Source\Game\ECS\RenderSystems.h" />
     <ClInclude Include="Source\Game\Networking\ClientSidePrediction.h" />
     <ClInclude Include="Source\Game\Networking\EventHandler.h" />

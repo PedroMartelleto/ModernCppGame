@@ -96,7 +96,7 @@
     <ClCompile Include="Source\Game\ECS\UpdateSystems.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Projectiles\Projectile.cpp">
+    <ClCompile Include="Source\Game\Physics\Projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Game\Spawner.cpp">
@@ -206,7 +206,7 @@
     <ClInclude Include="Source\Game\ECS\UpdateSystems.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Game\Projectiles\Projectile.h">
+    <ClInclude Include="Source\Game\Physics\Projectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Spawner.h">

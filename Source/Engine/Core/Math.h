@@ -21,15 +21,20 @@ using Matrix3f = glm::mat3;
 
 struct Rect2D
 {
-	Vec2f pos;
-	Vec2f size;
+	float x;
+	float y;
+	float width;
+	float height;
 
-	inline Rect2D() : pos(0, 0), size(0, 0) {}
-	inline Rect2D(const Vec2f& pos, const Vec2f& size) : pos(pos), size(size) {}
-	inline Rect2D(float x, float y, float width, float height) : pos(x, y), size(width, height) {}
-	inline Rect2D(const Rect2D& other) : pos(other.pos), size(other.size) {}
+	inline Rect2D() : x(0), y(0), width(0), height(0) {}
+	inline Rect2D(const Vec2f& pos, const Vec2f& size) : x(pos.x), y(pos.y), width(size.x), height(size.y) {}
+	inline Rect2D(float x, float y, float width, float height) : x(x), y(y), width(width), height(height) {}
+	inline Rect2D(const Rect2D& other) : x(other.x), y(other.y), width(other.width), height(other.height) {}
 
 	std::string ToString() const;
+
+	inline Vec2f pos() const { return Vec2f(x, y); }
+	inline Vec2f size() const { return Vec2f(width, height); }
 };
 
 inline Vec2f Vec2fFromB2(const b2Vec2& other)
@@ -83,4 +88,6 @@ namespace Serialization
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vec2f, x, y)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vec3f, x, y, z)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Color4f, x, y, y, z)
+
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Rect2D, x, y, width, height)
 }

@@ -24,11 +24,11 @@ void GameData::Create(const std::string& folderPath)
 	}
 }
 
-ProjectileComponent GameData::GetProjectileData(const std::string& projectileName)
+ProjectileData GameData::GetProjectileData(const std::string& projectileName)
 {
-	auto projectileComponent = ProjectileComponent();
-	Serialization::from_json(s_projectileData.at(projectileName), projectileComponent);
-	return projectileComponent;
+	auto projectileData = ProjectileData();
+	Serialization::from_json(s_projectileData.at(projectileName), projectileData);
+	return projectileData;
 }
 
 std::string GameData::GetMobNameFromTypeID(uint8_t typeID)

@@ -6,7 +6,13 @@
     "isPlayer": true,
     "jumpHeight": 4.5,
     "maxHorizontalSpeed": 8.0,
-    "name": "knight"
+    "name": "knight",
+    "aabb": {
+      "x": 0,
+      "y": 6,
+      "width": 11,
+      "height":  16
+    }
   },
   "elf": {
     "density": 1,
@@ -15,7 +21,13 @@
     "isPlayer": true,
     "jumpHeight": 4.5,
     "maxHorizontalSpeed": 8.0,
-    "name": "elf"
+    "name": "elf",
+    "aabb": {
+      "x": 0,
+      "y": 4,
+      "width": 11,
+      "height": 16
+    }
   },
   "wizzard": {
     "density": 1,
@@ -24,7 +36,13 @@
     "isPlayer": true,
     "jumpHeight": 4.5,
     "maxHorizontalSpeed": 8.0,
-    "name": "wizzard"
+    "name": "wizzard",
+    "aabb": {
+      "x": 0,
+      "y": 4,
+      "width": 11,
+      "height": 16
+    }
   },
   "lizard": {
     "density": 1,
@@ -33,6 +51,12 @@
     "isPlayer": true,
     "jumpHeight": 4.5,
     "maxHorizontalSpeed": 8.0,
-    "name": "lizard"
+    "name": "lizard",
+    "aabb": {
+      "x": 0,
+      "y": 6,
+      "width": 11,
+      "height": 16
+    }
   }
 }

@@ -2,7 +2,7 @@
 
 #include "../../Engine/Engine.h"
 #include "../Networking/BitBuffer.h"
-#include "../Projectiles/Projectile.h"
+#include "../Physics/Projectile.h"
 
 // We are using ECS, so we need to define components: minimal pieces of data used in the game
 
@@ -24,7 +24,7 @@ struct TextureRegionComponent
 	bool allowFlip;
 
 	TextureRegionComponent(const Vec2f& texPos, const Vec2f& texSize) : texPos(texPos), texSize(texSize), allowFlip(true) {}
-	TextureRegionComponent(const Rect2D& rect) : texPos(rect.pos), texSize(rect.size), allowFlip(true) {}
+	TextureRegionComponent(const Rect2D& rect) : texPos(rect.pos()), texSize(rect.size()), allowFlip(true) {}
 
 	inline operator Rect2D () const { return Rect2D(texPos, texSize); }
 };
@@ -79,40 +79,36 @@ struct SensorComponent
 
 using MobID = uint32_t;
 
-struct ProjectileComponent
-{
-	b2Body* body;
-	float speed;
-	float density;
-	std::string flyingSpriteName;
-	std::string readySpriteName;
-	float baseAngle;
-};
-
 struct ProjectileInventoryComponent
 {
-	std::vector<ProjectileComponent> projectiles;
+	std::vector<ProjectileData> projectiles;
 };
 
 struct MobComponent
 {
+public:
 	MobID mobID = 0;
-	bool isPlayer = false;
 	std::string name = "";
-	float density = 0.0f;
 
+	float density = 0.0f;
 	float horizontalImpulse = 0.0f;
 	float maxHorizontalSpeed = 0.0f;
 	float horizontalDragForce = 0.0f;
 	float horizontalMoveDir = 0.0f;
-
 	float jumpHeight = 0.0f;
-	bool wantsToJump = false;
 
 	ProjectileDirection shootDirection;
+	
+	bool isPlayer = false;
+	bool wantsToJump = false;
 	bool wantsToShoot = false;
+	bool readyToShoot = false;
+	double lastShotTime = 0.0;
+	nlohmann::json aabb;
 
 	BitBuffer8 CreateEventBitBuffer() const;
+
+	inline Rect2D GetAABB() const { return Rect2D(aabb["x"], aabb["y"], aabb["width"], aabb["height"]); }
 };
 
 #define MAX_PLAYER_INPUTS 8
@@ -124,7 +120,6 @@ struct LocalInputComponent
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProjectileComponent, speed, density, flyingSpriteName, readySpriteName, baseAngle)
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight, aabb)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

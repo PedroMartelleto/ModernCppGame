@@ -34,10 +34,10 @@ Ref<TextureAtlas> TextureAtlas::FromFile(const std::string& fileName)
 
 			// Gets texture region and frame count
 			Rect2D region;
-			region.pos.x = (float) std::stoi(splitString[1]);
-			region.pos.y = (float) std::stoi(splitString[2]);
-			region.size.x = (float) std::stoi(splitString[3]);
-			region.size.y = (float) std::stoi(splitString[4]);
+			region.x = (float) std::stoi(splitString[1]);
+			region.y = (float) std::stoi(splitString[2]);
+			region.width = (float) std::stoi(splitString[3]);
+			region.height = (float) std::stoi(splitString[4]);
 
 			int frameCount = splitString.size() == 5 ? 1 : std::stoi(splitString[5]);
 			atlas->m_animations[splitString[0]] = std::pair<Rect2D, int>(region, frameCount);
@@ -64,7 +64,7 @@ Rect2D TextureAtlas::GetAnimFrameRegion(const std::string& animName, int frame)
 	int frameCount = animData.second;
 	if (frameCount > 0) {
 		int frameOffset = frame % frameCount;
-		rect.pos.x += rect.size.x * frameOffset;
+		rect.x += rect.width * frameOffset;
 	}
 	return rect;
 }

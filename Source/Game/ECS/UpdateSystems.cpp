@@ -1,6 +1,7 @@
 #include "UpdateSystems.h"
 #include "../GameCore.h"
 #include "../GameData.h"
+#include "../Spawner.h"
 
 namespace UpdateSystems
 {
@@ -13,6 +14,22 @@ namespace UpdateSystems
 		{
 			auto& body = registry.get<PhysicsBodyComponent>(entity);
 			auto& mob = registry.get<MobComponent>(entity);
+
+			if (mob.wantsToShoot && !mob.shootDirection.IsNone() && !mob.readyToShoot)
+			{
+				auto* inventory = registry.try_get<ProjectileInventoryComponent>(entity);
+
+				if (inventory != nullptr && inventory->projectiles.size() > 0 && Timer::GetTime() - mob.lastShotTime >= 0.15)
+				{
+					auto projToShoot = inventory->projectiles.back();
+					Projectile::SpawnAndShoot(gameCore, entity, projToShoot);
+					inventory->projectiles.pop_back();
+					mob.lastShotTime = Timer::GetTime();
+					mob.wantsToShoot = false;
+					mob.readyToShoot = false;
+					mob.shootDirection.Reset();
+				}
+			}
 
 			if (mob.wantsToJump)
 			{
@@ -59,8 +76,9 @@ namespace UpdateSystems
 		{
 			auto& input = registry.get<LocalInputComponent>(entity);
 			auto& mob = registry.get<MobComponent>(entity);
+			bool moveDown = Input::IsKeyDown(input.inputCodes[GameData::GetMobActionBit("MOVE_DOWN")]);
 
-			mob.wantsToJump = Input::IsKeyDown(input.inputCodes[GameData::GetMobActionBit("JUMP")]);
+			mob.wantsToJump = Input::IsKeyDown(input.inputCodes[GameData::GetMobActionBit("MOVE_UP")]);
 			mob.horizontalMoveDir = 0.0f;
 
 			if (Input::IsKeyDown(input.inputCodes[GameData::GetMobActionBit("MOVE_LEFT")]))
@@ -73,14 +91,35 @@ namespace UpdateSystems
 				mob.horizontalMoveDir += 1.0f;
 			}
 
-			auto left = input.inputCodes[GameData::GetMobActionBit("SHOOT_LEFT")];
-			auto up = input.inputCodes[GameData::GetMobActionBit("SHOOT_UP")];
-			auto right = input.inputCodes[GameData::GetMobActionBit("SHOOT_RIGHT")];
-			auto down = input.inputCodes[GameData::GetMobActionBit("SHOOT_DOWN")];
-			mob.shootDirection.left = Input::IsKeyDown(left);
-			mob.shootDirection.up = Input::IsKeyDown(up);
-			mob.shootDirection.right = Input::IsKeyDown(right);
-			mob.shootDirection.down = Input::IsKeyDown(down);
+			auto shootKey = input.inputCodes[GameData::GetMobActionBit("SHOOT_DOWN")];
+			mob.readyToShoot = Input::IsKeyDown(shootKey);
+
+			if (mob.readyToShoot)
+			{
+				auto l = mob.horizontalMoveDir < 0.0f;
+				auto u = mob.wantsToJump;
+				auto d = moveDown;
+				auto r = mob.horizontalMoveDir > 0.0f;
+				
+				if (l || u || d || r)
+				{
+					mob.shootDirection.left = l;
+					mob.shootDirection.up = u;
+					mob.shootDirection.right = r;
+					mob.shootDirection.down = d;
+				}
+
+				mob.wantsToShoot = false;
+				mob.wantsToJump = false;
+				mob.horizontalMoveDir = 0.0f;
+			}
+			else if (Input::IsKeyUp(shootKey))
+			{
+				mob.horizontalMoveDir = 0.0f;
+				mob.wantsToShoot = true;
+				mob.readyToShoot = false;
+				mob.wantsToJump = false;
+			}
 
 			bitBuffers[std::to_string(mob.mobID)] = Utils::ToJSON(mob.CreateEventBitBuffer());
 		}

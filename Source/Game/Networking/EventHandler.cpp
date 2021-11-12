@@ -23,7 +23,7 @@ namespace EventHandler
 						if (ev->bitBuffers.find(std::to_string(mob.mobID)) != ev->bitBuffers.end())
 						{
 							auto bitBuffer = Utils::FromJSON<BitBuffer8>(ev->bitBuffers[std::to_string(mob.mobID)]);
-							mob.wantsToJump = bitBuffer.Get(GameData::GetMobActionBit("JUMP"));
+							mob.wantsToJump = bitBuffer.Get(GameData::GetMobActionBit("MOVE_UP"));
 							mob.horizontalMoveDir = 0.0f;
 							
 							if (bitBuffer.Get(GameData::GetMobActionBit("MOVE_LEFT")))
