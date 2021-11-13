@@ -17,6 +17,12 @@ public:
 
 	void PhysicsStep(float deltaTime);
 
+	/// <summary>
+	/// Adds a joint to the physics world as soon as possible (may be called during callbacks to avoid adding a joint when the world is locked).
+	/// </summary>
+	/// <param name="jointDef"></param>
+	void AddJointWhenPossible(const b2WeldJointDef& jointDef);
+
 	void Create();
 	void Update(float deltaTime);
 	void Render();
@@ -49,8 +55,8 @@ public:
 	Ref<TextureAtlas> atlas;
 	Ref<TileMap> map;
 private:
-
 	const HostType m_hostType;
+	Array<b2WeldJointDef> m_weldJoints;
 	Array<FixtureUserData*> m_fixturesUserData;
 };
 

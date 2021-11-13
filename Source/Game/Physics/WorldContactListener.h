@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../ECS/Components.h"
+#include "WorldInteractionHandler.h"
 
 struct FixtureUserData
 {
@@ -20,9 +21,17 @@ struct FixtureUserData
 struct WorldContactListener : public b2ContactListener
 {
 	GameCore* gameCore;
+	WorldInteractionHandler worldInteractionHandler;
 
-	WorldContactListener(GameCore* gameCore) : gameCore(gameCore) {}
+	WorldContactListener(GameCore* gameCore) :
+		gameCore(gameCore),
+		worldInteractionHandler(gameCore) {}
 
 	void BeginContact(b2Contact* contact) override;
 	void EndContact(b2Contact* contact) override;
+
+	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
+private:
+	void OnInteraction(InteractionFlag flag, FixtureUserData* userDataA, FixtureUserData* userDataB,
+					   b2Fixture* fixtureA, b2Fixture* fixtureB, b2Contact* contact);
 };

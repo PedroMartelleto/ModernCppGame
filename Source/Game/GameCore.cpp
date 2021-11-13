@@ -24,6 +24,11 @@ GameCore::GameCore(Core* core, HostType hostType) :
 	physicsWorld.SetContactListener(worldContactListener.get());
 }
 
+void GameCore::AddJointWhenPossible(const b2WeldJointDef& jointDef)
+{
+	m_weldJoints.push_back(jointDef);
+}
+
 MobID GameCore::CreateMobID()
 {
 	assert(m_hostType == HostType::SERVER);
@@ -62,6 +67,17 @@ void GameCore::Create()
 void GameCore::PhysicsStep(float deltaTime)
 {
 	physicsWorld.Step(deltaTime, 6, 2);
+
+	// Adds joints to the world (if applicable)
+	if (m_weldJoints.size() > 0)
+	{
+		for (const auto& jointDef : m_weldJoints)
+		{
+			physicsWorld.CreateJoint(&jointDef);
+		}
+
+		m_weldJoints.clear();
+	}
 }
 
 void GameCore::Update(float deltaTime)

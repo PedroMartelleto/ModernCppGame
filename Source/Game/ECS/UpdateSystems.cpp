@@ -5,6 +5,26 @@
 
 namespace UpdateSystems
 {
+	void ECSBodyUpdateSystem(GameCore* gameCore, float deltaTime)
+	{
+		auto& registry = gameCore->registry;
+
+		// Applies air drag to all moving bodies
+		for (auto entity : registry.view<PhysicsBodyComponent>())
+		{
+			auto& body = registry.get<PhysicsBodyComponent>(entity);
+			// Air drag
+			float Cd = 1.05f;
+			float v = body.body->GetLinearVelocity().x;
+
+			if (fabsf(v) > 0.0001f)
+			{
+				auto appliedDrag = b2Vec2(-0.5f * v * Cd * body.dragMultiplier, 0);
+				body.body->ApplyForceToCenter(appliedDrag, true);
+			}
+		}
+	}
+
 	void ECSMobBodyUpdateSystem(GameCore* gameCore, float deltaTime)
 	{
 		auto& registry = gameCore->registry;
@@ -49,20 +69,10 @@ namespace UpdateSystems
 				body.body->ApplyLinearImpulse(impulse, b2Vec2(0, 0), true);
 			}
 
-			// Air drag
-			float Cd = 1.05f;
-			float v = body.body->GetLinearVelocity().x;
-
-			if (fabsf(v) > 0.0001f)
-			{
-				auto appliedDrag = b2Vec2(-0.5f * v * Cd * mob.horizontalDragForce, 0);
-				body.body->ApplyForceToCenter(appliedDrag, true);
-
-				// Velocity clamp
-				auto velocity = body.body->GetLinearVelocity();
-				velocity.x = Math::Clamp(velocity.x, -mob.maxHorizontalSpeed, mob.maxHorizontalSpeed);
-				body.body->SetLinearVelocity(velocity);
-			}
+			// Velocity clamp
+			auto velocity = body.body->GetLinearVelocity();
+			velocity.x = Math::Clamp(velocity.x, -mob.maxHorizontalSpeed, mob.maxHorizontalSpeed);
+			body.body->SetLinearVelocity(velocity);
 		}
 	}
 

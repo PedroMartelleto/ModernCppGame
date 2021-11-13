@@ -8,9 +8,23 @@ enum class InteractionFlag : uint8_t
 	END = 1
 };
 
-namespace WorldInteractionHandler
+template<typename T>
+struct ContactData
 {
-	void OnMobProjectileInteraction(InteractionFlag flag, MobComponent* mobA, ProjectileComponent* projectileB);
-	void OnMobMobInteraction(InteractionFlag flag, MobComponent* mobA, MobComponent* mobB);
+	T* data;
+	b2Fixture* fixture;
+};
+
+class WorldInteractionHandler
+{
+public:
+	GameCore* gameCore;
+
+	WorldInteractionHandler(GameCore* gameCore) : gameCore(gameCore) {}
+
+	void OnPostSolveMapProjectile(const ContactData<void>& mapA, const ContactData<ProjectileComponent>& projectileB,
+								  b2Contact* contact, const b2ContactImpulse* impulse);
+	void OnMobProjectileInteraction(InteractionFlag flag, const ContactData<MobComponent>& mobA, const ContactData<ProjectileComponent>& projectileB, b2Contact* contact);
+	void OnMobMobInteraction(InteractionFlag flag, const ContactData<MobComponent>& mobA, const ContactData<MobComponent>& mobB, b2Contact* contact);
 };
 

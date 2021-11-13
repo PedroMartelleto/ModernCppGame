@@ -2,10 +2,6 @@
 #include "../Spawner.h"
 #include "../GameCore.h"
 
-// TODO: Stick to walls
-// TODO: Small input delay for removing direction
-// TODO: Handle looping of non-fixed rotation projectiles
-
 namespace Projectile
 {
 	void SpawnAndShoot(GameCore* gameCore, const entt::entity& owner, const ProjectileData& projectile)
@@ -20,7 +16,7 @@ namespace Projectile
 		auto initialDir = mob.shootDirection.AsVector();
 		
 		float initialAngle = mob.shootDirection.AsAngle() + glm::radians(projectile.baseAngle);
-		auto projOffset = Vec2fToB2((initialDir * (mob.GetAABB().size() / 2.0f + Vec2f(8.0f, 8.0f)) * map->mapScale * Game::PIXELS_TO_METERS));
+		auto projOffset = Vec2fToB2((initialDir * (mob.GetAABB().size() / 2.0f + Vec2f(4.0f, 4.0f)) * map->mapScale * Game::PIXELS_TO_METERS));
 
 		projBody->SetTransform(projBody->GetPosition() + projOffset, initialAngle);
 		projBody->SetFixedRotation(false);

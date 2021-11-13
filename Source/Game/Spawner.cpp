@@ -28,8 +28,13 @@ namespace Spawner
 		fixtureDef.friction = 0.0f;
 		fixtureDef.density = density;
 
-		auto sensorSize = size * sensorRatio;
+		if (fixtureUserData != nullptr)
+		{
+			gameCore->DefineFixtureData(&fixtureDef, fixtureUserData);
+		}
 
+		auto sensorSize = size * sensorRatio;
+		
 		b2Body* body = gameCore->physicsWorld.CreateBody(&bodyDef);
 		body->CreateFixture(&fixtureDef);
 
@@ -37,12 +42,13 @@ namespace Spawner
 		{
 			b2PolygonShape sensorShape;
 			sensorShape.SetAsBox(Game::PIXELS_TO_METERS * sensorSize.x / 2, Game::PIXELS_TO_METERS * sensorSize.y / 2,
-				b2Vec2(0, Game::PIXELS_TO_METERS * (size.y / 2 + 2.0f) * (sensorPlacement == SensorPlacement::Bottom ? 1 : -1)), 0.0f);
+				b2Vec2(0, Game::PIXELS_TO_METERS * (size.y / 2 + 6.0f) * (sensorPlacement == SensorPlacement::Bottom ? 1 : -1)), 0.0f);
 
 			b2FixtureDef sensorDef;
 			sensorDef.shape = &sensorShape;
 			sensorDef.isSensor = true;
-			gameCore->DefineFixtureData(&sensorDef, fixtureUserData);
+			sensorDef.userData.pointer = fixtureDef.userData.pointer;
+
 			body->CreateFixture(&sensorDef);
 		}
 
@@ -70,11 +76,11 @@ namespace Spawner
 		registry.emplace<SensorComponent>(player);
 
 		auto dynamicBody = CreateDynamicBoxBody(gameCore, mobComponent.density, tilePos * map->scaledTileSize,
-			mobComponent.GetAABB().size() * map->mapScale, SensorPlacement::Bottom, Vec2f(0.9f, 0.2f),
+			mobComponent.GetAABB().size() * map->mapScale, SensorPlacement::Bottom, Vec2f(0.4f, 0.2f),
 			CreateFixtureUserData(registry, player)
 		);
 
-		registry.emplace<PhysicsBodyComponent>(player, dynamicBody);
+		registry.emplace<PhysicsBodyComponent>(player, dynamicBody, mobComponent.dragMultiplier);
 		registry.emplace<SpriteComponent>(player, gameCore->textureManager->Get("DungeonTileset/Atlas.png"), 100,
 			-(mobComponent.GetAABB().pos() + region.size()/2.0f) * map->mapScale, region.size() * map->mapScale, Colors::WHITE);
 		registry.emplace<TextureRegionComponent>(player, region);
@@ -113,12 +119,14 @@ namespace Spawner
 		registry.emplace<SensorComponent>(entity);
 
 		auto region = gameCore->atlas->GetRegion(projectileData.flyingSpriteName);
-		auto dynamicBody = CreateDynamicBoxBody(
+		auto* userData = CreateFixtureUserData(registry, entity);
+		auto* dynamicBody = CreateDynamicBoxBody(
 			gameCore, projectileData.density, pos, projectileData.GetAABB().size() * map->mapScale,
-			SensorPlacement::Top, Vec2f(1.1f, 0.3f), CreateFixtureUserData(registry, entity));
+			SensorPlacement::Top, Vec2f(1.1f, 0.3f), userData);
+
 		auto drawSize = region.size() * map->mapScale;
 
-		registry.emplace<PhysicsBodyComponent>(entity, dynamicBody);
+		registry.emplace<PhysicsBodyComponent>(entity, dynamicBody, projectileData.dragMultiplier);
 		registry.emplace<SpriteComponent>(entity, gameCore->textureManager->Get("DungeonTileset/Atlas.png"),
 			100, -(projectileData.GetAABB().pos() * map->mapScale + drawSize/2.0f), drawSize, Colors::WHITE);
 		registry.emplace<TextureRegionComponent>(entity, region);

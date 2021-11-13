@@ -35,6 +35,18 @@ namespace EventHandler
 							{
 								mob.horizontalMoveDir += 1.0f;
 							}
+
+							if (bitBuffer.Get(GameData::GetMobActionBit("SHOOT_DOWN")))
+							{
+								mob.readyToShoot = true;
+								mob.wantsToShoot = false;
+							}
+
+							if (bitBuffer.Get(GameData::GetMobActionBit("SHOOT_UP")))
+							{
+								mob.wantsToShoot = true;
+								mob.readyToShoot = false;
+							}
 						}
 					}
 				}

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="24" height="17" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="80">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="24" height="17" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="90">
  <editorsettings>
   <export target="Map1.csv" format="csv"/>
  </editorsettings>
@@ -74,13 +74,6 @@
   <object id="43" x="72" y="147">
    <polygon points="0,0 6,12.6667 24,12.6667 35,0.333333 30.3333,-3.66667 3.33333,-3.33333"/>
   </object>
-  <object id="49" x="47.5" y="255.5">
-   <polygon points="0,0 96.5,-47.5 128.5,-47.5 128.5,16.5 0.5,16.5"/>
-  </object>
-  <object id="50" x="224" y="208">
-   <polygon points="0,0 0,64 80,64 80,48 32,0"/>
-  </object>
-  <object id="51" x="176" y="208" width="48" height="16"/>
   <object id="54" x="304" y="256" width="96" height="16"/>
   <object id="55" x="-16" y="256" width="64" height="16"/>
   <object id="57" x="-16" y="186.75">
@@ -117,5 +110,20 @@
    <polygon points="0,0 0,53.8182 3.63636,60.7273 10.9091,64 110.727,63.4545 110.364,2.90909"/>
   </object>
   <object id="79" x="384.182" y="-15.2727" width="15.2727" height="75.4545"/>
+  <object id="84" x="48" y="256">
+   <polygon points="0,0 96,-48 112,-48 112,16 0,16"/>
+  </object>
+  <object id="85" x="240" y="208">
+   <polygon points="0,0 16,0 64,48 64,64 0,64 0,0"/>
+  </object>
+  <object id="87" x="160" y="208">
+   <polygon points="0,0 80,0 80,8.97778 0,9"/>
+  </object>
+  <object id="88" x="160" y="216.875">
+   <polygon points="0,0 13.125,0 13.125,55.125 0,55"/>
+  </object>
+  <object id="89" x="226.75" y="216.75">
+   <polygon points="0,0 13.125,0 13.125,55.125 0,55"/>
+  </object>
  </objectgroup>
 </map>

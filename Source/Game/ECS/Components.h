@@ -9,9 +9,10 @@
 struct PhysicsBodyComponent
 {
 	b2Body* body;
+	float dragMultiplier;
 
 	PhysicsBodyComponent() = default;
-	PhysicsBodyComponent(b2Body* body) : body(body) {}
+	PhysicsBodyComponent(b2Body* body, float dragMultiplier) : body(body), dragMultiplier(dragMultiplier) {}
 
 	inline operator const b2Body* () const { return body; }
 	inline operator b2Body* () { return body; }
@@ -85,13 +86,13 @@ public:
 	float density = 0.0f;
 	float horizontalImpulse = 0.0f;
 	float maxHorizontalSpeed = 0.0f;
-	float horizontalDragForce = 0.0f;
+	float dragMultiplier = 0.0f;
 	float horizontalMoveDir = 0.0f;
 	float jumpHeight = 0.0f;
 
 	ProjectileDirection shootDirection;
 	
-	int health = 3;
+	float health = 3.0f;
 	bool isPlayer = false;
 	bool wantsToJump = false;
 	bool wantsToShoot = false;
@@ -128,6 +129,6 @@ struct LocalInputComponent
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, health, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, horizontalDragForce, jumpHeight, aabb)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, health, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

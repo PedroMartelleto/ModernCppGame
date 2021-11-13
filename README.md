@@ -2,28 +2,26 @@
 
 ## TODO
 
-* Stop networking and finish the game w/ threads
-	* Collision size and pos data for each mob
-	* Actually shoot projectiles (SpawnProjectileEvent)
-	* Inventory render
-	* Simple projectile collision
+* Enemies
 	* Pathfinding on a separate thread
 
-* Networking: Input prediction + sync inputs and snapshots + toggle
+* Render "arrow count"
+* Render health bars + die
+
+* Long & short jumps
+	* Jump cooldown + Use forces + "increase gravity mid-air"
+
+* Small input delay for removing shoot direction
+* Handle looping of non-fixed rotation projectiles
+
+----
 
 * Basic game UI
 
-* Projectiles
-
-* Life
-
-
-* std::to_string is not a great solution
-
-* Retry client connection when it fails
-
-* Better jump gravity & proper height
+* Networking: Input prediction + sync inputs and snapshots + toggle
+	* std::to_string is not a great solution
+	* Retry client connection when it fails
 
 * More maps
 
-* Other game modes and enemies
+* Other game modes
