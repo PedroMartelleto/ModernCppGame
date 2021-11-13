@@ -55,7 +55,7 @@ namespace Spawner
 		return body;
 	}
 
-	entt::entity SpawnMob(GameCore* gameCore, MobID mobID, const std::string& charName, const Vec2f& tilePos)
+	entt::entity SpawnMob(GameCore* gameCore, MobID mobID, const std::string& charName, const Vec2f& pos)
 	{
 		auto& registry = gameCore->registry;
 		auto map = gameCore->map;
@@ -78,7 +78,7 @@ namespace Spawner
 
 		registry.emplace<SensorComponent>(entity);
 
-		auto dynamicBody = CreateDynamicBoxBody(gameCore, mobComponent.density, tilePos * map->scaledTileSize,
+		auto dynamicBody = CreateDynamicBoxBody(gameCore, mobComponent.density, pos,
 			mobComponent.GetAABB().size() * map->mapScale, SensorPlacement::Bottom, Vec2f(0.4f, 0.2f),
 			CreateFixtureUserData(registry, entity)
 		);
@@ -92,15 +92,15 @@ namespace Spawner
 		return entity;
 	}
 
-	entt::entity SpawnEnemyMob(GameCore* gameCore, MobID mobID, const std::string& charName, const Vec2f& tilePos)
+	entt::entity SpawnEnemyMob(GameCore* gameCore, MobID mobID, const std::string& charName, const Vec2f& pos)
 	{
-		auto entity = SpawnMob(gameCore, mobID, charName, tilePos);
+		auto entity = SpawnMob(gameCore, mobID, charName, pos);
 		return entity;
 	}
 
-	entt::entity SpawnPlayer(GameCore* gameCore, MobID playerID, const std::string& charName, const Vec2f& tilePos, bool isLocal)
+	entt::entity SpawnPlayer(GameCore* gameCore, MobID playerID, const std::string& charName, const Vec2f& pos, bool isLocal)
 	{
-		auto player = SpawnMob(gameCore, playerID, charName, tilePos);
+		auto player = SpawnMob(gameCore, playerID, charName, pos);
 		auto& registry = gameCore->registry;
 
 		if (isLocal)

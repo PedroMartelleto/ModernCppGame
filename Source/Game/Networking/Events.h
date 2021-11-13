@@ -9,13 +9,16 @@ struct MapDataEvent
 	std::string mapXMLContents;
 };
 
-struct SpawnPlayerEvent
+struct SpawnPlayersEvent
 {
-	MobID mobID;
-	HostType type;
-	uint16_t tileX;
-	uint16_t tileY;
-	std::string charName;
+	std::vector<MobID> mobIDs;
+	std::vector<HostType> types;
+	std::vector<std::string> charNames;
+
+	/// <summary>
+	/// If host type is SERVER, then positions are randomly selected. Otherwise, this variable needs to be specified.
+	/// </summary>
+	std::vector<std::pair<float, float>> positions;	
 };
 
 struct MobInputsEvent
@@ -26,7 +29,7 @@ struct MobInputsEvent
 namespace Serialization
 {
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MapDataEvent, mapXMLContents)
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpawnPlayerEvent, mobID, type, tileX, tileY, charName)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpawnPlayersEvent, mobIDs, types, charNames, positions)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobInputsEvent, bitBuffers)
 }
 

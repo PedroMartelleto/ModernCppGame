@@ -15,7 +15,7 @@ enum class EventType : NetworkByte
     WorldSnapshot,
 
     // Server only
-    SpawnPlayer,
+    SpawnPlayers,
     Map,
     
     Max

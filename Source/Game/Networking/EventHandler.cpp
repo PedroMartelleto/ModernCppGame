@@ -64,13 +64,26 @@ namespace EventHandler
 					gameCore->core->SetWindowSizeAndCenter((int)gameCore->map->WidthInPixels(), (int)gameCore->map->HeightInPixels());
 				}
 				break;
-				case EventType::SpawnPlayer:
+				case EventType::SpawnPlayers:
 				{
-					auto ev = std::static_pointer_cast<SpawnPlayerEvent>(event.data);
-					bool isLocal = ev->type == gameCore->host->type;
-					Spawner::SpawnPlayer(gameCore, ev->mobID, ev->charName, Vec2f((float)ev->tileX, (float)ev->tileY), isLocal);
-				
-					Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), "big_demon", Vec2f(5, 14));
+					auto ev = std::static_pointer_cast<SpawnPlayersEvent>(event.data);
+
+					if (ev->positions.size() <= 0)
+					{
+						for (const auto& pos : gameCore->map->GetSpawns(ev->mobIDs.size()))
+						{
+							ev->positions.push_back({ pos.x, pos.y });
+						}
+					}
+
+					for (int i = 0; i < (int)ev->mobIDs.size(); ++i)
+					{
+						bool isLocal = ev->types[i] == gameCore->host->type;
+						Spawner::SpawnPlayer(gameCore, ev->mobIDs[i], ev->charNames[i],
+							Vec2f(ev->positions[i].first, ev->positions[i].second), isLocal);
+					}
+
+					Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), "big_demon", gameCore->map->GetSpawn());
 				}
 				break;
 			}

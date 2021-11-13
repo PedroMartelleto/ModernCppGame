@@ -45,8 +45,12 @@ void GameCore::SetupServer()
 {
 	host->eventQueue.Enqueue(EventType::Map, CreateRef<MapDataEvent>(MapDataEvent{ Utils::LoadFile(mapFilepath) }));
 
-	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 9, 8, "knight_m" }));
-	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 14, 8, "elf_m" }));
+	host->eventQueue.Enqueue(EventType::SpawnPlayers, CreateRef<SpawnPlayersEvent>(
+		SpawnPlayersEvent {
+			{ CreateMobID(), CreateMobID() }, { HostType::SERVER, HostType::SERVER },
+			{ "knight_m", "elf_m" }
+		}
+	));
 }
 
 void GameCore::Create()

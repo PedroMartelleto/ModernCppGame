@@ -145,8 +145,8 @@ void NetworkHost::HandlePacket(const ENetEvent& event)
 		case EventType::Map:
 			eventQueue.Enqueue(packetType, Utils::RefFromJSON<MapDataEvent>(j));
 			break;
-		case EventType::SpawnPlayer:
-			eventQueue.Enqueue(packetType, Utils::RefFromJSON<SpawnPlayerEvent>(j));
+		case EventType::SpawnPlayers:
+			eventQueue.Enqueue(packetType, Utils::RefFromJSON<SpawnPlayersEvent>(j));
 			break;
 		case EventType::MobInputs:
 			eventQueue.Enqueue(packetType, Utils::RefFromJSON<MobInputsEvent>(j));
@@ -168,23 +168,28 @@ void NetworkHost::ServerHandleNewConnection(ENetPeer* peer, uint8_t mobTypeID)
 	for (const auto& [mobID, entity]: gameCore->mobs)
 	{
 		const auto& mobComponent = gameCore->registry.get<MobComponent>(entity);
+		const auto& pos = gameCore->registry.get<PhysicsBodyComponent>(entity).body->GetPosition();
 		const auto* localInputComponent = gameCore->registry.try_get<LocalInputComponent>(entity);
 		auto hostType = localInputComponent == nullptr ? HostType::CLIENT : HostType::SERVER;
 
 		if (mobComponent.isPlayer)
 		{
-			events.push_back(Utils::ToJSON(SpawnPlayerEvent{ mobComponent.mobID, hostType, 8, 8, mobComponent.name }));
-			eventTypes.push_back(EventType::SpawnPlayer);
+			events.push_back(Utils::ToJSON(SpawnPlayersEvent{ {mobComponent.mobID}, {hostType}, {mobComponent.name}, { {pos.x,pos.y} }}));
+			eventTypes.push_back(EventType::SpawnPlayers);
 		}
 	}
 
 	// Also adds the newly connected player for spawning
-	auto newPlayerSpawnEvent = SpawnPlayerEvent{ gameCore->CreateMobID(), HostType::CLIENT, 12, 8, GameData::GetMobNameFromTypeID(mobTypeID) };
+	auto newPlayerSpawnPos = gameCore->map->GetSpawn();
+	auto newPlayerSpawnEvent = SpawnPlayersEvent{ {gameCore->CreateMobID()}, {HostType::CLIENT},
+		{GameData::GetMobNameFromTypeID(mobTypeID)}, {{newPlayerSpawnPos.x,newPlayerSpawnPos.y}}
+	};
+
 	events.push_back(Utils::ToJSON(newPlayerSpawnEvent));
-	eventTypes.push_back(EventType::SpawnPlayer);
+	eventTypes.push_back(EventType::SpawnPlayers);
 
 	// Add the player locally (to this server)
-	eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(newPlayerSpawnEvent));
+	eventQueue.Enqueue(EventType::SpawnPlayers, CreateRef<SpawnPlayersEvent>(newPlayerSpawnEvent));
 
 	auto packetData = PacketData{events, eventTypes};
 

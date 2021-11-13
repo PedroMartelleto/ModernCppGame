@@ -2,6 +2,10 @@
 #include "../Render/ResourceManager.h"
 #include "../Core/Core.h"
 #include "../../Game/Globals.h"
+#include <algorithm>
+#include <iostream>
+#include <random>
+#include <vector>
 
 // Global constant for now
 const std::string tilesetTexturePath = "Resources/Sprites/Desert/Atlas.png";
@@ -59,50 +63,65 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXM
 	bodyDef.position.Set(0.0f, 0.0f);
 	body = physicsWorld.CreateBody(&bodyDef);
 
-	auto objGroupElement = root->FirstChildElement("objectgroup");
-	auto scale = mapScale * Game::PIXELS_TO_METERS;
-
-	// For each collision object...
-	for (auto element = objGroupElement->FirstChildElement("object"); element != NULL; element = element->NextSiblingElement("object"))
+	for (auto objGroupElement = root->FirstChildElement("objectgroup"); objGroupElement != NULL; objGroupElement = objGroupElement->NextSiblingElement("objectgroup"))
 	{
-		auto x0 = element->FloatAttribute("x");
-		auto y0 = element->FloatAttribute("y");
-
-		auto polyElement = element->FirstChildElement("polygon");
-		b2PolygonShape shape;
-
-		// If the body is a rectangle...
-		if (polyElement == nullptr)
+		if (strcmp(objGroupElement->Attribute("name"), "Collision") == 0)
 		{
-			auto width = element->FloatAttribute("width");
-			auto height = element->FloatAttribute("height");
-			b2Vec2 vertices[4] = {
-				b2Vec2(x0 * scale, y0 * scale),
-				b2Vec2((x0 + width) * scale, y0 * scale),
-				b2Vec2((x0 + width) * scale, (y0 + height) * scale),
-				b2Vec2(x0 * scale, (y0 + height) * scale)
-			};
-			shape.Set(&vertices[0], 4);
-		}
-		// Else it is a polygon
-		else
-		{
-			// Adds the polygon points to a box 2d shape
-			auto points = std::vector<b2Vec2>();
-			
-			for (auto pointStr : Utils::StringSplit(polyElement->Attribute("points"), " "))
+			auto scale = mapScale * Game::PIXELS_TO_METERS;
+
+			// For each collision object...
+			for (auto element = objGroupElement->FirstChildElement("object"); element != NULL; element = element->NextSiblingElement("object"))
 			{
-				auto coordsStr = Utils::StringSplit(pointStr, ",");
-				auto x = std::stof(coordsStr[0]);
-				auto y = std::stof(coordsStr[1]);
-				points.push_back(b2Vec2((x0 + x) * scale, (y0 + y) * scale));
+				auto x0 = element->FloatAttribute("x");
+				auto y0 = element->FloatAttribute("y");
+
+				auto polyElement = element->FirstChildElement("polygon");
+				b2PolygonShape shape;
+
+				// If the body is a rectangle...
+				if (polyElement == nullptr)
+				{
+					auto width = element->FloatAttribute("width");
+					auto height = element->FloatAttribute("height");
+					b2Vec2 vertices[4] = {
+						b2Vec2(x0 * scale, y0 * scale),
+						b2Vec2((x0 + width) * scale, y0 * scale),
+						b2Vec2((x0 + width) * scale, (y0 + height) * scale),
+						b2Vec2(x0 * scale, (y0 + height) * scale)
+					};
+					shape.Set(&vertices[0], 4);
+				}
+				// Else it is a polygon
+				else
+				{
+					// Adds the polygon points to a box 2d shape
+					auto points = std::vector<b2Vec2>();
+
+					for (auto pointStr : Utils::StringSplit(polyElement->Attribute("points"), " "))
+					{
+						auto coordsStr = Utils::StringSplit(pointStr, ",");
+						auto x = std::stof(coordsStr[0]);
+						auto y = std::stof(coordsStr[1]);
+						points.push_back(b2Vec2((x0 + x) * scale, (y0 + y) * scale));
+					}
+
+					assert(points.size() <= 8);
+					shape.Set(&points[0], points.size());
+				}
+
+				body->CreateFixture(&shape, 0.0f);
 			}
-
-			assert(points.size() <= 8);
-			shape.Set(&points[0], points.size());
 		}
-
-		body->CreateFixture(&shape, 0.0f);
+		else if (strcmp(objGroupElement->Attribute("name"), "Spawn") == 0)
+		{
+			// For each collision object...
+			for (auto element = objGroupElement->FirstChildElement("object"); element != NULL; element = element->NextSiblingElement("object"))
+			{
+				auto x0 = element->FloatAttribute("x");
+				auto y0 = element->FloatAttribute("y");
+				spawns.push_back(Vec2f(x0, y0));
+			}
+		}
 	}
 
 	scaledTileSize = Vec2f(((float)tileset->tileWidth) * mapScale, ((float)tileset->tileHeight) * mapScale);
@@ -117,6 +136,40 @@ TileMap::~TileMap()
 	{
 		tileset = nullptr;
 	}
+}
+
+Vec2f TileMap::GetSpawn() const
+{
+	return GetSpawns(1)[0];
+}
+
+std::vector<Vec2f> TileMap::GetSpawns(int count) const
+{
+	std::vector<Vec2f> out;
+
+	while (count > spawns.size())
+	{
+		std::sample(
+			spawns.begin(),
+			spawns.end(),
+			std::back_inserter(out),
+			spawns.size(),
+			std::mt19937{ std::random_device{}() }
+		);
+		count -= spawns.size();
+	}
+
+	if (count > 0)
+	{
+		std::sample(spawns.begin(), spawns.end(), std::back_inserter(out), count, std::mt19937{ std::random_device{}() });
+	}
+
+	for (auto& v : out)
+	{
+		v *= mapScale;
+	}
+
+	return out;
 }
 
 unsigned char TileMap::GetTile(int layer, int x, int y) const
