@@ -1,5 +1,24 @@
 {
+  "fire": {
+    "atlas": 1,
+    "flyingSpriteName": "fireball",
+    "readySpriteName": "fireball",
+    "initialSpeed": 9.2,
+    "density": 0.9,
+    "baseAngle": 0.0,
+    "linearDamping": 1.0,
+    "angularDamping": 2.0,
+    "dragMultiplier": 0.7,
+    "damage": 2.0,
+    "aabb": {
+      "x": 0,
+      "y": 0,
+      "width": 5,
+      "height": 20
+    }
+  },
   "sword": {
+    "atlas": 0,
     "flyingSpriteName": "weapon_regular_sword",
     "readySpriteName": "weapon_regular_sword",
     "initialSpeed": 9.2,
@@ -17,6 +36,7 @@
     }
   },
   "arrow": {
+    "atlas": 0,
     "flyingSpriteName": "weapon_arrow",
     "readySpriteName": "weapon_arrow",
     "initialSpeed": 9.2,

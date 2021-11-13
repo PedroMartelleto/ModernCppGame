@@ -24,16 +24,22 @@ struct ProjectileComponent
 	bool hasHitAnything = false;
 };
 
-struct TextureRegionComponent
+struct AnimationComponent
 {
-	Vec2f texPos;
-	Vec2f texSize;
-	bool allowFlip;
+	Ref<TextureAtlas> atlas;
+	std::string regionName;
+	uint16_t tickRate = 10;
+	bool allowFlip = true;
+	bool isFlipped = false;
+	uint8_t frame = 0;
 
-	TextureRegionComponent(const Vec2f& texPos, const Vec2f& texSize) : texPos(texPos), texSize(texSize), allowFlip(true) {}
-	TextureRegionComponent(const Rect2D& rect) : texPos(rect.pos()), texSize(rect.size()), allowFlip(true) {}
+	AnimationComponent(Ref<TextureAtlas> atlas, const std::string& regionName, bool allowFlip = true) :
+		atlas(atlas), regionName(regionName), allowFlip(allowFlip) {}
 
-	inline operator Rect2D () const { return Rect2D(texPos, texSize); }
+	inline Rect2D GetRect() const
+	{
+		return atlas->GetAnimFrameRegion(regionName, frame);
+	}
 };
 
 struct SpriteComponent
@@ -46,15 +52,6 @@ struct SpriteComponent
 
 	SpriteComponent(Ref<Texture2D> texture, int zIndex, const Vec2f& pos, const Vec2f& size, const Color4f& tint = Colors::WHITE) :
 		texture(texture), pos(pos), size(size), tint(tint), zIndex(zIndex) {}
-};
-
-struct MovementComponent
-{
-	float impulse;
-	float maxSpeed;
-	Vec2f axis;
-
-	MovementComponent(const Vec2f& axis, float horizontalDir, float impulse, float maxSpeed) : axis(axis), impulse(impulse), maxSpeed(maxSpeed) {}
 };
 
 struct DEBUG_PhysicsBodyDrawComponent
@@ -81,7 +78,11 @@ struct MobComponent
 {
 public:
 	MobID mobID = 0;
+	ResourceID atlas = 0;
 	std::string name = "";
+
+	uint16_t idleTickRate = 10;
+	uint16_t runTickRate = 10;
 
 	float density = 0.0f;
 	float horizontalImpulse = 0.0f;
@@ -129,6 +130,6 @@ struct LocalInputComponent
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, health, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, idleTickRate, runTickRate, atlas, health, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

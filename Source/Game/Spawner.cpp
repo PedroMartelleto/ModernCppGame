@@ -55,42 +55,53 @@ namespace Spawner
 		return body;
 	}
 
-	void SpawnPlayer(GameCore* gameCore, MobID playerID, const std::string& charName, const Vec2f& tilePos, bool isLocal)
+	entt::entity SpawnMob(GameCore* gameCore, MobID mobID, const std::string& charName, const Vec2f& tilePos)
 	{
 		auto& registry = gameCore->registry;
 		auto map = gameCore->map;
 
 		if (map == nullptr)
 		{
-			DEBUG_LOG("CORE", LOG_ERROR, "Map cannot be nullptr when SpawnPlayer is called.");
-			return;
+			DEBUG_LOG("CORE", LOG_ERROR, "Map cannot be nullptr when SpawnMob is called.");
+			return entt::null;
 		}
 
-		auto player = gameCore->registry.create();
+		auto entity = gameCore->registry.create();
+		LOGGER_VAR(charName);
+		auto mobComponent = GameData::GetMobData(charName, mobID);
+		registry.emplace<MobComponent>(entity, mobComponent);
 
-		auto mobComponent = GameData::GetMobData(charName, playerID);
-		registry.emplace<MobComponent>(player, mobComponent);
+		auto atlas = gameCore->GetAtlas(mobComponent.atlas);
+		auto& anim = registry.emplace<AnimationComponent>(entity, atlas, charName + "_idle_anim");
+		anim.tickRate = mobComponent.idleTickRate;
+		auto region = anim.GetRect();
 
-		auto region = gameCore->atlas->GetAnimFrameRegion(charName + "_m_idle_anim", 0);
-
-		registry.emplace<SensorComponent>(player);
+		registry.emplace<SensorComponent>(entity);
 
 		auto dynamicBody = CreateDynamicBoxBody(gameCore, mobComponent.density, tilePos * map->scaledTileSize,
 			mobComponent.GetAABB().size() * map->mapScale, SensorPlacement::Bottom, Vec2f(0.4f, 0.2f),
-			CreateFixtureUserData(registry, player)
+			CreateFixtureUserData(registry, entity)
 		);
 
-		registry.emplace<PhysicsBodyComponent>(player, dynamicBody, mobComponent.dragMultiplier);
-		registry.emplace<SpriteComponent>(player, gameCore->textureManager->Get("DungeonTileset/Atlas.png"), 100,
-			-(mobComponent.GetAABB().pos() + region.size()/2.0f) * map->mapScale, region.size() * map->mapScale, Colors::WHITE);
-		registry.emplace<TextureRegionComponent>(player, region);
+		registry.emplace<PhysicsBodyComponent>(entity, dynamicBody, mobComponent.dragMultiplier);
+		registry.emplace<SpriteComponent>(entity, atlas->texture, 100, -(mobComponent.GetAABB().pos() + region.size() / 2.0f) * map->mapScale,
+										  region.size() * map->mapScale, Colors::WHITE);
 
-		std::vector<ProjectileData> temp;
-		for (int i = 0; i < 50; ++i)
-		{
-			temp.push_back(rand() % 2 == 0 ? GameData::GetProjectileData("arrow") : GameData::GetProjectileData("sword"));
-		}
-		registry.emplace<ProjectileInventoryComponent>(player, ProjectileInventoryComponent{ temp });
+		gameCore->mobs[mobComponent.mobID] = entity;
+
+		return entity;
+	}
+
+	entt::entity SpawnEnemyMob(GameCore* gameCore, MobID mobID, const std::string& charName, const Vec2f& tilePos)
+	{
+		auto entity = SpawnMob(gameCore, mobID, charName, tilePos);
+		return entity;
+	}
+
+	entt::entity SpawnPlayer(GameCore* gameCore, MobID playerID, const std::string& charName, const Vec2f& tilePos, bool isLocal)
+	{
+		auto player = SpawnMob(gameCore, playerID, charName, tilePos);
+		auto& registry = gameCore->registry;
 
 		if (isLocal)
 		{
@@ -99,7 +110,14 @@ namespace Spawner
 			gameCore->localPlayerCount += 1;
 		}
 
-		gameCore->mobs[mobComponent.mobID] = player;
+		std::vector<ProjectileData> temp;
+		for (int i = 0; i < 50; ++i)
+		{
+			temp.push_back(rand() % 2 == 0 ? GameData::GetProjectileData("arrow") : GameData::GetProjectileData("sword"));
+		}
+		registry.emplace<ProjectileInventoryComponent>(player, ProjectileInventoryComponent{ temp });
+
+		return player;
 	}
 
 	entt::entity SpawnProjectile(GameCore* gameCore, const Vec2f& pos, const ProjectileData& projectileData)
@@ -118,7 +136,10 @@ namespace Spawner
 		registry.emplace<ProjectileComponent>(entity, projectileData);
 		registry.emplace<SensorComponent>(entity);
 
-		auto region = gameCore->atlas->GetRegion(projectileData.flyingSpriteName);
+		auto atlas = gameCore->GetAtlas(projectileData.atlas);
+		auto& regionComponent = registry.emplace<AnimationComponent>(entity, atlas, projectileData.flyingSpriteName);
+		auto region = regionComponent.GetRect();
+		
 		auto* userData = CreateFixtureUserData(registry, entity);
 		auto* dynamicBody = CreateDynamicBoxBody(
 			gameCore, projectileData.density, pos, projectileData.GetAABB().size() * map->mapScale,
@@ -127,9 +148,8 @@ namespace Spawner
 		auto drawSize = region.size() * map->mapScale;
 
 		registry.emplace<PhysicsBodyComponent>(entity, dynamicBody, projectileData.dragMultiplier);
-		registry.emplace<SpriteComponent>(entity, gameCore->textureManager->Get("DungeonTileset/Atlas.png"),
-			100, -(projectileData.GetAABB().pos() * map->mapScale + drawSize/2.0f), drawSize, Colors::WHITE);
-		registry.emplace<TextureRegionComponent>(entity, region);
+		registry.emplace<SpriteComponent>(entity, atlas->texture, 100,
+			-(projectileData.GetAABB().pos() * map->mapScale + drawSize/2.0f), drawSize, Colors::WHITE);
 
 		return entity;
 	}

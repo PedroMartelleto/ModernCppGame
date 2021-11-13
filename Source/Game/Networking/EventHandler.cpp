@@ -23,26 +23,26 @@ namespace EventHandler
 						if (ev->bitBuffers.find(std::to_string(mob.mobID)) != ev->bitBuffers.end())
 						{
 							auto bitBuffer = Utils::FromJSON<BitBuffer8>(ev->bitBuffers[std::to_string(mob.mobID)]);
-							mob.wantsToJump = bitBuffer.Get(GameData::GetMobActionBit("MOVE_UP"));
+							mob.wantsToJump = bitBuffer.GetBit(GameData::GetMobActionBit("MOVE_UP"));
 							mob.horizontalMoveDir = 0.0f;
 							
-							if (bitBuffer.Get(GameData::GetMobActionBit("MOVE_LEFT")))
+							if (bitBuffer.GetBit(GameData::GetMobActionBit("MOVE_LEFT")))
 							{
 								mob.horizontalMoveDir -= 1.0f;
 							}
 
-							if (bitBuffer.Get(GameData::GetMobActionBit("MOVE_RIGHT")))
+							if (bitBuffer.GetBit(GameData::GetMobActionBit("MOVE_RIGHT")))
 							{
 								mob.horizontalMoveDir += 1.0f;
 							}
 
-							if (bitBuffer.Get(GameData::GetMobActionBit("SHOOT_DOWN")))
+							if (bitBuffer.GetBit(GameData::GetMobActionBit("SHOOT_DOWN")))
 							{
 								mob.readyToShoot = true;
 								mob.wantsToShoot = false;
 							}
 
-							if (bitBuffer.Get(GameData::GetMobActionBit("SHOOT_UP")))
+							if (bitBuffer.GetBit(GameData::GetMobActionBit("SHOOT_UP")))
 							{
 								mob.wantsToShoot = true;
 								mob.readyToShoot = false;
@@ -60,7 +60,7 @@ namespace EventHandler
 				case EventType::Map:
 				{
 					auto ev = std::static_pointer_cast<MapDataEvent>(event.data);
-					gameCore->map = CreateRef<TileMap>(gameCore->physicsWorld, Game::MAP_SCALE, ev->mapXMLContents, gameCore->textureManager);
+					gameCore->map = CreateRef<TileMap>(gameCore->physicsWorld, Game::MAP_SCALE, ev->mapXMLContents, gameCore->resourceManager);
 					gameCore->core->SetWindowSizeAndCenter((int)gameCore->map->WidthInPixels(), (int)gameCore->map->HeightInPixels());
 				}
 				break;
@@ -69,6 +69,8 @@ namespace EventHandler
 					auto ev = std::static_pointer_cast<SpawnPlayerEvent>(event.data);
 					bool isLocal = ev->type == gameCore->host->type;
 					Spawner::SpawnPlayer(gameCore, ev->mobID, ev->charName, Vec2f((float)ev->tileX, (float)ev->tileY), isLocal);
+				
+					Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), "big_demon", Vec2f(5, 14));
 				}
 				break;
 			}

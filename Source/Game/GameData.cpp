@@ -5,9 +5,16 @@ nlohmann::json GameData::s_gameSettings;
 nlohmann::json GameData::s_projectileData;
 std::unordered_map<std::string, int> GameData::s_mobActions;
 std::vector<std::string> GameData::s_mobNames;
+std::unordered_map<ResourceID, std::string> GameData::resourceIdToPath = {};
 
 void GameData::Create(const std::string& folderPath)
 {
+	json resourcesJson = Utils::LoadJSON(folderPath + "Resources.json");
+	for (auto& [key, val] : resourcesJson.items())
+	{
+		resourceIdToPath[(ResourceID) std::stoi(key)] = val;
+	}
+
 	s_mobData = Utils::LoadJSON(folderPath + "MobData.json");
 	s_gameSettings = Utils::LoadJSON(folderPath + "GameSettings.json");
 	s_projectileData = Utils::LoadJSON(folderPath + "ProjectileData.json");

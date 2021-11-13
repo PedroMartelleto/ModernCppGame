@@ -21,7 +21,8 @@ namespace RenderSystems
 		for (auto entity : registry.view<SpriteComponent>())
 		{
 			const auto& sprite = registry.get<SpriteComponent>(entity);
-			auto* region = registry.try_get<TextureRegionComponent>(entity);
+			AnimationComponent* region = registry.try_get<AnimationComponent>(entity);
+
 			const auto* body = registry.try_get<PhysicsBodyComponent>(entity);
 
 			auto drawPos = GetBodyDrawPos(sprite, body);
@@ -31,22 +32,24 @@ namespace RenderSystems
 			{
 				rotation = body->body->GetAngle();
 
-				if (region != nullptr && region->allowFlip)
+				if (region->allowFlip)
 				{
 					if (body->body->GetLinearVelocity().x > 0.001f)
 					{
-						region->texSize.x = fabsf(region->texSize.x);
+						region->isFlipped = false;
 					}
 					else if (body->body->GetLinearVelocity().x < -0.001f)
 					{
-						region->texSize.x = -fabsf(region->texSize.x);
+						region->isFlipped = true;
 					}
 				}
 			}
 
 			if (region != nullptr)
 			{
-				Render2D::DrawRect(drawPos, rotation, sprite.size, sprite.zIndex, *region, sprite.texture, sprite.tint);
+				Rect2D drawRegion = region->GetRect();
+				drawRegion.width = !region->isFlipped ? fabsf(drawRegion.width) : -fabsf(drawRegion.width);
+				Render2D::DrawRect(drawPos, rotation, sprite.size, sprite.zIndex, drawRegion, sprite.texture, sprite.tint);
 			}
 			else
 			{
@@ -75,8 +78,8 @@ namespace RenderSystems
 
 				auto projectileDir = glm::normalize(mob.shootDirection.AsVector());
 				float projectileAngle = mob.shootDirection.AsAngle() + glm::radians(projectile.baseAngle);
-
-				Rect2D region = gameCore->atlas->GetRegion(projectile.readySpriteName);
+				
+				Rect2D region = gameCore->GetAtlas(projectile.atlas)->GetRegion(projectile.readySpriteName);
 				Vec2f size = region.size() * gameCore->map->mapScale;
 
 				Render2D::DrawRect(drawPos + projectileDir * sprite.size/2.0f + Vec2f(8, 12), projectileAngle, size, sprite.zIndex + 100, region, sprite.texture, sprite.tint);

@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../Commons.h"
-#include "../Render/TextureManager.h"
+#include "../Render/ResourceManager.h"
 
 class Tileset
 {
 public:
-	Tileset(Ref<Texture2D> texture, int tileWidth, int tileHeight, Ref<TextureManager> textureManager);
+	Tileset(Ref<Texture2D> texture, int tileWidth, int tileHeight, Ref<ResourceManager> resourceManager);
 
 	Rect2D GetTileRegion(int x, int y) const;
 	Rect2D GetTileRegion(TileID id) const;
@@ -18,6 +18,6 @@ public:
 	const int tileHeight;
 	int tileCountWidth;
 	int tileCountHeight;
-	Ref<TextureManager> textureManager;
+	Ref<ResourceManager> resourceManager;
 };
 

@@ -6,6 +6,7 @@
 #include "Networking/EventQueue.h"
 #include "Networking/ClientSidePrediction.h"
 #include "Physics/WorldContactListener.h"
+#include "GameData.h"
 
 struct RenderSystem;
 struct UpdateSystem;
@@ -29,8 +30,12 @@ public:
 	void Destroy();
 
 	MobID CreateMobID();
-
 	void DefineFixtureData(b2FixtureDef* fixtureDef, FixtureUserData* fixtureData);
+
+	inline Ref<TextureAtlas> GetAtlas(ResourceID alias)
+	{
+		return resourceManager->GetAtlas(GameData::resourceIdToPath.at(alias), false);
+	}
 private:
 	void SetupServer();
 public:
@@ -51,8 +56,7 @@ public:
 	Ref<ClientSidePrediction> clientPrediction = nullptr;
 
 	// Rendering
-	Ref<TextureManager> textureManager;
-	Ref<TextureAtlas> atlas;
+	Ref<ResourceManager> resourceManager;
 	Ref<TileMap> map;
 private:
 	const HostType m_hostType;

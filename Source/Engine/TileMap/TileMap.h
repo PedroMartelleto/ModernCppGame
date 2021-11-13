@@ -8,7 +8,7 @@
 class TileMap
 {
 public:
-	TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, Ref<TextureManager> textureManager);
+	TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, Ref<ResourceManager> resourceManager);
 	~TileMap();
 
 	TileID GetTile(int layer, int x, int y) const;

@@ -42,7 +42,7 @@
     <ClCompile Include="Source\Engine\Render\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Render\TextureManager.cpp">
+    <ClCompile Include="Source\Engine\Render\ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Render\TextureAtlas.cpp">
@@ -143,7 +143,7 @@
     <ClInclude Include="Source\Engine\Render\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Render\TextureManager.h">
+    <ClInclude Include="Source\Engine\Render\ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Render\TextureAtlas.h">
@@ -224,6 +224,7 @@
     <None Include="Resources\Shaders\Shader.glsl" />
     <None Include="Resources\GameData\GameSettings.json" />
     <None Include="Resources\GameData\ProjectileData.json" />
+    <None Include="Resources\GameData\Resources.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source\README.md" />

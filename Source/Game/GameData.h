@@ -6,6 +6,8 @@
 class GameData
 {
 public:
+	static std::unordered_map<ResourceID, std::string> resourceIdToPath;
+
 	static void Create(const std::string& folderPath);
 	
 	static std::string GetMobNameFromTypeID(uint8_t mobTypeID);

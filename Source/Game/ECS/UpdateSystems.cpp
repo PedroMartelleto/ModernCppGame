@@ -5,6 +5,42 @@
 
 namespace UpdateSystems
 {
+	void ECSMobTextureRegionUpdateSystem(GameCore* gameCore, float deltaTime)
+	{
+		auto& registry = gameCore->registry;
+
+		// Animates all texture regions
+		for (auto entity : registry.view<MobComponent, AnimationComponent>())
+		{
+			auto& mob = registry.get<MobComponent>(entity);
+			auto& anim = registry.get<AnimationComponent>(entity);
+
+			if (fabsf(mob.horizontalMoveDir) > 0.3f)
+			{
+				anim.regionName = mob.name + "_run_anim";
+				anim.tickRate = mob.runTickRate;
+			}
+			else
+			{
+				anim.regionName = mob.name + "_idle_anim";
+				anim.tickRate = mob.idleTickRate;
+			}
+
+			if (anim.tickRate > 0)
+			{
+				if (gameCore->frameCounter % anim.tickRate == 0)
+				{
+					anim.frame += 1;
+
+					if (anim.frame >= UINT8_MAX - 1)
+					{
+						anim.frame = 0;
+					}
+				}
+			}
+		}
+	}
+
 	void ECSBodyUpdateSystem(GameCore* gameCore, float deltaTime)
 	{
 		auto& registry = gameCore->registry;

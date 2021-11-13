@@ -21,7 +21,7 @@ public:
 	BitBuffer() {}
 	BitBuffer(T bits) : bits(bits) {}
 
-	inline bool Get(int index) const
+	inline bool GetBit(int index) const
 	{
 		return (bits >> index) & 1;
 	}

@@ -19,6 +19,7 @@ struct ProjectileDirection
 
 struct ProjectileData
 {
+	ResourceID atlas = 0;
 	std::string flyingSpriteName;
 	std::string readySpriteName;
 
@@ -32,7 +33,10 @@ struct ProjectileData
 
 	nlohmann::json aabb;
 
-	inline Rect2D GetAABB() const { return Rect2D(aabb["x"], aabb["y"], aabb["width"], aabb["height"]); }
+	inline Rect2D GetAABB() const
+	{
+		return Rect2D(aabb["x"], aabb["y"], aabb["width"], aabb["height"]);
+	}
 };
 
 namespace Projectile
@@ -42,5 +46,5 @@ namespace Projectile
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProjectileData, initialSpeed, density, flyingSpriteName, readySpriteName, baseAngle, aabb, damage, dragMultiplier)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProjectileData, atlas, initialSpeed, density, flyingSpriteName, readySpriteName, baseAngle, aabb, damage, dragMultiplier)
 }

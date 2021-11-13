@@ -34,7 +34,6 @@ void ProjectileDirection::Reset()
 	right = false;
 }
 
-
 std::string ProjectileDirection::ToString() const
 {
 	auto vec = AsVector();

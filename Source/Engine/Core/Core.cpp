@@ -1,6 +1,6 @@
 #include "Core.h"
 #include "../Render/Render2D.h"
-#include "../Render/TextureManager.h"
+#include "../Render/ResourceManager.h"
 #include "../../Game/Globals.h"
 #include "../../Game/GameCore.h"
 #include <chrono>
@@ -20,7 +20,7 @@ void Core::Create()
 	m_window = new Window(800, 600, m_hostType == HostType::SERVER ? "Server" : "Client");
 	Input::Create(m_window);
 	Render2D::Create(m_window);
-	textureManager = CreateRef<TextureManager>("Resources/Sprites/");
+	resourceManager = CreateRef<ResourceManager>("Resources/Sprites/");
 
 	gameCore->Create();
 }
@@ -64,7 +64,7 @@ void Core::Render()
 
 void Core::Destroy()
 {
-	textureManager->DestroyAll();
+	resourceManager->DestroyAll();
 
 	gameCore->Destroy();
 	delete gameCore;

@@ -5,7 +5,7 @@
 #include "Core/Math.h"
 #include "Core/Timer.h"
 #include "Core/Utils.h"
-#include "Render/TextureManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/TextureAtlas.h"
 #include "Render/Texture.h"
 #include "Render/Render2D.h"

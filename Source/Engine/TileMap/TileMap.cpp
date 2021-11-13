@@ -1,5 +1,5 @@
 #include "TileMap.h"
-#include "../Render/TextureManager.h"
+#include "../Render/ResourceManager.h"
 #include "../Core/Core.h"
 #include "../../Game/Globals.h"
 
@@ -7,7 +7,7 @@
 const std::string tilesetTexturePath = "Resources/Sprites/Desert/Atlas.png";
 const int tilesetTileSize = 16;
 
-TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, Ref<TextureManager> textureManager) :
+TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, Ref<ResourceManager> resourceManager) :
 	mapScale(mapScale)
 {
 	tinyxml2::XMLDocument mapXML;
@@ -16,9 +16,9 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXM
 	auto root = mapXML.FirstChildElement("map");
 	auto tileWidth = tilesetTileSize;
 	auto tileHeight = tilesetTileSize;
-	auto texture = textureManager->Get(tilesetTexturePath, false);
+	auto texture = resourceManager->GetTexture(tilesetTexturePath, false);
 
-	tileset = CreateRef<Tileset>(texture, tileWidth, tileHeight, textureManager);
+	tileset = CreateRef<Tileset>(texture, tileWidth, tileHeight, resourceManager);
 
 	// For each layer in the map...
 	for (auto element = root->FirstChildElement("layer"); element != NULL; element = element->NextSiblingElement("layer"))

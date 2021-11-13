@@ -16,8 +16,7 @@ GameCore::GameCore(Core* core, HostType hostType) :
 
 	GameData::Create("Resources/GameData/");
 
-	textureManager = CreateRef<TextureManager>("Resources/Sprites/");
-	atlas = TextureAtlas::FromFile("Resources/Sprites/DungeonTileset/Atlas.meta");
+	resourceManager = CreateRef<ResourceManager>("Resources/Sprites/");
 	registry = entt::registry();
 
 	worldContactListener = CreateRef<WorldContactListener>(this);
@@ -46,8 +45,8 @@ void GameCore::SetupServer()
 {
 	host->eventQueue.Enqueue(EventType::Map, CreateRef<MapDataEvent>(MapDataEvent{ Utils::LoadFile(mapFilepath) }));
 
-	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 9, 8, "knight" }));
-	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 14, 8, "elf" }));
+	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 9, 8, "knight_m" }));
+	host->eventQueue.Enqueue(EventType::SpawnPlayer, CreateRef<SpawnPlayerEvent>(SpawnPlayerEvent{ CreateMobID(), HostType::SERVER, 14, 8, "elf_m" }));
 }
 
 void GameCore::Create()
@@ -117,11 +116,11 @@ void GameCore::Render()
 	// Draws the tile map
 	if (map != nullptr)
 	{
-		int mapZIndex = 10;
+		int mapZIndex = 100;
 		for (auto layer : map->layers)
 		{
 			layer->Render(Vec2f(0, 0), map->mapScale, mapZIndex);
-			mapZIndex += 1;
+			mapZIndex += 10;
 		}
 
 		for (const auto& renderSystem : RenderSystems::renderSystems)
@@ -154,10 +153,10 @@ void GameCore::Destroy()
 {
 	host->Disconnect();
 
-	if (textureManager != nullptr)
+	if (resourceManager != nullptr)
 	{
-		textureManager->DestroyAll();
-		textureManager = nullptr;
+		resourceManager->DestroyAll();
+		resourceManager = nullptr;
 	}
 
 	for (auto* fixtureData : m_fixturesUserData)

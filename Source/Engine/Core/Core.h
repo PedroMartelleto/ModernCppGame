@@ -2,7 +2,7 @@
 
 #include "../Commons.h"
 #include "../Render/Window.h"
-#include "../Render/TextureManager.h"
+#include "../Render/ResourceManager.h"
 
 class GameCore;
 class TileMap;
@@ -41,7 +41,7 @@ public:
 	void DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const Color4f& color = Colors::RED, float thickness = 4.0f);
 public:
 	GameCore* gameCore;
-	Ref<TextureManager> textureManager;
+	Ref<ResourceManager> resourceManager;
 private:
 	float m_frameTime;
 	bool m_isRunning;

@@ -27,6 +27,7 @@
 
 typedef unsigned char TileID;
 
+using ResourceID = uint8_t;
 using json = nlohmann::json;
 
 template<typename T>
