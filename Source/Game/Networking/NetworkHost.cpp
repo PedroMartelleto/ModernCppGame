@@ -172,7 +172,7 @@ void NetworkHost::ServerHandleNewConnection(ENetPeer* peer, uint8_t mobTypeID)
 		const auto* localInputComponent = gameCore->registry.try_get<LocalInputComponent>(entity);
 		auto hostType = localInputComponent == nullptr ? HostType::CLIENT : HostType::SERVER;
 
-		if (mobComponent.isPlayer)
+		if (mobComponent.IsPlayer())
 		{
 			events.push_back(Utils::ToJSON(SpawnPlayersEvent{ {mobComponent.mobID}, {hostType}, {mobComponent.name}, { {pos.x,pos.y} }}));
 			eventTypes.push_back(EventType::SpawnPlayers);

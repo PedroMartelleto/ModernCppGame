@@ -30,15 +30,20 @@ public:
 	void Destroy();
 
 	MobID CreateMobID();
+	int8_t CreatePlayerIndex();
+
 	void DefineFixtureData(b2FixtureDef* fixtureDef, FixtureUserData* fixtureData);
 
 	inline Ref<TextureAtlas> GetAtlas(ResourceID alias)
 	{
 		return resourceManager->GetAtlas(GameData::resourceIdToPath.at(alias), false);
 	}
+
 private:
 	void SetupServer();
 public:
+	int8_t playerIndex = -1;
+
 	Core* core;
 	const std::string mapFilepath;
 	entt::registry registry; // ECS registry

@@ -25,7 +25,7 @@ namespace Spawner
 		box.SetAsBox(Game::PIXELS_TO_METERS * size.x / 2, Game::PIXELS_TO_METERS * size.y / 2);
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &box;
-		fixtureDef.friction = 0.0f;
+		fixtureDef.friction = 0.3f;
 		fixtureDef.density = density;
 
 		if (fixtureUserData != nullptr)
@@ -102,6 +102,8 @@ namespace Spawner
 	{
 		auto player = SpawnMob(gameCore, playerID, charName, pos);
 		auto& registry = gameCore->registry;
+
+		registry.get<MobComponent>(player).playerIndex = gameCore->CreatePlayerIndex();
 
 		if (isLocal)
 		{

@@ -11,11 +11,11 @@
 
 * Proper BG, parallax, camera
 
-* Render health bars
 * Game structure and UI
 * Render "arrow count"
 
 * Create events for:
+	* Add playerIndex to spawn player event
 	* Spawning enemies
 	* Spawning projectiles
 	* Adding joints?

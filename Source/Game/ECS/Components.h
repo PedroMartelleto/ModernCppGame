@@ -98,17 +98,19 @@ public:
 
 	ProjectileDirection shootDirection;
 	
+	int maxHealth = 3;
+	int8_t playerIndex = -1;
 	float health = 3.0f;
-	bool isPlayer = false;
 	bool wantsToJump = false;
 	bool wantsToShoot = false;
 	bool readyToShoot = false;
-	double lastShotTime = 0.0;
+	Timestamp lastShotTime = 0.0;
 	nlohmann::json aabb;
 
 	BitBuffer8 CreateEventBitBuffer() const;
 
 	inline Rect2D GetAABB() const { return Rect2D(aabb["x"], aabb["y"], aabb["width"], aabb["height"]); }
+	inline bool IsPlayer() const { return playerIndex >= 0; }
 };
 
 
@@ -135,6 +137,6 @@ struct LocalInputComponent
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, idleTickRate, runTickRate, atlas, health, isPlayer, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, maxHealth, idleTickRate, runTickRate, atlas, health, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

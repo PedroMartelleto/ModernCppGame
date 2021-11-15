@@ -1,3 +1,12 @@
+ui_knight_f_portrait 280 400 20 20
+ui_wizzard_f_portrait 300 400 20 20
+ui_knight_m_portrait 320 400 20 20
+ui_wizzard_m_portrait 340 400 20 20
+ui_elf_m_portrait 360 400 20 20
+ui_elf_f_portrait 380 400 20 20
+ui_lizard_f_portrait 420 400 20 20
+ui_lizard_m_portrait 440 400 20 20
+
 wall_top_left 16 0 16 16
 wall_top_mid 32 0 16 16
 wall_top_right 48 0 16 16

@@ -1,5 +1,7 @@
 #pragma once
 
+using Timestamp = double;
+
 class Timer
 {
 public:
@@ -7,11 +9,11 @@ public:
 	/// Gets chrono time in seconds.
 	/// </summary>
 	/// <returns>Returns the time.</returns>
-	static double GetTime();
+	static Timestamp GetTime();
 
-	double Reset();
-	double TimeElapsed();
+	Timestamp Reset();
+	Timestamp TimeElapsed();
 private:
-	double m_timeStart;
+	Timestamp m_timeStart;
 };
 

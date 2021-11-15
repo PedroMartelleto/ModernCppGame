@@ -13,6 +13,49 @@ namespace RenderSystems
 		return drawPos;
 	}
 
+	void ECSHealthRenderSystem(GameCore* gameCore)
+	{
+		auto& registry = gameCore->registry;
+		auto atlas = gameCore->GetAtlas(0);
+		auto emptyHeart = atlas->GetRegion("ui_heart_empty");
+		auto fullHeart = atlas->GetRegion("ui_heart_full");
+		auto halfHeart = atlas->GetRegion("ui_heart_half");
+		auto heartSize = fullHeart.size() * 2.0f;
+		
+		auto uiPos = Vec2f(32, 32);
+
+		// Renders health bars
+		for (auto entity : registry.view<MobComponent>())
+		{
+			auto& mob = registry.get<MobComponent>(entity);
+
+			if (mob.IsPlayer())
+			{
+				auto portrait = atlas->GetRegion("ui_" + mob.name + "_portrait");
+				auto drawY = (float)mob.playerIndex * 42.0f;
+
+				Render2D::DrawRect(uiPos + Vec2f(0, -6 + drawY), 0.0f, portrait.size() * 2.0f, Render2D::MAX_Z - 10, portrait, atlas->texture, Colors::WHITE);
+
+				for (int i = 0; i < mob.maxHealth; ++i)
+				{
+					auto pos = uiPos + Vec2f(64.0f + i * 32.0f, drawY);
+					if (mob.health >= i+1)
+					{
+						Render2D::DrawRect(pos, 0.0f, heartSize, Render2D::MAX_Z - 10, fullHeart, atlas->texture, Colors::WHITE);
+					}
+					else if (mob.health >= (float)i + 0.5f)
+					{
+						Render2D::DrawRect(pos, 0.0f, heartSize, Render2D::MAX_Z - 10, halfHeart, atlas->texture, Colors::WHITE);
+					}
+					else
+					{
+						Render2D::DrawRect(pos, 0.0f, heartSize, Render2D::MAX_Z - 10, emptyHeart, atlas->texture, Colors::WHITE);
+					}
+				}
+			}
+		}
+	}
+
 	void ECSSpriteRenderSystem(GameCore* gameCore)
 	{
 		auto& registry = gameCore->registry;

@@ -35,6 +35,12 @@ MobID GameCore::CreateMobID()
 	return globalMobID;
 }
 
+int8_t GameCore::CreatePlayerIndex()
+{
+	playerIndex += 1;
+	return playerIndex;
+}
+
 void GameCore::DefineFixtureData(b2FixtureDef* fixtureDef, FixtureUserData* fixtureData)
 {
 	m_fixturesUserData.push_back(fixtureData);
