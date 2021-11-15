@@ -9,13 +9,15 @@ namespace Projectile
 		auto& registry = gameCore->registry;
 		auto& mob = registry.get<MobComponent>(owner);
 		auto& body = registry.get<PhysicsBodyComponent>(owner).body;
+		auto& anim = registry.get<AnimationComponent>(owner);
+		auto faceDir = anim.GetFaceDir();
 		auto map = gameCore->map;
 
 		auto projEntity = Spawner::SpawnProjectile(gameCore, Vec2fFromB2(body->GetPosition()) * Game::METERS_TO_PIXELS, projectile);
 		auto& projBody = registry.get<PhysicsBodyComponent>(projEntity).body;
-		auto initialDir = mob.shootDirection.AsVector();
+		auto initialDir = mob.shootDirection.AsVector(faceDir);
 		
-		float initialAngle = mob.shootDirection.AsAngle() + glm::radians(projectile.baseAngle);
+		float initialAngle = mob.shootDirection.AsAngle(faceDir) + glm::radians(projectile.baseAngle);
 		auto projOffset = Vec2fToB2((initialDir * (mob.GetAABB().size() / 2.0f + Vec2f(4.0f, 4.0f)) * map->mapScale * Game::PIXELS_TO_METERS));
 
 		projBody->SetTransform(projBody->GetPosition() + projOffset, initialAngle);
@@ -34,9 +36,9 @@ void ProjectileDirection::Reset()
 	right = false;
 }
 
-std::string ProjectileDirection::ToString() const
+std::string ProjectileDirection::ToString(const Vec2f& defaultDir) const
 {
-	auto vec = AsVector();
+	auto vec = AsVector(defaultDir);
 	std::stringstream stream;
 
 	if (vec.y > 0.0f)
@@ -60,13 +62,10 @@ std::string ProjectileDirection::ToString() const
 	return stream.str();
 }
 
-bool ProjectileDirection::IsNone() const
+Vec2f ProjectileDirection::AsVector(const Vec2f& defaultDir) const
 {
-	return !up && !down && !left && !right;
-}
+	if (!up && !down && !left && !right) return defaultDir;
 
-Vec2f ProjectileDirection::AsVector() const
-{
 	float yDir = up ? -1.0f : 0.0f;
 	if (down) yDir += 1.0f;
 
@@ -76,8 +75,8 @@ Vec2f ProjectileDirection::AsVector() const
 	return Vec2f(xDir, yDir);
 }
 
-float ProjectileDirection::AsAngle() const
+float ProjectileDirection::AsAngle(const Vec2f& faceDir) const
 {
-	auto dir = AsVector();
+	auto dir = AsVector(faceDir);
 	return atan2f(dir.y, dir.x);
 }

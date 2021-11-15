@@ -71,7 +71,7 @@ namespace UpdateSystems
 			auto& body = registry.get<PhysicsBodyComponent>(entity);
 			auto& mob = registry.get<MobComponent>(entity);
 
-			if (mob.wantsToShoot && !mob.shootDirection.IsNone() && !mob.readyToShoot)
+			if (mob.wantsToShoot && !mob.readyToShoot)
 			{
 				auto* inventory = registry.try_get<ProjectileInventoryComponent>(entity);
 

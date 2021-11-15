@@ -67,7 +67,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="6" name="Collision">
+ <objectgroup id="6" name="Collision" visible="0">
   <object id="39" x="247.091" y="131.455">
    <polygon points="0,0 2.54545,6.54545 8.72727,12.5455 41.6364,12.7273 51.2727,0.909091 47.6364,-3.09091 4.54545,-3.27273"/>
   </object>
@@ -126,7 +126,7 @@
    <polygon points="0,0 13.125,0 13.125,55.125 0,55"/>
   </object>
  </objectgroup>
- <objectgroup id="9" name="Spawn">
+ <objectgroup id="9" name="Spawn" visible="0">
   <object id="94" x="88" y="137">
    <point/>
   </object>

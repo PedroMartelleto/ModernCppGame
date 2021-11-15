@@ -10,7 +10,7 @@ GameCore::GameCore(Core* core, HostType hostType) :
 	map(nullptr),
 	physicsWorld(b2Vec2(0, 15.0f)),
 	m_hostType(hostType),
-	mapFilepath("Resources/Maps/Map1.tmx")
+	mapFilepath("Resources/Maps/Map2.tmx")
 {
 	assert(m_hostType == HostType::CLIENT || m_hostType == HostType::SERVER);
 
@@ -117,21 +117,29 @@ void GameCore::Update(float deltaTime)
 
 void GameCore::Render()
 {
+	if (map == nullptr) return;
+	
 	// Draws the tile map
-	if (map != nullptr)
+	int mapZIndex = 100;
+	for (auto layer : map->layers)
 	{
-		int mapZIndex = 100;
-		for (auto layer : map->layers)
-		{
-			layer->Render(Vec2f(0, 0), map->mapScale, mapZIndex);
-			mapZIndex += 10;
-		}
-
-		for (const auto& renderSystem : RenderSystems::renderSystems)
-		{
-			renderSystem(this);
-		}
+		layer->Render(Vec2f(0, 0), map->mapScale, mapZIndex);
+		mapZIndex += 10;
 	}
+
+	for (const auto& renderSystem : RenderSystems::renderSystems)
+	{
+		renderSystem(this);
+	}
+
+	auto bg = resourceManager->GetTexture("Desert/background/BG-sky.png", true);
+	Render2D::DrawRect(Vec2f(0, -128), 0, bg->GetSize() * 2.1f * map->mapScale, 10, bg, Color4f(0.8f, 0.8f, 0.95f, 1.0f));
+
+	auto bg2 = resourceManager->GetTexture("Desert/background/BG-mountains.png", true);
+	Render2D::DrawRect(Vec2f(0, -128), 0, bg->GetSize() * 2.1f * map->mapScale, 15, bg2, Colors::WHITE);
+
+	auto bg3 = resourceManager->GetTexture("Desert/background/BG-ruins.png", true);
+	Render2D::DrawRect(Vec2f(0, -128), 0, bg->GetSize() * 2.1f * map->mapScale, 20, bg3, Colors::WHITE);
 
 #ifdef _DEBUG
 	// Renders debug collision boxes

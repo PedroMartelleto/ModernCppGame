@@ -2,12 +2,14 @@
 
 ## TODO
 
-* Separate AnimationComponent and TextureRegionComponent
-* Render BG
+* Proper BG, parallax
+
+* Smaller map/collisions
 
 * Multithreaded job system
 
 * Enemies
+	* Level graph
 	* AI Component
 	* Pathfinding on a separate thread
 
@@ -23,11 +25,14 @@
 
 ---
 
+
 * Long & short jumps
 	* Jump cooldown + Use forces + "increase gravity mid-air"
 
 * Small input delay for removing shoot direction
 * Handle looping of non-fixed rotation projectiles
+
+* Separate AnimationComponent and TextureRegionComponent
 
 ---
 

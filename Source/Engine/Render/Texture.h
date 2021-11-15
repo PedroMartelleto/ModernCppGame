@@ -48,6 +48,7 @@ public:
 	void Bind(unsigned int unit = 0) const;
 	void BindAsRenderTarget() const;
 
+	inline Vec2f GetSize() const { return Vec2f((float)m_textureData->GetWidth(), (float)m_textureData->GetHeight()); }
 	inline float GetWidth()  const { return (float)m_textureData->GetWidth(); }
 	inline float GetHeight() const { return (float)m_textureData->GetHeight(); }
 	inline GLuint GetID() const { return m_textureData->GetOpenGLID(); }

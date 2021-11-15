@@ -42,11 +42,12 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXM
 
 			auto lineTiles = Utils::StringSplit(line, ",");
 			x = 0;
-			for (auto tile : lineTiles)
+			for (const auto& tile : lineTiles)
 			{
 				if (tile.length() > 0)
 				{
-					tiles[x + y * width] = (TileID)std::stoi(tile);
+					uint64_t tileID = std::stoul(tile);
+					tiles[x + y * width] = tileID <= 255 ? (TileID)tileID : 0;
 					x += 1;
 				}
 			}
@@ -147,7 +148,7 @@ std::vector<Vec2f> TileMap::GetSpawns(int count) const
 {
 	std::vector<Vec2f> out;
 
-	while (count > spawns.size())
+	while (count > (int)spawns.size())
 	{
 		std::sample(
 			spawns.begin(),

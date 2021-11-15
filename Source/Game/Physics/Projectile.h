@@ -11,10 +11,9 @@ struct ProjectileDirection
 
 	void Reset();
 
-	bool IsNone() const;
-	Vec2f AsVector() const;
-	float AsAngle() const;
-	std::string ToString() const;
+	Vec2f AsVector(const Vec2f& defaultDir) const;
+	float AsAngle(const Vec2f& defaultDir) const;
+	std::string ToString(const Vec2f& defaultDir) const;
 };
 
 struct ProjectileData

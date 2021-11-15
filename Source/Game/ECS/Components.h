@@ -40,6 +40,11 @@ struct AnimationComponent
 	{
 		return atlas->GetAnimFrameRegion(regionName, frame);
 	}
+
+	/// <summary>
+	/// Vector that represents the direction of the entity that has this component.
+	/// </summary>
+	inline Vec2f GetFaceDir() const { return Vec2f(isFlipped ? -1.0f : 1.0f, 0.0f);  }
 };
 
 struct SpriteComponent

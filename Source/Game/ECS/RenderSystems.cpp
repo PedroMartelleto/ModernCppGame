@@ -63,26 +63,28 @@ namespace RenderSystems
 		auto& registry = gameCore->registry;
 
 		// Renders projectiles ready to be launched
-		for (auto entity : registry.view<MobComponent, PhysicsBodyComponent, SpriteComponent, ProjectileInventoryComponent>())
+		for (auto entity : registry.view<MobComponent, PhysicsBodyComponent, SpriteComponent, ProjectileInventoryComponent, AnimationComponent>())
 		{
 			const auto& mob = registry.get<MobComponent>(entity);
 			const auto& inventory = registry.get<ProjectileInventoryComponent>(entity);
+			const auto& anim = registry.get<AnimationComponent>(entity);
 
-			if (!mob.shootDirection.IsNone() && inventory.projectiles.size() > 0)
+			if (mob.readyToShoot && inventory.projectiles.size() > 0)
 			{
 				const auto& sprite = registry.get<SpriteComponent>(entity);
 				const auto& body = registry.get<PhysicsBodyComponent>(entity);
 				const auto& projectile = inventory.projectiles.back();
 
 				auto drawPos = GetBodyDrawPos(sprite, &body);
+				auto faceDir = anim.GetFaceDir();
 
-				auto projectileDir = glm::normalize(mob.shootDirection.AsVector());
-				float projectileAngle = mob.shootDirection.AsAngle() + glm::radians(projectile.baseAngle);
+				auto projectileDir = glm::normalize(mob.shootDirection.AsVector(faceDir));
+				float projectileAngle = mob.shootDirection.AsAngle(faceDir) + glm::radians(projectile.baseAngle);
 				
 				Rect2D region = gameCore->GetAtlas(projectile.atlas)->GetRegion(projectile.readySpriteName);
 				Vec2f size = region.size() * gameCore->map->mapScale;
 
-				Render2D::DrawRect(drawPos + projectileDir * sprite.size/2.0f + Vec2f(8, 12), projectileAngle, size, sprite.zIndex + 100, region, sprite.texture, sprite.tint);
+				Render2D::DrawRect(drawPos + projectileDir * sprite.size/2.0f + Vec2f(7, 11), projectileAngle, size, sprite.zIndex + 100, region, sprite.texture, sprite.tint);
 			}
 		}
 	}
