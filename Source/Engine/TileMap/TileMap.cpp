@@ -95,6 +95,10 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXM
 				// Else it is a polygon
 				else
 				{
+					float rotation = element->Attribute("rotation") == NULL ? 0.0f : glm::radians(element->FloatAttribute("rotation"));
+					auto rotMatrix = rotation == 0.0f ? Matrix4f(1.0f) : glm::rotate(Matrix4f(1.0f), rotation, Vec3f(0, 0, 1));
+					auto rotCenter = Vec2f(1.0f, 1.0f);
+
 					// Adds the polygon points to a box 2d shape
 					auto points = std::vector<b2Vec2>();
 
@@ -103,7 +107,17 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXM
 						auto coordsStr = Utils::StringSplit(pointStr, ",");
 						auto x = std::stof(coordsStr[0]);
 						auto y = std::stof(coordsStr[1]);
-						points.push_back(b2Vec2((x0 + x) * scale, (y0 + y) * scale));
+						
+						if (rotation == 0.0f)
+						{
+							points.push_back(b2Vec2((x0 + x) * scale, (y0 + y) * scale));
+						}
+						else 
+						{
+							auto lastPoint = Vec2f(x, y);
+							Vec4f rotPos = rotMatrix * Vec4f(x, y, 0.0f, 1.0f);
+							points.push_back(b2Vec2((rotPos.x + x0) * scale, (rotPos.y + y0) * scale));
+						}
 					}
 
 					assert(points.size() <= 8);

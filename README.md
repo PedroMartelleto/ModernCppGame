@@ -2,10 +2,6 @@
 
 ## TODO
 
-* Proper BG, parallax
-
-* Smaller map/collisions
-
 * Multithreaded job system
 
 * Enemies
@@ -13,15 +9,17 @@
 	* AI Component
 	* Pathfinding on a separate thread
 
+* Proper BG, parallax, camera
+
+* Render health bars
+* Game structure and UI
+* Render "arrow count"
+
 * Create events for:
 	* Spawning enemies
 	* Spawning projectiles
 	* Adding joints?
 
-* Render health bars + "matches"
-* Render "arrow count"
-
-* Basic game UI
 
 ---
 
