@@ -11,7 +11,7 @@
 const std::string tilesetTexturePath = "Resources/Sprites/Desert/Atlas.png";
 const int tilesetTileSize = 16;
 
-TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, Ref<ResourceManager> resourceManager) :
+TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, const Ref<ResourceManager>& resourceManager) :
 	mapScale(mapScale)
 {
 	tinyxml2::XMLDocument mapXML;

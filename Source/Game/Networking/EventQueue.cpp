@@ -1,6 +1,6 @@
 #include "EventQueue.h"
 
-void EventQueue::Enqueue(EventType type, Ref<void> data)
+void EventQueue::Enqueue(EventType type, const Ref<void>& data)
 {
 	m_events.push(EventData{ type, data });
 }

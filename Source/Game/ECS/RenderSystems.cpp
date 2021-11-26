@@ -77,11 +77,11 @@ namespace RenderSystems
 
 				if (region->allowFlip)
 				{
-					if (body->body->GetLinearVelocity().x > 0.001f)
+					if (body->body->GetLinearVelocity().x > 0.1f)
 					{
 						region->isFlipped = false;
 					}
-					else if (body->body->GetLinearVelocity().x < -0.001f)
+					else if (body->body->GetLinearVelocity().x < -0.1f)
 					{
 						region->isFlipped = true;
 					}

@@ -8,7 +8,7 @@
 class TileMap
 {
 public:
-	TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, Ref<ResourceManager> resourceManager);
+	TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, const Ref<ResourceManager>& resourceManager);
 	~TileMap();
 
 	Vec2f GetSpawn() const;

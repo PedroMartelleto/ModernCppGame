@@ -157,7 +157,7 @@ void Render2D::Flush(const Matrix4f& transformMatrix)
 	s_data.textureIDToIndex[s_data.textureIndexToID[0]] = 0;
 }
 
-void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, Ref<Texture> texture, const Color4f& color)
+void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Ref<Texture>& texture, const Color4f& color)
 {
 	DrawRect(pos, angle, size, z, Rect2D(0, 0, texture->GetWidth(), texture->GetHeight()), texture, color);
 }
@@ -173,7 +173,7 @@ inline void RotateVecAroundCenter(Vec3f& vec, const Vec3f& center, const Matrix4
 	vec = Vec3f(r.x, r.y, r.z) + center;
 }
 
-void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Rect2D& region, Ref<Texture> texture, const Color4f& color)
+void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Rect2D& region, const Ref<Texture>& texture, const Color4f& color)
 {
 	// If our current batch is too big...
 	if (s_data.indexCount >= MaxIndexCount)

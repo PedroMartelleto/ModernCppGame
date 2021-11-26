@@ -33,7 +33,7 @@ struct AnimationComponent
 	bool isFlipped = false;
 	uint8_t frame = 0;
 
-	AnimationComponent(Ref<TextureAtlas> atlas, const std::string& regionName, bool allowFlip = true) :
+	AnimationComponent(const Ref<TextureAtlas>& atlas, const std::string& regionName, bool allowFlip = true) :
 		atlas(atlas), regionName(regionName), allowFlip(allowFlip) {}
 
 	inline Rect2D GetRect() const
@@ -55,7 +55,7 @@ struct SpriteComponent
 	Vec2f size = Vec2f(0, 0);
 	Color4f tint = Colors::WHITE;
 
-	SpriteComponent(Ref<Texture2D> texture, int zIndex, const Vec2f& pos, const Vec2f& size, const Color4f& tint = Colors::WHITE) :
+	SpriteComponent(const Ref<Texture2D>& texture, int zIndex, const Vec2f& pos, const Vec2f& size, const Color4f& tint = Colors::WHITE) :
 		texture(texture), pos(pos), size(size), tint(tint), zIndex(zIndex) {}
 };
 

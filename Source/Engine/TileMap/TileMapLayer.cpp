@@ -1,7 +1,7 @@
 #include "TileMapLayer.h"
 #include "../Render/Render2D.h"
 
-TileMapLayer::TileMapLayer(const TileID* tiles, int width, int height, const std::string& name, Ref<Tileset> tileset) :
+TileMapLayer::TileMapLayer(const TileID* tiles, int width, int height, const std::string& name, const Ref<Tileset>& tileset) :
 	m_tiles(tiles),
 	width(width),
 	height(height),

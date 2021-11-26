@@ -16,6 +16,8 @@ GameCore::GameCore(Core* core, HostType hostType) :
 
 	GameData::Create("Resources/GameData/");
 
+	jobSystem = CreateRef<JobSystem>();
+
 	resourceManager = CreateRef<ResourceManager>("Resources/Sprites/");
 	registry = entt::registry();
 

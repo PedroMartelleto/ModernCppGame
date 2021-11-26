@@ -1,6 +1,6 @@
 #include "Tileset.h"
 
-Tileset::Tileset(Ref<Texture2D> texture, int tileWidth, int tileHeight, Ref<ResourceManager> resourceManager) :
+Tileset::Tileset(Ref<Texture2D> texture, int tileWidth, int tileHeight, const Ref<ResourceManager>& resourceManager) :
 	tileWidth(tileWidth),
 	tileHeight(tileHeight),
 	resourceManager(resourceManager),

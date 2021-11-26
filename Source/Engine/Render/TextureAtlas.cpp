@@ -2,7 +2,7 @@
 #include "ResourceManager.h"
 #include <fstream>
 
-Ref<TextureAtlas> TextureAtlas::FromFile(Ref<Texture> texture, const std::string& fileName)
+Ref<TextureAtlas> TextureAtlas::FromFile(const Ref<Texture>& texture, const std::string& fileName)
 {
 	auto atlas = CreateRef<TextureAtlas>();
 	atlas->texture = texture;

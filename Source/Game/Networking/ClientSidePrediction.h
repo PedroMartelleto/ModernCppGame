@@ -10,7 +10,7 @@ class ClientSidePrediction
 public:
 	ClientSidePrediction(GameCore* gameCore) : m_gameCore(gameCore) {}
 
-	void RegisterSnapshot(Ref<WorldSnapshotEvent> snapshot);
+	void RegisterSnapshot(const Ref<WorldSnapshotEvent>& snapshot);
 	void Update(float deltaTime);
 private:
 	/// <summary>

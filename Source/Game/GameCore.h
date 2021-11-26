@@ -7,6 +7,7 @@
 #include "Networking/ClientSidePrediction.h"
 #include "Physics/WorldContactListener.h"
 #include "GameData.h"
+#include "../Engine/Threads/JobSystem.h"
 
 struct RenderSystem;
 struct UpdateSystem;
@@ -51,6 +52,8 @@ public:
 	MobID globalMobID = 0;
 	std::unordered_map<MobID, entt::entity> mobs;
 	int localPlayerCount = 0;
+
+	Ref<JobSystem> jobSystem;
 
 	// Physics
 	Ref<WorldContactListener> worldContactListener;

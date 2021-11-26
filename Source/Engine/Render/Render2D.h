@@ -67,9 +67,9 @@ public:
 
 	static void Resize(float width, float height);
 
-	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, Ref<Texture> texture, const Color4f& color = Colors::WHITE);
+	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
 	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z = 0.0f, const Color4f& color = Colors::WHITE);
-	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Rect2D& region, Ref<Texture> texture, const Color4f& color = Colors::WHITE);
+	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Rect2D& region, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
 
 	inline static void AddVertex(const Vec3f& position, const Color4f& color, const Vec2f& texCoords, float texIndex)
 	{

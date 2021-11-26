@@ -21,7 +21,7 @@ class EventQueue
 {
 public:
 	EventQueue() {}
-	void Enqueue(EventType type, Ref<void> data);
+	void Enqueue(EventType type, const Ref<void>& data);
 	EventData Dequeue();
 	inline bool IsEmpty() const { return m_events.empty(); }
 private:

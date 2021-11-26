@@ -6,7 +6,7 @@
 class Tileset
 {
 public:
-	Tileset(Ref<Texture2D> texture, int tileWidth, int tileHeight, Ref<ResourceManager> resourceManager);
+	Tileset(Ref<Texture2D> texture, int tileWidth, int tileHeight, const Ref<ResourceManager>& resourceManager);
 
 	Rect2D GetTileRegion(int x, int y) const;
 	Rect2D GetTileRegion(TileID id) const;

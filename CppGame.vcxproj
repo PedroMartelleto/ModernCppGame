@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Threads\JobSystem.cpp" />
+    <ClCompile Include="Source\Engine\Threads\Job.cpp" />
     <ClCompile Include="Source\Game\Physics\Projectile.cpp" />
     <ClCompile Include="Source\Game\ECS\RenderSystems.cpp" />
     <ClCompile Include="Source\Game\Networking\ClientSidePrediction.cpp" />
@@ -51,6 +53,8 @@
     <ClCompile Include="Source\Game\Physics\WorldInteractionHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Threads\JobSystem.h" />
+    <ClInclude Include="Source\Engine\Threads\Job.h" />
     <ClInclude Include="Source\Game\Physics\Projectile.h" />
     <ClInclude Include="Source\Game\ECS\RenderSystems.h" />
     <ClInclude Include="Source\Game\Networking\ClientSidePrediction.h" />

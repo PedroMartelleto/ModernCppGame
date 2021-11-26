@@ -2,7 +2,7 @@
 #include "../GameCore.h"
 #include "../GameData.h"
 
-void ClientSidePrediction::RegisterSnapshot(Ref<WorldSnapshotEvent> snapshot)
+void ClientSidePrediction::RegisterSnapshot(const Ref<WorldSnapshotEvent>& snapshot)
 {
 	m_startCounter = true;
 	m_pendingSnapshot = snapshot;

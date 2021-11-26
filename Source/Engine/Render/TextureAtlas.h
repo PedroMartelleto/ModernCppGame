@@ -8,7 +8,7 @@ class ResourceManager;
 class TextureAtlas
 {
 public:
-	static Ref<TextureAtlas> FromFile(Ref<Texture> texture, const std::string& fileName);
+	static Ref<TextureAtlas> FromFile(const Ref<Texture>& texture, const std::string& fileName);
 	static Ref<TextureAtlas> FromPath(ResourceManager* manager, const std::string& fileNameWithoutExt);
 
 	Ref<Texture> texture = nullptr;

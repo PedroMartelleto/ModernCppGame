@@ -6,7 +6,7 @@
 class TileMapLayer
 {
 public:
-	TileMapLayer(const TileID* tiles, int width, int height, const std::string& name, Ref<Tileset> tileset);
+	TileMapLayer(const TileID* tiles, int width, int height, const std::string& name, const Ref<Tileset>& tileset);
 	~TileMapLayer();
 
 	TileID GetTile(int x, int y) const;
