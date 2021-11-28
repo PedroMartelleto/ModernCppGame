@@ -2,8 +2,7 @@
 
 ## TODO
 
-* Path following
-* Update current node (on a separate thread if possible)
+* Fix either A* or path following
 
 * Test job system
 
