@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Pathfinding\AStarSearch.cpp" />
     <ClCompile Include="Source\Engine\Threads\JobSystem.cpp" />
     <ClCompile Include="Source\Engine\Threads\Job.cpp" />
     <ClCompile Include="Source\Game\Physics\Projectile.cpp" />
@@ -51,8 +52,10 @@
     <ClCompile Include="Source\Game\ECS\UpdateSystems.cpp" />
     <ClCompile Include="Source\Game\Spawner.cpp" />
     <ClCompile Include="Source\Game\Physics\WorldInteractionHandler.cpp" />
+    <ClCompile Include="Source\Engine\Pathfinding\WorldGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Pathfinding\AStarSearch.h" />
     <ClInclude Include="Source\Engine\Threads\JobSystem.h" />
     <ClInclude Include="Source\Engine\Threads\Job.h" />
     <ClInclude Include="Source\Game\Physics\Projectile.h" />
@@ -92,6 +95,7 @@
     <ClInclude Include="Source\Game\ECS\UpdateSystems.h" />
     <ClInclude Include="Source\Game\Spawner.h" />
     <ClInclude Include="Source\Game\Physics\WorldInteractionHandler.h" />
+    <ClInclude Include="Source\Engine\Pathfinding\WorldGraph.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\GameData\MobData.json" />

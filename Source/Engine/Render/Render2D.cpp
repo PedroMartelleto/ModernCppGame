@@ -103,9 +103,13 @@ void Render2D::Resize(float width, float height)
 	glViewport(0, 0, (int)width, (int)height);
 }
 
+void Render2D::SetClearColor(const Color4f& clearColor)
+{
+	glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+}
+
 void Render2D::BeginRender(const Matrix4f& viewMatrix)
 {
-	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	shader->Bind();
@@ -157,6 +161,25 @@ void Render2D::Flush(const Matrix4f& transformMatrix)
 	s_data.textureIDToIndex[s_data.textureIndexToID[0]] = 0;
 }
 
+void Render2D::DrawLine(bool arrow, const Vec2f& from, const Vec2f& to, int z, float width, const Color4f& color)
+{
+	Vec2f dir = glm::normalize(to - from);
+	Vec2f normal = Vec2f(-dir.y, dir.x) * width;
+
+	Vec2f p0 = to - normal;
+	Vec2f p1 = to + normal;
+	Vec2f p2 = from + normal;
+	Vec2f p3 = from - normal;
+
+	DrawQuad({ { p0, p1, p2, p3 } }, {{ Vec2f(0.0f, 0.0f), Vec2f(1.0f, 0.0f), Vec2f(1.0f, 1.0f), Vec2f(0.0f, 1.0f) }}, z, nullptr, color);
+
+	if (arrow)
+	{
+		DrawQuad({ { to - normal * 0.1f + dir * 9.0f, to + normal * 0.1f + dir * 9.0f, to + normal * width * 2.0f, to - normal * width * 2.0f } },
+			{ { Vec2f(0.0f, 0.0f), Vec2f(1.0f, 0.0f), Vec2f(1.0f, 1.0f), Vec2f(0.0f, 1.0f) } }, z, nullptr, color);
+	}
+}
+
 void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Ref<Texture>& texture, const Color4f& color)
 {
 	DrawRect(pos, angle, size, z, Rect2D(0, 0, texture->GetWidth(), texture->GetHeight()), texture, color);
@@ -167,13 +190,13 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 	DrawRect(pos, angle, size, z, Rect2D(0, 0, 1, 1), nullptr, color);
 }
 
-inline void RotateVecAroundCenter(Vec3f& vec, const Vec3f& center, const Matrix4f& matrix)
+inline void RotateVecAroundCenter(Vec2f& vec, const Vec2f& center, const Matrix4f& matrix)
 {
-	Vec4f r = (matrix * Vec4f(vec - center, 1.0f));
-	vec = Vec3f(r.x, r.y, r.z) + center;
+	Vec4f r = (matrix * Vec4f(vec - center, 0.0f, 1.0f));
+	vec = Vec2f(r.x, r.y) + center;
 }
 
-void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Rect2D& region, const Ref<Texture>& texture, const Color4f& color)
+void Render2D::DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, int z, const Ref<Texture>& texture, const Color4f& color)
 {
 	// If our current batch is too big...
 	if (s_data.indexCount >= MaxIndexCount)
@@ -185,21 +208,15 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 	}
 
 	float texIndex = 0.0f;
-	auto normRegion = Rect2D(region);
 
 	if (texture != nullptr)
 	{
-		normRegion.x /= texture->GetWidth();
-		normRegion.width /= texture->GetWidth();
-		normRegion.y /= texture->GetHeight();
-		normRegion.height /= texture->GetHeight();
-
 		auto textureID = texture->GetID();
 
 		// Checks if the texture id is already in the dictionary
 		if (s_data.textureIDToIndex.find(textureID) != s_data.textureIDToIndex.end())
 		{
-			texIndex = (float) s_data.textureIDToIndex[textureID];
+			texIndex = (float)s_data.textureIDToIndex[textureID];
 		}
 		else
 		{
@@ -213,21 +230,42 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 
 			// Otherwise add it to the dictionary
 			AssignTexture(textureID, s_data.textureCount);
-			texIndex = (float) s_data.textureCount;
+			texIndex = (float)s_data.textureCount;
 			s_data.textureCount += 1;
 		}
 	}
 
 	float zFloat = -(1.0f - (float)z / (float)MAX_Z) * FAR_PLANE;
+
+	for (int i = 0; i < (int) pos.size(); ++i)
+	{
+		AddVertex(Vec3f(pos[i], zFloat), color, texCoords[i], texIndex);
+	}
+
+	s_data.indexCount += 6;
+}
+
+void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Rect2D& region, const Ref<Texture>& texture, const Color4f& color)
+{
+	auto normRegion = Rect2D(region);
+
+	if (texture != nullptr)
+	{
+		normRegion.x /= texture->GetWidth();
+		normRegion.width /= texture->GetWidth();
+		normRegion.y /= texture->GetHeight();
+		normRegion.height /= texture->GetHeight();
+	}
+
 	Vec2f offset = Vec2f(normRegion.width < 0.0f ? -normRegion.width : 0.0f, normRegion.height < 0.0f ? -normRegion.height : 0.0f);
-	auto topLeft = Vec3f(pos.x, pos.y, zFloat);
-	auto topRight = Vec3f(pos.x + size.x, pos.y, zFloat);
-	auto bottomRight = Vec3f(pos.x + size.x, pos.y + size.y, zFloat);
-	auto bottomLeft = Vec3f(pos.x, pos.y + size.y, zFloat);
+	auto topLeft = pos;
+	auto topRight = Vec2f(pos.x + size.x, pos.y);
+	auto bottomRight = pos + size;
+	auto bottomLeft = Vec2f(pos.x, pos.y + size.y);
 
 	if (fabsf(angle) > 0.0001f)
 	{
-		auto center = Vec3f(pos.x + size.x/2, pos.y + size.y/2, zFloat);
+		auto center = pos + size/2.0f;
 		auto rotMatrix = glm::rotate(Matrix4f(1.0f), angle, Vec3f(0, 0, 1));
 		RotateVecAroundCenter(topLeft, center, rotMatrix);
 		RotateVecAroundCenter(topRight, center, rotMatrix);
@@ -235,10 +273,14 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 		RotateVecAroundCenter(bottomRight, center, rotMatrix);
 	}
 
-	AddVertex(topLeft, color, normRegion.pos() + offset, texIndex);
-	AddVertex(topRight, color, Vec2f(normRegion.x + normRegion.width, normRegion.y) + offset, texIndex);
-	AddVertex(bottomRight, color, normRegion.pos() + normRegion.size() + offset, texIndex);
-	AddVertex(bottomLeft, color, Vec2f(normRegion.x, normRegion.y + normRegion.height) + offset, texIndex);
+	std::array<Vec2f, 4> vertexPos = {{
+		topLeft, topRight, bottomRight, bottomLeft
+	}};
 
-	s_data.indexCount += 6;
+	std::array<Vec2f, 4> texCoords = {{
+		normRegion.pos() + offset, Vec2f(normRegion.x + normRegion.width, normRegion.y) + offset,
+		normRegion.pos() + normRegion.size() + offset, Vec2f(normRegion.x, normRegion.y + normRegion.height) + offset
+	}};
+
+	DrawQuad(vertexPos, texCoords, z, texture, color);
 }

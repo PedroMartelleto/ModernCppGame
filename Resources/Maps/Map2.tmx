@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="34" height="26" tilewidth="16" tileheight="16" infinite="0" nextlayerid="12" nextobjectid="228">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="34" height="26" tilewidth="16" tileheight="16" infinite="0" nextlayerid="14" nextobjectid="289">
  <editorsettings>
   <export target="Map1.csv" format="csv"/>
  </editorsettings>
@@ -71,13 +71,13 @@
    <polygon points="1.56522,0.217391 7.38142,-2.02372 13.3281,-5.43874 16.4743,-10.0435 13.5613,-19.3202 3.78977,-25.0057 -15.2727,-24.858 -15.2727,0"/>
   </object>
   <object id="141" x="14.125" y="221.75">
-   <polygon points="0,0 12.5,-6 15.875,-11.625 16.0111,-56.3972 0.1875,-56.4688"/>
+   <polygon points="0,0 12.5,-6 15.875,-11.625 15.9994,-56.4089 0.176389,-56.4521"/>
   </object>
   <object id="143" x="30.125" y="204.875">
-   <polygon points="0,0 38.5,-0.625 46,-5.625 48.125,-10.375 49.0625,-39.5938 -0.84375,-39.5313"/>
+   <polygon points="0,0 38.5,-0.625 46,-5.625 48.125,-10.375 49.0386,-39.5726 -0.847656,-39.5352"/>
   </object>
   <object id="145" x="78" y="189.125">
-   <polygon points="0,0 23,-1.5 31.75,-9.625 31.625,-15.125 20,-23.75 -1.375,-23.875"/>
+   <polygon points="0,0 23,-1.5 31.75,-9.625 31.625,-15.125 20,-23.75 -1.38837,-23.8299"/>
   </object>
   <object id="146" x="-26.75" y="122.25">
    <polygon points="-0.454545,1.45455 79.858,1.64205 88.9375,-6.5 88.5625,-12.875 75.8125,-20.75 3.25,-21.125"/>
@@ -116,13 +116,13 @@
    <polygon points="84.4402,101.869 90.2564,104.11 96.2031,107.525 99.3493,112.13 96.4363,121.407 86.6648,127.092 67.6023,126.945 67.6023,102.087"/>
   </object>
   <object id="206" x="612.295" y="292.25" rotation="180">
-   <polygon points="82.875,70.5 95.375,76.5 98.75,82.125 99.0396,126.908 82.4515,126.976"/>
+   <polygon points="82.875,70.5 95.375,76.5 98.75,82.125 98.984,126.964 82.5404,126.998"/>
   </object>
   <object id="207" x="596.295" y="292.156" rotation="180">
-   <polygon points="82.875,87.2812 121.375,87.9062 128.875,92.9062 131,97.6562 130.469,126.875 82.0313,126.813"/>
+   <polygon points="82.875,87.2812 121.375,87.9062 128.875,92.9062 131,97.6562 130.469,126.875 81.698,126.869"/>
   </object>
   <object id="208" x="548.42" y="292.125" rotation="180">
-   <polygon points="82.875,103 105.875,104.5 114.625,112.625 114.5,118.125 102.875,126.75 81.5,126.875"/>
+   <polygon points="82.875,103 105.875,104.5 114.625,112.625 114.5,118.125 102.875,126.75 81.5,126.859"/>
   </object>
   <object id="209" x="653.17" y="229.642" rotation="180">
    <polygon points="82.4205,105.938 162.733,105.75 171.813,113.892 171.438,120.267 158.688,128.142 82.0341,127.79"/>
@@ -145,37 +145,253 @@
   <object id="215" x="505.795" y="111.375" rotation="180">
    <polygon points="84.75,83.5 207.125,84.25 216.25,91.5 215.5,125.875 75.875,127.875 75.75,92.375"/>
   </object>
-  <object id="217" x="529.273" y="165.273" width="51.0909" height="111.636"/>
+  <object id="217" x="529.273" y="165.25" width="51.0909" height="111.636"/>
   <object id="218" x="14.2727" y="165.273">
-   <polygon points="0,0 -29.3478,-0.0513834 -29.5852,111.581 -0.210227,111.936"/>
+   <polygon points="0.0222222,0.0222222 -29.3908,0.0267416 -29.5852,111.581 -0.210227,111.936"/>
   </object>
  </objectgroup>
- <objectgroup id="9" name="Spawn">
-  <object id="103" x="272" y="122.667">
+ <objectgroup id="9" name="Spawn" visible="0">
+  <object id="103" type="Spawn" x="272" y="122.667">
    <point/>
   </object>
-  <object id="219" x="70" y="159">
+  <object id="219" type="Spawn" x="70" y="159">
    <point/>
   </object>
-  <object id="220" x="469" y="157">
+  <object id="220" type="Spawn" x="469" y="157">
    <point/>
   </object>
-  <object id="221" x="146" y="345">
+  <object id="221" type="Spawn" x="146" y="345">
    <point/>
   </object>
-  <object id="222" x="392" y="341">
+  <object id="222" type="Spawn" x="392" y="341">
    <point/>
   </object>
-  <object id="224" x="502" y="90">
+  <object id="224" type="Spawn" x="502" y="90">
    <point/>
   </object>
-  <object id="225" x="39" y="90">
+  <object id="225" type="Spawn" x="39" y="90">
    <point/>
   </object>
-  <object id="226" x="509" y="264">
+  <object id="226" type="Spawn" x="509" y="264">
    <point/>
   </object>
-  <object id="227" x="36" y="263">
+  <object id="227" type="Spawn" x="36" y="263">
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="13" name="Pathfinding">
+  <object id="255" type="PathfindingNode" x="62" y="367">
+   <properties>
+    <property name="to" value="258,268"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="258" type="PathfindingNode" x="127.5" y="351.5">
+   <properties>
+    <property name="to" value="255,259,268,280"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="259" type="PathfindingNode" x="169.5" y="351">
+   <properties>
+    <property name="to" value="258,260"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="260" type="PathfindingNode" x="215" y="381.5">
+   <properties>
+    <property name="to" value="261,259"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="261" type="PathfindingNode" x="270" y="382.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="true"/>
+    <property name="to" value="262"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="262" type="PathfindingNode" x="271" y="24">
+   <properties>
+    <property name="to" value="273"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="263" type="PathfindingNode" x="329" y="380.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="261,264"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="264" type="PathfindingNode" x="374" y="349.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="263,265"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="265" type="PathfindingNode" x="417.5" y="350">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="266,264,267,281"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="266" type="PathfindingNode" x="483" y="366">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="265,267"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="267" type="PathfindingNode" x="447.5" y="399.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="true"/>
+    <property name="to" value="269"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="268" type="PathfindingNode" x="94.5" y="402.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="true"/>
+    <property name="to" value="270"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="269" type="PathfindingNode" x="447.5" y="31">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="275"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="270" type="PathfindingNode" x="94.5" y="32.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="274"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="271" type="PathfindingNode" x="13.5" y="161.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="isHorizontalEdge" type="bool" value="true"/>
+    <property name="to" value="272,274"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="272" type="PathfindingNode" x="532.5" y="161">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="isHorizontalEdge" type="bool" value="true"/>
+    <property name="to" value="271,275"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="273" type="PathfindingNode" x="272.5" y="126">
+   <properties>
+    <property name="to" value="276,277"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="274" type="PathfindingNode" x="93.5" y="163">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="271,283,285"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="275" type="PathfindingNode" x="449.5" y="162">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="272,282,284"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="276" type="PathfindingNode" x="223.5" y="223.5">
+   <properties>
+    <property name="to" value="279,286"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="277" type="PathfindingNode" x="320.5" y="222">
+   <properties>
+    <property name="to" value="278,286"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="278" type="PathfindingNode" x="359" y="238.5">
+   <properties>
+    <property name="to" value="264,277"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="279" type="PathfindingNode" x="186.5" y="239.5">
+   <properties>
+    <property name="to" value="259,276"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="280" type="PathfindingNode" x="45.5" y="276">
+   <properties>
+    <property name="to" value="255,268"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="281" type="PathfindingNode" x="503" y="275.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="266,267"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="282" type="PathfindingNode" x="418" y="93.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="275,287"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="283" type="PathfindingNode" x="129.5" y="95">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="271,288"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="284" type="PathfindingNode" x="499.5" y="99">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="275"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="285" type="PathfindingNode" x="45.5" y="100.5">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="274"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="286" type="PathfindingNode" x="272" y="206.5">
+   <properties>
+    <property name="to" value="276,277"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="287" type="PathfindingNode" x="381.5" y="94">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="282,278,277"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="288" type="PathfindingNode" x="162" y="96">
+   <properties>
+    <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="to" value="283,279,276"/>
+   </properties>
    <point/>
   </object>
  </objectgroup>

@@ -3,6 +3,8 @@
 /// Number of threads reserved for the Operating System
 #define NUM_RESERVED_THREADS 0
 
+Ref<JobSystem> JobSystem::master = CreateRef<JobSystem>();
+
 JobSystem::JobSystem()
 {
 	int numThreads = (int)std::thread::hardware_concurrency() - 1 - NUM_RESERVED_THREADS;
@@ -27,10 +29,10 @@ JobSystem::~JobSystem()
 		systemThread->mutex.acquire();
 		systemThread->isEnabled = false;
 
-		systemThread->jobs.push([systemThread]()
+		systemThread->jobs.push(new Job([systemThread]()
 		{
 			systemThread->isEnabled = false;
-		});
+		}));
 
 		systemThread->mutex.release();
 		systemThread->emptySemaphore.release();
@@ -43,19 +45,28 @@ JobSystem::~JobSystem()
 	}
 }
 
-void JobSystem::AssignJob(const Job& job)
+void JobSystem::AssignJobToSystemThreads(Job* job)
 {
-	// TODO: Balance this...
+	// Job must be new
+	assert(!job->isComplete);
+
+	// Finds the thread with the lowest amount of jobs
 	int destIndex = 0;
 
 	for (int i = 1; i < (int)m_systemThreads.size(); ++i)
 	{
+		m_systemThreads[i]->mutex.acquire();
 		if (m_systemThreads[i]->jobs.size() < m_systemThreads[destIndex]->jobs.size())
 		{
 			destIndex = i;
 		}
+		m_systemThreads[i]->mutex.release();
 	}
 
+	// This is fine since threadIndex is accessed only from the main thread.
+	job->threadIndex = destIndex;
+
+	// Once we have found the destination thread, adds the job to it.
 	auto& systemThread = m_systemThreads[destIndex];
 
 	systemThread->fullSemaphore.acquire();
@@ -71,8 +82,11 @@ void JobSystem::ThreadCallback(int i)
 {
 	auto* systemThread = m_systemThreads[i];
 
+	// While this thread is enabled...
 	while (systemThread->isEnabled)
 	{
+		// Producer-consumer pattern
+
 		systemThread->emptySemaphore.acquire();
 
 		if (!systemThread->isEnabled) return;
@@ -83,10 +97,13 @@ void JobSystem::ThreadCallback(int i)
 
 		auto jobToRun = systemThread->jobs.back();
 		systemThread->jobs.pop();
+		jobToRun->threadIndex = i;
 
 		systemThread->mutex.release();
 		systemThread->fullSemaphore.release();
 
-		jobToRun();
+		jobToRun->callback();
+		jobToRun->isComplete = true;
+		delete jobToRun;
 	}
 }

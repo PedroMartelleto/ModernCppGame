@@ -12,7 +12,7 @@ const std::string tilesetTexturePath = "Resources/Sprites/Desert/Atlas.png";
 const int tilesetTileSize = 16;
 
 TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXMLData, const Ref<ResourceManager>& resourceManager) :
-	mapScale(mapScale)
+	mapScale(mapScale), pathfindingGraph({})
 {
 	tinyxml2::XMLDocument mapXML;
 	mapXML.Parse(mapXMLData.c_str(), mapXMLData.size());
@@ -136,6 +136,69 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXM
 				auto y0 = element->FloatAttribute("y");
 				spawns.push_back(Vec2f(x0, y0));
 			}
+		}
+		else if (strcmp(objGroupElement->Attribute("name"), "Pathfinding") == 0)
+		{
+			// For each pathfinding node...
+			for (auto element = objGroupElement->FirstChildElement("object"); element != NULL; element = element->NextSiblingElement("object"))
+			{
+				auto x0 = element->FloatAttribute("x");
+				auto y0 = element->FloatAttribute("y");
+				auto props = element->FirstChildElement("properties");
+				auto nodeID = (WorldNodeID)element->IntAttribute("id");
+				bool isHorizontalEdge = false;
+				bool isBottomEdge = false;
+				std::vector<WorldLink> links;
+
+				for (auto propElement = props->FirstChildElement("property"); propElement != NULL; propElement = propElement->NextSiblingElement("property"))
+				{
+					const auto* propName = propElement->Attribute("name");
+
+					if (strcmp(propName, "isHorizontalEdge") == 0)
+					{
+						isHorizontalEdge = propElement->BoolAttribute("value");
+					}
+					else if (strcmp(propName, "isBottomEdge") == 0)
+					{
+						isBottomEdge = propElement->BoolAttribute("value");
+					}
+					else if (strcmp(propName, "to") == 0)
+					{
+						auto connections = propElement->Attribute("value");
+
+						for (auto link : Utils::StringSplit(connections, ","))
+						{
+							auto toID = (WorldNodeID)std::stoi(link);
+							if (toID != nodeID)
+							{
+								links.push_back(WorldLink { -1.0f, toID });
+							}
+							else
+							{
+								DEBUG_LOG("MAP", LOG_WARNING, "Found a self-link in a pathfinding node while parsing the tile map. Node ID: %u\n", toID);
+							}
+						}
+					}
+					else
+					{
+						DEBUG_LOG("MAP", LOG_WARNING, "Found invalid propName in pathfinding layer while parsing the tile map: %s\n", propName);
+					}
+				}
+
+				if (links.size() <= 0)
+				{
+					DEBUG_LOG("MAP", LOG_WARNING, "Found a dead-end node in the pathfinding layer: %u", nodeID);
+				}
+
+				assert(links.size() > 0);
+
+				pathfindingGraph.nodes[nodeID] = WorldNode {
+					nodeID, isBottomEdge, isHorizontalEdge, Vec2f(x0, y0), links
+				};
+			}
+
+			pathfindingGraph.CalculateManhattanCosts(1.0f, 1.1f, 1.0f, 1.0f);
+			pathfindingGraph.ValidateAndFix();
 		}
 	}
 

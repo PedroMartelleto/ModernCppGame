@@ -2,6 +2,7 @@
 
 #include "TileMapLayer.h"
 #include "Tileset.h"
+#include "../Pathfinding/WorldGraph.h"
 #include "../Core/Math.h"
 #include <tinyxml2.h>
 
@@ -29,6 +30,8 @@ public:
 	Vec2f SizeInPixels() const { return Vec2f((float)layers[0]->width, (float)layers[0]->height) * scaledTileSize; }
 public:
 	const float mapScale;
+
+	WorldGraph pathfindingGraph;
 
 	std::vector<Vec2f> spawns;
 	std::vector<Ref<TileMapLayer>> layers;

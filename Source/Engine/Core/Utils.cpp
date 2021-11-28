@@ -41,4 +41,15 @@ namespace Utils
 		dataFile.close();
 		return buffer.str();
 	}
+
+	int RandomInt(int min, int max)
+	{
+		static bool first = true;
+		if (first)
+		{
+			srand((unsigned int) time(NULL));
+			first = false;
+		}
+		return min + rand() % ((max + 1) - min);
+	}
 };

@@ -25,7 +25,7 @@ namespace Spawner
 		box.SetAsBox(Game::PIXELS_TO_METERS * size.x / 2, Game::PIXELS_TO_METERS * size.y / 2);
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &box;
-		fixtureDef.friction = 0.3f;
+		fixtureDef.friction = 0.01f;
 		fixtureDef.density = density;
 
 		if (fixtureUserData != nullptr)

@@ -2,9 +2,72 @@
 #include "../GameCore.h"
 #include "../GameData.h"
 #include "../Spawner.h"
+#include "../../Engine/Pathfinding/AStarSearch.h"
+
+std::unordered_map<MobID, AStarSearch::WorldGraphPath> shortestPaths;
 
 namespace UpdateSystems
 {
+	void ECSMobPathfindingUpdateSystem(GameCore* gameCore, float deltaTime)
+	{
+		auto& registry = gameCore->registry;
+		const auto& map = gameCore->map;
+		double startTime = Timer::GetTime();
+
+		auto& target = registry.get<PhysicsBodyComponent>(gameCore->mobs[1]);
+
+		for (auto entity : registry.view<MobComponent, PhysicsBodyComponent, PathfindingComponent>())
+		{
+			auto& mob = registry.get<MobComponent>(entity);
+			auto& pathfinding = registry.get<PathfindingComponent>(entity);
+			auto* body = registry.get<PhysicsBodyComponent>(entity).body;
+
+			auto mobPos = Vec2fFromB2((Game::METERS_TO_PIXELS / map->mapScale) * body->GetPosition());
+			auto targetPos = Vec2fFromB2((Game::METERS_TO_PIXELS / map->mapScale) * target.body->GetPosition());
+
+			auto& srcNode = map->pathfindingGraph.GetClosestNode(mobPos);
+			auto& dstNode = map->pathfindingGraph.GetClosestNode(targetPos);
+			srcNode.isMarked = true;
+			dstNode.isMarked = true;
+
+			if (srcNode.id == dstNode.id) continue;
+
+			shortestPaths[mob.mobID] = AStarSearch::FindShortestPath(map->pathfindingGraph, srcNode.id, dstNode.id, [](const Vec2f& curr, const Vec2f& goal)
+			{
+				return 0.0f;
+			});
+
+			auto& nextNode = map->pathfindingGraph[shortestPaths[mob.mobID][srcNode.id]];
+
+			for (auto& link : srcNode.links)
+			{
+				if (link.dst == nextNode.id)
+				{
+					link.isMarked = true;
+				}
+			}
+
+			if (srcNode.worldPos.x < nextNode.worldPos.x)
+			{
+				mob.horizontalMoveDir = 1.0f;
+			}
+			else
+			{
+				mob.horizontalMoveDir = -1.0f;
+			}
+
+			if (srcNode.worldPos.y - nextNode.worldPos.y > 12.0f)
+			{
+				mob.wantsToJump = true;
+			}
+		}
+
+		if (gameCore->frameCounter % 30 == 0)
+		{
+			DEBUG_LOG("AI", LOG_MSG, "Time to find paths: %lf ms", (Timer::GetTime() - startTime) * 1000);
+		}
+	}
+
 	void ECSMobTextureRegionUpdateSystem(GameCore* gameCore, float deltaTime)
 	{
 		auto& registry = gameCore->registry;

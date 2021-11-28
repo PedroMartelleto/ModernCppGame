@@ -18,7 +18,7 @@ namespace Projectile
 		auto initialDir = mob.shootDirection.AsVector(faceDir);
 		
 		float initialAngle = mob.shootDirection.AsAngle(faceDir) + glm::radians(projectile.baseAngle);
-		auto projOffset = Vec2fToB2((initialDir * (mob.GetAABB().size() / 2.0f + Vec2f(4.0f, 4.0f)) * map->mapScale * Game::PIXELS_TO_METERS));
+		auto projOffset = Vec2fToB2((initialDir * mob.GetAABB().size() * map->mapScale / 2.0f * Game::PIXELS_TO_METERS));
 
 		projBody->SetTransform(projBody->GetPosition() + projOffset, initialAngle);
 		projBody->SetFixedRotation(false);

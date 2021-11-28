@@ -83,7 +83,20 @@ namespace EventHandler
 							Vec2f(ev->positions[i].first, ev->positions[i].second), isLocal);
 					}
 
-					Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), "big_demon", gameCore->map->GetSpawn());
+					// NOTE: Temp code below for testing pathfinding graphs
+					std::vector<WorldNodeID> nodeIDs;
+					for (const auto& [key, _] : gameCore->map->pathfindingGraph.nodes) {
+						nodeIDs.push_back(key);
+					}
+
+					for (int i = 0; i < 20; ++i)
+					{
+						auto src = nodeIDs[Utils::RandomInt(0, nodeIDs.size() - 1)];
+						auto dst = gameCore->map->pathfindingGraph.nodes[src].links[Utils::RandomInt(0, gameCore->map->pathfindingGraph.nodes[src].links.size() - 1)].dst;
+
+						auto demon = Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), "big_demon", gameCore->map->pathfindingGraph.nodes[src].worldPos * gameCore->map->mapScale);
+						registry.emplace<PathfindingComponent>(demon, PathfindingComponent{ src, dst });
+					}
 				}
 				break;
 			}

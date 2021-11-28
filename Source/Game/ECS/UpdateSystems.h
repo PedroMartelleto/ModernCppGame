@@ -8,6 +8,7 @@ using UpdateSystemType = std::function<void(GameCore*, float)>;
 
 namespace UpdateSystems
 {
+	void ECSMobPathfindingUpdateSystem(GameCore* gameCore, float deltaTime);
 	void ECSMobTextureRegionUpdateSystem(GameCore* gameCore, float deltaTime);
 	void ECSBodyUpdateSystem(GameCore* gameCore, float deltaTime);
 	void ECSMobBodyUpdateSystem(GameCore* gameCore, float deltaTime);
@@ -15,7 +16,7 @@ namespace UpdateSystems
 	void ECSSpriteBodyUpdateSystem(GameCore* gameCore, float deltaTime);
 
 	const std::vector<UpdateSystemType> updateSystems = {
-		ECSMobTextureRegionUpdateSystem, ECSBodyUpdateSystem, ECSMobBodyUpdateSystem, ECSMobInputUpdateSystem, ECSSpriteBodyUpdateSystem
+		ECSMobPathfindingUpdateSystem, ECSMobTextureRegionUpdateSystem, ECSBodyUpdateSystem, ECSMobBodyUpdateSystem, ECSMobInputUpdateSystem, ECSSpriteBodyUpdateSystem
 	};
 };
 

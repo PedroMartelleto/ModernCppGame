@@ -2,7 +2,15 @@
 
 ## TODO
 
-* Multithreaded job system
+* Path following
+* Update current node (on a separate thread if possible)
+
+* Test job system
+
+* A* on a separate thread
+
+* Remove dead mobs from map
+* Win/lose screen
 
 * Enemies
 	* Level graph

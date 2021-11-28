@@ -18,6 +18,12 @@ struct PhysicsBodyComponent
 	inline operator b2Body* () { return body; }
 };
 
+struct PathfindingComponent
+{
+	WorldNodeID currentNode;
+	WorldNodeID destNode;
+};
+
 struct ProjectileComponent
 {
 	ProjectileData projectileData;
