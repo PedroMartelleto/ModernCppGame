@@ -18,7 +18,7 @@ Ref<TextureAtlas> TextureAtlas::FromFile(const Ref<Texture>& texture, const std:
 		{
 			std::vector<std::string> splitString = Utils::StringSplit(line, " ");
 			// Removes empty strings
-			for (auto it = splitString.begin(); it != splitString.end(); )
+			for (auto it = splitString.begin(); it != splitString.m_end(); )
 			{
 				if ((*it).length() <= 0)
 				{

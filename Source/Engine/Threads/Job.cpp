@@ -13,16 +13,15 @@ void Job::Wait()
 		// Consumer pattern, but with a twist:
 			// If we ever find that there are no jobs to execute, we simply return.
 			// It is safe to return since the job we've been waiting for has already been executed.
-		if (!systemThread->emptySemaphore.try_acquire()) return;
+		if (!systemThread->m_emptySemaphore.try_acquire()) return;
 
-		systemThread->mutex.acquire();
+		systemThread->m_mutex.acquire();
 
 		auto jobToRun = systemThread->jobs.back();
 		systemThread->jobs.pop();
-		jobToRun->threadIndex = threadIndex;
 
-		systemThread->mutex.release();
-		systemThread->fullSemaphore.release();
+		systemThread->m_mutex.release();
+		systemThread->m_fullSemaphore.release();
 
 		jobToRun->callback();
 		jobToRun->isComplete = true;
@@ -30,7 +29,8 @@ void Job::Wait()
 	}
 }
 
-void Job::Schedule()
+Job* Job::Schedule()
 {
 	JobSystem::master->AssignJobToSystemThreads(this);
+	return this;
 }

@@ -10,8 +10,8 @@ class TextureAtlas;
 
 struct DebugLineInfo
 {
-	Vec2f start;
-	Vec2f end;
+	Vec2f m_start;
+	Vec2f m_end;
 	float thickness;
 	Color4f color;
 };
@@ -38,7 +38,7 @@ public:
 	void DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const Color4f& color, float z);
 	void DEBUG_DrawBodyAABB(b2Body* body, const Color4f& color);
 	void DEBUG_DrawBody(b2Body* body, const Color4f& color);
-	void DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const Color4f& color = Colors::RED, float thickness = 4.0f);
+	void DEBUG_DrawLine(const Vec2f& m_start, const Vec2f& m_end, const Color4f& color = Colors::RED, float thickness = 4.0f);
 public:
 	GameCore* gameCore;
 	Ref<ResourceManager> resourceManager;

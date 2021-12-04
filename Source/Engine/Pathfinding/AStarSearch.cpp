@@ -3,7 +3,7 @@
 
 namespace AStarSearch
 {
-	WorldGraphPath FindShortestPath(WorldGraph& graph, WorldNodeID src, WorldNodeID dst, const HeuristicFn& heuristic)
+	WorldGraphPath FindShortestPath(const WorldGraph& graph, WorldNodeID src, WorldNodeID dst, const HeuristicFn& heuristic)
 	{
 		if (src == dst) return {};
 
@@ -11,33 +11,71 @@ namespace AStarSearch
 		// Priority = heuristic + cost
 		std::priority_queue<std::pair<float, WorldNodeID>, std::vector<std::pair<float, WorldNodeID>>, std::greater<std::pair<float, WorldNodeID>>> frontier;
 		std::unordered_map<WorldNodeID, float> costSoFar;
-		WorldGraphPath nextNodes;
-		Vec2f dstPos = graph.nodes[dst].worldPos;
+		WorldGraphPath cameFrom;
+		WorldGraphPath path;
+		Vec2f dstPos = graph.at(dst).worldPos;
 
 		frontier.push({ 0.0f, src });
 
 		// Dijkstra's algorithm + A* goal heuristic
 		while (!frontier.empty())
 		{
-			auto [currDist, currID] = frontier.top();
+			auto [_, currID] = frontier.top();
 			frontier.pop();
 
-			if (currID == dst) return nextNodes;
+			if (currID == dst) break;
 
-			for (const auto& [cost, childID, _] : graph[currID].links)
+			for (const auto& [cost, childID, _] : graph.at(currID).links)
 			{
-				float newCost = currDist + cost;
-				if (costSoFar.find(childID) == costSoFar.end() || newCost < costSoFar[childID])
+				float newCost = costSoFar[currID] + cost;
+				if (costSoFar.find(childID) == costSoFar.m_end() || newCost < costSoFar[childID])
 				{
 					costSoFar[childID] = newCost;
-					nextNodes[currID] = childID;
+					cameFrom[childID] = currID;
 
-					float priority = newCost + heuristic(graph.nodes[childID].worldPos, dstPos);
+					float priority = newCost + heuristic(graph.at(childID).worldPos, dstPos);
 					frontier.push({ priority, childID });
 				}
 			}
 		}
 
-		return nextNodes;
+		int i = graph.nodes.size();
+		auto sentinel = dst;
+
+		while (sentinel != src && i > 0)
+		{
+			auto prevNode = cameFrom[sentinel];
+			path[prevNode] = sentinel;
+
+			sentinel = prevNode;
+			i -= 1;
+
+			/*
+			for (auto& link : graph.nodes[prevNode].links)
+			{
+				if (link.dst == sentinel)
+				{
+					link.color = Colors::BLUE;
+				}
+			}
+
+			graph.nodes[sentinel].color = Colors::BLUE;
+			*/
+		}
+
+		/*
+		for (auto& link : graph.nodes[src].links)
+		{
+			if (link.dst == path[src])
+			{
+				link.color = Colors::RED;
+			}
+		}
+
+		graph.nodes[src].color = Colors::GREEN;
+		graph.nodes[dst].color = Colors::GREEN;
+		*/
+
+		return path;
 	}
 }

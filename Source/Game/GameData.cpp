@@ -19,7 +19,7 @@ void GameData::Create(const std::string& folderPath)
 	s_gameSettings = Utils::LoadJSON(folderPath + "GameSettings.json");
 	s_projectileData = Utils::LoadJSON(folderPath + "ProjectileData.json");
 
-	for (auto it = s_mobData.begin(); it != s_mobData.end(); ++it)
+	for (auto it = s_mobData.begin(); it != s_mobData.m_end(); ++it)
 	{
 		s_mobNames.push_back((*it)["name"]);
 	}

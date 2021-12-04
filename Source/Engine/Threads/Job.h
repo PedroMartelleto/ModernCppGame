@@ -22,7 +22,7 @@ public:
 	/// Schedules this job to run on some system thread. Call this before wait.
 	/// This function should be called exclusively on the main thread.
 	/// </summary>
-	void Schedule();
+	Job* Schedule();
 
 	/// <summary>
 	/// Pointer to a callback that executes the actual job. May be accessed by any thread.
@@ -37,5 +37,5 @@ public:
 	/// <summary>
 	/// The thread index set as soon as this Job is scheduled to a system thread. Accessed exclusively from the main thread.
 	/// </summary>
-	int threadIndex = -1;
+	int threadIndex = 0;
 };

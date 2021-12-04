@@ -121,8 +121,8 @@ void NetworkHost::HandlePacket(const ENetEvent& event)
 
 	//printf("[%s] A packet of length %u was received from %x:%u on channel %u with contents \n[", std::string(magic_enum::enum_name(type)).c_str(), event.packet->dataLength, event.peer->address.host, event.peer->address.port, event.channelID);
 	
-	auto data = (uint8_t*)packet->data;
-	auto bytes = NetworkBuffer(data, data + packet->dataLength);
+	auto m_data = (uint8_t*)packet->m_data;
+	auto bytes = NetworkBuffer(m_data, m_data + packet->dataLength);
 	json receivedData = json::from_cbor(bytes);
 	PacketData packetData;
 	Serialization::from_json(receivedData, packetData);
@@ -211,7 +211,7 @@ void NetworkHost::PollEvents()
 		if (event.type == ENET_EVENT_TYPE_CONNECT)
 		{
 			printf("[%s] A new client connected from %x:%u.\n", std::string(magic_enum::enum_name(type)).c_str(), event.peer->address.host, event.peer->address.port);
-			if (type == HostType::SERVER) ServerHandleNewConnection(event.peer, (uint8_t)event.data);
+			if (type == HostType::SERVER) ServerHandleNewConnection(event.peer, (uint8_t)event.m_data);
 		}
 		else if (event.type == ENET_EVENT_TYPE_RECEIVE)
 		{
@@ -221,7 +221,7 @@ void NetworkHost::PollEvents()
 		else if (event.type == ENET_EVENT_TYPE_DISCONNECT)
 		{
 			printf("[%s] Client %x:%u disconnected.\n", std::string(magic_enum::enum_name(type)).c_str(), event.peer->address.host, event.peer->address.port);
-			event.peer->data = NULL;
+			event.peer->m_data = NULL;
 		}
 	}
 }

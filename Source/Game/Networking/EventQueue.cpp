@@ -1,8 +1,8 @@
 #include "EventQueue.h"
 
-void EventQueue::Enqueue(EventType type, const Ref<void>& data)
+void EventQueue::Enqueue(EventType type, const Ref<void>& m_data)
 {
-	m_events.push(EventData{ type, data });
+	m_events.push(EventData{ type, m_data });
 }
 
 EventData EventQueue::Dequeue()

@@ -13,12 +13,12 @@
 /// </summary>
 struct SystemThread
 {
-	std::counting_semaphore<MAX_JOBS_PER_THREAD> emptySemaphore = std::counting_semaphore<MAX_JOBS_PER_THREAD>(0);
-	std::counting_semaphore<MAX_JOBS_PER_THREAD> fullSemaphore = std::counting_semaphore<MAX_JOBS_PER_THREAD>(MAX_JOBS_PER_THREAD);
+	std::counting_semaphore<MAX_JOBS_PER_THREAD> m_emptySemaphore = std::counting_semaphore<MAX_JOBS_PER_THREAD>(0);
+	std::counting_semaphore<MAX_JOBS_PER_THREAD> m_fullSemaphore = std::counting_semaphore<MAX_JOBS_PER_THREAD>(MAX_JOBS_PER_THREAD);
 	std::thread* thread;
 	std::atomic_bool isEnabled = true;
 	std::queue<Job*> jobs = std::queue<Job*>();
-	std::binary_semaphore mutex = std::binary_semaphore(1);
+	std::binary_semaphore m_mutex = std::binary_semaphore(1);
 
 	SystemThread(std::thread* thread) : thread(thread) {}
 

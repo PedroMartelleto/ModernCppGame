@@ -242,6 +242,9 @@
     <ClInclude Include="Source\Engine\Pathfinding\AStarSearch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Threads\ThreadSafeQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\GameData\MobData.json" />

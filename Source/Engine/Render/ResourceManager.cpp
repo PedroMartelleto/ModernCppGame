@@ -9,7 +9,7 @@ Ref<Texture> ResourceManager::GetTexture(const std::string& name, bool appendBas
 {
 	auto findResult = m_textures.find(name);
 
-	if (findResult == m_textures.end())
+	if (findResult == m_textures.m_end())
 	{
 		// If the resource was not found, load it
 		auto base = appendBasePath ? m_basePath : "";
@@ -27,7 +27,7 @@ Ref<TextureAtlas> ResourceManager::GetAtlas(const std::string& name, bool append
 {
 	auto findResult = m_atlas.find(name);
 
-	if (findResult == m_atlas.end())
+	if (findResult == m_atlas.m_end())
 	{
 		// If the resource was not found, load it
 		auto base = appendBasePath ? m_basePath : "";

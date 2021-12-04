@@ -175,22 +175,22 @@ void Core::DEBUG_DrawBody(b2Body* body, const Color4f& color)
 		b2PolygonShape* polygonShape = (b2PolygonShape*)fixture->GetShape();
 		for (int i = 1; i < polygonShape->m_count; ++i)
 		{
-			line.start = Vec2fFromB2(polygonShape->m_vertices[i - 1]) * Game::METERS_TO_PIXELS;
-			line.end = Vec2fFromB2(polygonShape->m_vertices[i]) * Game::METERS_TO_PIXELS;
+			line.m_start = Vec2fFromB2(polygonShape->m_vertices[i - 1]) * Game::METERS_TO_PIXELS;
+			line.m_end = Vec2fFromB2(polygonShape->m_vertices[i]) * Game::METERS_TO_PIXELS;
 			m_debugLines.push_back(line);
 		}
-		line.start = Vec2fFromB2(polygonShape->m_vertices[polygonShape->m_count - 1]) * Game::METERS_TO_PIXELS;
-		line.end = Vec2fFromB2(polygonShape->m_vertices[0]) * Game::METERS_TO_PIXELS;
+		line.m_start = Vec2fFromB2(polygonShape->m_vertices[polygonShape->m_count - 1]) * Game::METERS_TO_PIXELS;
+		line.m_end = Vec2fFromB2(polygonShape->m_vertices[0]) * Game::METERS_TO_PIXELS;
 		m_debugLines.push_back(line);
 		fixture = fixture->GetNext();
 	}
 }
 
-void Core::DEBUG_DrawLine(const Vec2f& start, const Vec2f& end, const Color4f& color, float thickness)
+void Core::DEBUG_DrawLine(const Vec2f& m_start, const Vec2f& m_end, const Color4f& color, float thickness)
 {
 	DebugLineInfo dbLineInfo;
-	dbLineInfo.start = start;
-	dbLineInfo.end = end;
+	dbLineInfo.m_start = m_start;
+	dbLineInfo.m_end = m_end;
 	dbLineInfo.color = color;
 	dbLineInfo.thickness = thickness;
 	m_debugLines.push_back(dbLineInfo);

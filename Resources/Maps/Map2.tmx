@@ -204,14 +204,14 @@
    </properties>
    <point/>
   </object>
-  <object id="261" type="PathfindingNode" x="270" y="382.5">
+  <object id="261" type="PathfindingNode" x="271" y="409">
    <properties>
     <property name="isBottomEdge" type="bool" value="true"/>
     <property name="to" value="262"/>
    </properties>
    <point/>
   </object>
-  <object id="262" type="PathfindingNode" x="271" y="24">
+  <object id="262" type="PathfindingNode" x="271.5" y="14">
    <properties>
     <property name="to" value="273"/>
    </properties>
@@ -262,14 +262,14 @@
   <object id="269" type="PathfindingNode" x="447.5" y="31">
    <properties>
     <property name="isBottomEdge" type="bool" value="false"/>
-    <property name="to" value="275"/>
+    <property name="to" value="275,282,284"/>
    </properties>
    <point/>
   </object>
   <object id="270" type="PathfindingNode" x="94.5" y="32.5">
    <properties>
     <property name="isBottomEdge" type="bool" value="false"/>
-    <property name="to" value="274"/>
+    <property name="to" value="274,283,285"/>
    </properties>
    <point/>
   </object>
@@ -298,14 +298,14 @@
   <object id="274" type="PathfindingNode" x="93.5" y="163">
    <properties>
     <property name="isBottomEdge" type="bool" value="false"/>
-    <property name="to" value="271,283,285"/>
+    <property name="to" value="271,279,258"/>
    </properties>
    <point/>
   </object>
   <object id="275" type="PathfindingNode" x="449.5" y="162">
    <properties>
     <property name="isBottomEdge" type="bool" value="false"/>
-    <property name="to" value="272,282,284"/>
+    <property name="to" value="272,265,278"/>
    </properties>
    <point/>
   </object>
@@ -370,6 +370,7 @@
   <object id="285" type="PathfindingNode" x="45.5" y="100.5">
    <properties>
     <property name="isBottomEdge" type="bool" value="false"/>
+    <property name="isHorizontalEdge" type="bool" value="false"/>
     <property name="to" value="274"/>
    </properties>
    <point/>

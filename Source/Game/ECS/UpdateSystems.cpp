@@ -5,6 +5,9 @@
 #include "../../Engine/Pathfinding/AStarSearch.h"
 
 std::unordered_map<MobID, AStarSearch::WorldGraphPath> shortestPaths;
+std::unordered_map<MobID, Job*> pathfindingJobs;
+
+int pathfindingRate = 20;
 
 namespace UpdateSystems
 {
@@ -27,38 +30,64 @@ namespace UpdateSystems
 
 			auto& srcNode = map->pathfindingGraph.GetClosestNode(mobPos);
 			auto& dstNode = map->pathfindingGraph.GetClosestNode(targetPos);
-			srcNode.isMarked = true;
-			dstNode.isMarked = true;
 
-			if (srcNode.id == dstNode.id) continue;
-
-			shortestPaths[mob.mobID] = AStarSearch::FindShortestPath(map->pathfindingGraph, srcNode.id, dstNode.id, [](const Vec2f& curr, const Vec2f& goal)
-			{
-				return 0.0f;
-			});
-
-			auto& nextNode = map->pathfindingGraph[shortestPaths[mob.mobID][srcNode.id]];
-
-			for (auto& link : srcNode.links)
-			{
-				if (link.dst == nextNode.id)
-				{
-					link.isMarked = true;
-				}
-			}
-
-			if (srcNode.worldPos.x < nextNode.worldPos.x)
+			// Follows target directly
+			if (mobPos.x < targetPos.x - 3.0f)
 			{
 				mob.horizontalMoveDir = 1.0f;
 			}
-			else
+			else if (mobPos.x > targetPos.x + 3.0f)
 			{
 				mob.horizontalMoveDir = -1.0f;
 			}
 
-			if (srcNode.worldPos.y - nextNode.worldPos.y > 12.0f)
+			if (srcNode.id == dstNode.id) continue;
+
+			if (gameCore->frameCounter % 1 == 0)
 			{
-				mob.wantsToJump = true;
+				auto mobID = mob.mobID;
+				const auto& graph = map->pathfindingGraph;
+				auto srcID = srcNode.id, dstID = dstNode.id;
+
+				if (pathfindingJobs.find(mobID) != pathfindingJobs.end())
+				{
+					pathfindingJobs[mobID]->Wait();
+					pathfindingJobs[mobID] = nullptr;
+				}
+
+				// TODO: Dafuq is happening here?
+
+				pathfindingJobs[mobID] = (new Job([mobID, graph, srcID, dstID]()
+				{
+					//shortestPaths[mobID] = AStarSearch::FindShortestPath(graph, srcID, dstID, [](const Vec2f& a, const Vec2f& b) { return 0.0f; });
+				}))->Schedule();
+			}
+			
+			mob.horizontalMoveDir = 0.0f;
+
+			auto& nextNode = map->pathfindingGraph[shortestPaths[mob.mobID][srcNode.id]];
+
+			// Follows next node in path (takes precedent over following target directly)
+			if (srcNode.isHorizontalEdge && nextNode.isHorizontalEdge)
+			{
+				// Handles left/right edge nodes
+				mob.horizontalMoveDir = srcNode.worldPos.x > map->UnscaledWidthInPixels() / 2.0f ? 1.0f : -1.0f;
+			}
+			else
+			{
+				if (srcNode.worldPos.x < nextNode.worldPos.x)
+				{
+					mob.horizontalMoveDir = 1.0f;
+				}
+				else
+				{
+					mob.horizontalMoveDir = -1.0f;
+				}
+			}
+
+			if (srcNode.isBottomEdge)
+			{
+				mob.horizontalMoveDir = 0.0f;
 			}
 		}
 

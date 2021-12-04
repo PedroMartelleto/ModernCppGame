@@ -96,6 +96,7 @@
     <ClInclude Include="Source\Game\Spawner.h" />
     <ClInclude Include="Source\Game\Physics\WorldInteractionHandler.h" />
     <ClInclude Include="Source\Engine\Pathfinding\WorldGraph.h" />
+    <ClInclude Include="Source\Engine\Threads\ThreadSafeQueue.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\GameData\MobData.json" />

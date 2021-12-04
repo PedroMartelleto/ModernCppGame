@@ -25,6 +25,10 @@ public:
 	TileID GetTile(int layer, int x, int y) const;
 	int GetWidth() const { return layers[0]->width; }
 	int GetHeight() const { return layers[0]->height; }
+
+	float UnscaledWidthInPixels() const { return (float)layers[0]->width * (float)tileset->tileWidth; }
+	float UnscaledHeightInPixels() const { return (float)layers[0]->height * (float)tileset->tileHeight; }
+
 	float WidthInPixels() const { return (float)layers[0]->width * scaledTileSize.x; }
 	float HeightInPixels() const { return (float)layers[0]->height * scaledTileSize.y; }
 	Vec2f SizeInPixels() const { return Vec2f((float)layers[0]->width, (float)layers[0]->height) * scaledTileSize; }

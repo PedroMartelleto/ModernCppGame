@@ -16,11 +16,11 @@ namespace EventHandler
 			{
 				case EventType::MobInputs:
 				{
-					auto ev = std::static_pointer_cast<MobInputsEvent>(event.data);
+					auto ev = std::static_pointer_cast<MobInputsEvent>(event.m_data);
 					for (auto& entity : registry.view<MobComponent>())
 					{
 						auto& mob = registry.get<MobComponent>(entity);
-						if (ev->bitBuffers.find(std::to_string(mob.mobID)) != ev->bitBuffers.end())
+						if (ev->bitBuffers.find(std::to_string(mob.mobID)) != ev->bitBuffers.m_end())
 						{
 							auto bitBuffer = Utils::FromJSON<BitBuffer8>(ev->bitBuffers[std::to_string(mob.mobID)]);
 							mob.wantsToJump = bitBuffer.GetBit(GameData::GetMobActionBit("MOVE_UP"));
@@ -53,20 +53,20 @@ namespace EventHandler
 				break;
 				case EventType::WorldSnapshot:
 				{
-					auto ev = std::static_pointer_cast<WorldSnapshotEvent>(event.data);
+					auto ev = std::static_pointer_cast<WorldSnapshotEvent>(event.m_data);
 					gameCore->clientPrediction->RegisterSnapshot(ev);
 				}
 				break;
 				case EventType::Map:
 				{
-					auto ev = std::static_pointer_cast<MapDataEvent>(event.data);
+					auto ev = std::static_pointer_cast<MapDataEvent>(event.m_data);
 					gameCore->map = CreateRef<TileMap>(gameCore->physicsWorld, Game::MAP_SCALE, ev->mapXMLContents, gameCore->resourceManager);
 					gameCore->core->SetWindowSizeAndCenter((int)gameCore->map->WidthInPixels(), (int)gameCore->map->HeightInPixels());
 				}
 				break;
 				case EventType::SpawnPlayers:
 				{
-					auto ev = std::static_pointer_cast<SpawnPlayersEvent>(event.data);
+					auto ev = std::static_pointer_cast<SpawnPlayersEvent>(event.m_data);
 
 					if (ev->positions.size() <= 0)
 					{
@@ -89,12 +89,11 @@ namespace EventHandler
 						nodeIDs.push_back(key);
 					}
 
-					for (int i = 0; i < 20; ++i)
+					for (int i = 0; i < 100; ++i)
 					{
 						auto src = nodeIDs[Utils::RandomInt(0, nodeIDs.size() - 1)];
 						auto dst = gameCore->map->pathfindingGraph.nodes[src].links[Utils::RandomInt(0, gameCore->map->pathfindingGraph.nodes[src].links.size() - 1)].dst;
-
-						auto demon = Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), "big_demon", gameCore->map->pathfindingGraph.nodes[src].worldPos * gameCore->map->mapScale);
+						auto demon = Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), "chort", gameCore->map->pathfindingGraph.nodes[src].worldPos * gameCore->map->mapScale);
 						registry.emplace<PathfindingComponent>(demon, PathfindingComponent{ src, dst });
 					}
 				}

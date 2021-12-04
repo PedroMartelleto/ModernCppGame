@@ -61,6 +61,11 @@ namespace Math
 	{
 		return a < b ? b : a;
 	}
+
+	inline float DistanceSquared(const Vec2f& a, const Vec2f& b)
+	{
+		return glm::dot(a - b, a - b);
+	}
 };
 
 namespace Colors

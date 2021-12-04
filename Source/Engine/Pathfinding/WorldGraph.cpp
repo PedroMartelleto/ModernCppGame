@@ -76,15 +76,15 @@ void WorldGraph::Draw(float scale, int z)
 	{
 		Vec2f srcPos = node.worldPos * scale;
 
-		Render2D::DrawRect(srcPos - nodeSize/2.0f, 0.0f, nodeSize, z + 10, node.isMarked ? Colors::RED : Color4f(0.8f, 0.5f, 0.55f, 1.0f));
-		node.isMarked = false;
+		Render2D::DrawRect(srcPos - nodeSize/2.0f, 0.0f, nodeSize, z + 10, node.color);
+		node.color = Colors::WHITE;
 
 		for (auto& link : node.links)
 		{
 			Vec2f childPos = nodes.at(link.dst).worldPos * scale;
 			Vec2f dir = glm::normalize(childPos - srcPos);
-			Render2D::DrawLine(true, srcPos, childPos - dir * 24.0f, z, 2.0f, link.isMarked ? Colors::GREEN : Color4f(0.7f, 0.6f, 0.8f, 1.0f));
-			link.isMarked = false;
+			Render2D::DrawLine(true, srcPos, childPos - dir * 24.0f, z, 2.0f, link.color);
+			link.color = Colors::WHITE;
 		}
 	}
 }

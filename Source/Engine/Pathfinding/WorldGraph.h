@@ -8,7 +8,7 @@ struct WorldLink
 {
 	float cost;
 	WorldNodeID dst;
-	bool isMarked = false;
+	Color4f color = Colors::WHITE;
 };
 
 struct WorldNode
@@ -25,7 +25,7 @@ struct WorldNode
 	/// </summary>
 	std::vector<WorldLink> links;
 
-	bool isMarked = false;
+	Color4f color = Colors::WHITE;
 };
 
 struct WorldGraph
@@ -62,5 +62,10 @@ struct WorldGraph
 	inline WorldNode& operator[](WorldNodeID id)
 	{
 		return nodes[id];
+	}
+
+	inline WorldNode at(WorldNodeID id) const
+	{
+		return nodes.at(id);
 	}
 };

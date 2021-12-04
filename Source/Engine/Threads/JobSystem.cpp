@@ -25,8 +25,8 @@ JobSystem::~JobSystem()
 	for (auto* systemThread : m_systemThreads)
 	{
 		// Pushes a "terminate" job to safely terminate the thread
-		systemThread->fullSemaphore.acquire();
-		systemThread->mutex.acquire();
+		systemThread->m_fullSemaphore.acquire();
+		systemThread->m_mutex.acquire();
 		systemThread->isEnabled = false;
 
 		systemThread->jobs.push(new Job([systemThread]()
@@ -34,8 +34,8 @@ JobSystem::~JobSystem()
 			systemThread->isEnabled = false;
 		}));
 
-		systemThread->mutex.release();
-		systemThread->emptySemaphore.release();
+		systemThread->m_mutex.release();
+		systemThread->m_emptySemaphore.release();
 
 		// Waits for the thread to execute the TerminateThreadJob
 		systemThread->thread->join();
@@ -53,7 +53,7 @@ void JobSystem::AssignJobToSystemThreads(Job* job)
 	// Finds the thread with the lowest amount of jobs
 	int destIndex = 0;
 
-	for (int i = 1; i < (int)m_systemThreads.size(); ++i)
+	/*for (int i = 1; i < (int)m_systemThreads.size(); ++i)
 	{
 		m_systemThreads[i]->mutex.acquire();
 		if (m_systemThreads[i]->jobs.size() < m_systemThreads[destIndex]->jobs.size())
@@ -61,21 +61,22 @@ void JobSystem::AssignJobToSystemThreads(Job* job)
 			destIndex = i;
 		}
 		m_systemThreads[i]->mutex.release();
-	}
+	}*/
 
 	// This is fine since threadIndex is accessed only from the main thread.
-	job->threadIndex = destIndex;
+	//job->threadIndex = destIndex;
+	//LOGGER_VAR(job->threadIndex);
 
 	// Once we have found the destination thread, adds the job to it.
-	auto& systemThread = m_systemThreads[destIndex];
+	auto systemThread = m_systemThreads[destIndex];
 
-	systemThread->fullSemaphore.acquire();
-	systemThread->mutex.acquire();
+	systemThread->m_fullSemaphore.acquire();
+	systemThread->m_mutex.acquire();
 
 	systemThread->jobs.push(job);
 
-	systemThread->mutex.release();
-	systemThread->emptySemaphore.release();
+	systemThread->m_mutex.release();
+	systemThread->m_emptySemaphore.release();
 }
 
 void JobSystem::ThreadCallback(int i)
@@ -87,20 +88,19 @@ void JobSystem::ThreadCallback(int i)
 	{
 		// Producer-consumer pattern
 
-		systemThread->emptySemaphore.acquire();
+		systemThread->m_emptySemaphore.acquire();
 
 		if (!systemThread->isEnabled) return;
 
-		systemThread->mutex.acquire();
+		systemThread->m_mutex.acquire();
 
 		if (!systemThread->isEnabled) return;
 
 		auto jobToRun = systemThread->jobs.back();
 		systemThread->jobs.pop();
-		jobToRun->threadIndex = i;
 
-		systemThread->mutex.release();
-		systemThread->fullSemaphore.release();
+		systemThread->m_mutex.release();
+		systemThread->m_fullSemaphore.release();
 
 		jobToRun->callback();
 		jobToRun->isComplete = true;
