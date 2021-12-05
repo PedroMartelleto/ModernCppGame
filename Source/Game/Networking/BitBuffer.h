@@ -51,7 +51,7 @@ public:
 
 		stream[sizeof(T)*8] = '\0';
 
-		return std::string(stream.m_data());
+		return std::string(stream.data());
 	}
 private:
 };

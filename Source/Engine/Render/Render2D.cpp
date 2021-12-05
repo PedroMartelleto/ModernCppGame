@@ -214,7 +214,7 @@ void Render2D::DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f,
 		auto textureID = texture->GetID();
 
 		// Checks if the texture id is already in the dictionary
-		if (s_data.textureIDToIndex.find(textureID) != s_data.textureIDToIndex.m_end())
+		if (s_data.textureIDToIndex.find(textureID) != s_data.textureIDToIndex.end())
 		{
 			texIndex = (float)s_data.textureIDToIndex[textureID];
 		}

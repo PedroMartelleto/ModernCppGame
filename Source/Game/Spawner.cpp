@@ -67,7 +67,6 @@ namespace Spawner
 		}
 
 		auto entity = gameCore->registry.create();
-		LOGGER_VAR(charName);
 		auto mobComponent = GameData::GetMobData(charName, mobID);
 		registry.emplace<MobComponent>(entity, mobComponent);
 

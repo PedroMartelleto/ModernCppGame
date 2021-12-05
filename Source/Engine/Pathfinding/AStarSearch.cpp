@@ -25,10 +25,10 @@ namespace AStarSearch
 
 			if (currID == dst) break;
 
-			for (const auto& [cost, childID, _] : graph.at(currID).links)
+			for (const auto& [cost, childID] : graph.at(currID).links)
 			{
 				float newCost = costSoFar[currID] + cost;
-				if (costSoFar.find(childID) == costSoFar.m_end() || newCost < costSoFar[childID])
+				if (costSoFar.find(childID) == costSoFar.end() || newCost < costSoFar[childID])
 				{
 					costSoFar[childID] = newCost;
 					cameFrom[childID] = currID;
@@ -49,32 +49,7 @@ namespace AStarSearch
 
 			sentinel = prevNode;
 			i -= 1;
-
-			/*
-			for (auto& link : graph.nodes[prevNode].links)
-			{
-				if (link.dst == sentinel)
-				{
-					link.color = Colors::BLUE;
-				}
-			}
-
-			graph.nodes[sentinel].color = Colors::BLUE;
-			*/
 		}
-
-		/*
-		for (auto& link : graph.nodes[src].links)
-		{
-			if (link.dst == path[src])
-			{
-				link.color = Colors::RED;
-			}
-		}
-
-		graph.nodes[src].color = Colors::GREEN;
-		graph.nodes[dst].color = Colors::GREEN;
-		*/
 
 		return path;
 	}

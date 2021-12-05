@@ -139,6 +139,8 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXM
 		}
 		else if (strcmp(objGroupElement->Attribute("name"), "Pathfinding") == 0)
 		{
+			std::unordered_map<WorldNodeID, WorldNode> nodes;
+
 			// For each pathfinding node...
 			for (auto element = objGroupElement->FirstChildElement("object"); element != NULL; element = element->NextSiblingElement("object"))
 			{
@@ -192,13 +194,12 @@ TileMap::TileMap(b2World& physicsWorld, float mapScale, const std::string& mapXM
 
 				assert(links.size() > 0);
 
-				pathfindingGraph.nodes[nodeID] = WorldNode {
-					nodeID, isBottomEdge, isHorizontalEdge, Vec2f(x0, y0), links
-				};
+				nodes[nodeID] = WorldNode(nodeID, isBottomEdge, isHorizontalEdge, Vec2f(x0, y0), links);
 			}
 
-			pathfindingGraph.CalculateManhattanCosts(1.0f, 1.1f, 1.0f, 1.0f);
-			pathfindingGraph.ValidateAndFix();
+			WorldGraph::CalculateManhattanCosts(nodes, 1.0f, 1.1f, 1.0f, 1.0f);
+			pathfindingGraph = CreateRef<WorldGraph>(nodes);
+			pathfindingGraph->Validate();
 		}
 	}
 

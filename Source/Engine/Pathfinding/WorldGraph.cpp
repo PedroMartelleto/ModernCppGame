@@ -1,11 +1,11 @@
 #include "WorldGraph.h"
 #include "../Render/Render2D.h"
 
-bool WorldGraph::ValidateAndFix()
+bool WorldGraph::Validate() const
 {
 	bool isValid = true;
 
-	for (auto& [nodeID, node] : nodes)
+	for (const auto& [nodeID, node] : nodes)
 	{
 		assert(nodeID == node.id);
 
@@ -20,10 +20,8 @@ bool WorldGraph::ValidateAndFix()
 				DEBUG_LOG("GRAPH", LOG_WARNING, "Found invalid link in a graph. Destination node does not exist. Link: %u -> %u", node.id, it->dst);
 
 				assert(it->cost >= 0.0f);
-
-				// If not, erase connection from the graph
+				assert(false); // Invalid link found!
 				isValid = false;
-				it = node.links.erase(it);
 			}
 			else
 			{
@@ -35,7 +33,7 @@ bool WorldGraph::ValidateAndFix()
 	return isValid;
 }
 
-void WorldGraph::CalculateManhattanCosts(float horizontalWeight, float verticalWeight, float bottomEdgeCost, float horizontalEdgeCost)
+void WorldGraph::CalculateManhattanCosts(std::unordered_map<WorldNodeID, WorldNode>& nodes, float horizontalWeight, float verticalWeight, float bottomEdgeCost, float horizontalEdgeCost)
 {
 	for (auto& [nodeID, node] : nodes)
 	{
@@ -68,7 +66,7 @@ void WorldGraph::CalculateManhattanCosts(float horizontalWeight, float verticalW
 	}
 }
 
-void WorldGraph::Draw(float scale, int z)
+void WorldGraph::Draw(float scale, int z) const
 {
 	Vec2f nodeSize = Vec2f(24, 24);
 
@@ -76,25 +74,23 @@ void WorldGraph::Draw(float scale, int z)
 	{
 		Vec2f srcPos = node.worldPos * scale;
 
-		Render2D::DrawRect(srcPos - nodeSize/2.0f, 0.0f, nodeSize, z + 10, node.color);
-		node.color = Colors::WHITE;
+		Render2D::DrawRect(srcPos - nodeSize/2.0f, 0.0f, nodeSize, z + 10, Colors::WHITE);
 
-		for (auto& link : node.links)
+		for (const auto& link : node.links)
 		{
 			Vec2f childPos = nodes.at(link.dst).worldPos * scale;
 			Vec2f dir = glm::normalize(childPos - srcPos);
-			Render2D::DrawLine(true, srcPos, childPos - dir * 24.0f, z, 2.0f, link.color);
-			link.color = Colors::WHITE;
+			Render2D::DrawLine(true, srcPos, childPos - dir * 24.0f, z, 2.0f, Colors::WHITE);
 		}
 	}
 }
 
-WorldNode& WorldGraph::GetClosestNode(const Vec2f& anchorPos)
+WorldNodeID WorldGraph::GetClosestNode(const Vec2f& anchorPos) const
 {
 	float minDist = FLT_MAX - 1.0f;
 	WorldNodeID closest = 0;
 
-	for (auto& [nodeID, node] : nodes)
+	for (const auto& [nodeID, node] : nodes)
 	{
 		auto diff = node.worldPos - anchorPos;
 		auto dist = glm::dot(diff, diff);
@@ -105,5 +101,5 @@ WorldNode& WorldGraph::GetClosestNode(const Vec2f& anchorPos)
 		}
 	}
 
-	return nodes[closest];
+	return closest;
 }

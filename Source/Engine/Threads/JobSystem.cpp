@@ -1,4 +1,5 @@
 #include "JobSystem.h"
+#include "../Core/Logger.h"
 
 /// Number of threads reserved for the Operating System
 #define NUM_RESERVED_THREADS 0
@@ -7,103 +8,62 @@ Ref<JobSystem> JobSystem::master = CreateRef<JobSystem>();
 
 JobSystem::JobSystem()
 {
-	int numThreads = (int)std::thread::hardware_concurrency() - 1 - NUM_RESERVED_THREADS;
+	// Spawns the maximum amount of parallel threads that this system supports
+	m_threadCount = (int)std::thread::hardware_concurrency() - 1 - NUM_RESERVED_THREADS;
 
-	if (numThreads <= 0)
+	if (m_threadCount <= 0)
 	{
-		numThreads = 1;
+		m_threadCount = 1;
 	}
 
-	for (int i = 0; i < numThreads; ++i)
+	if (m_threadCount > MAX_THREADS)
 	{
-		m_systemThreads.push_back(new SystemThread(new std::thread(&JobSystem::ThreadCallback, this, i)));
+		m_threadCount = MAX_THREADS;
+	}
+
+	m_isRunning = new std::atomic_bool[m_threadCount];
+
+	for (int i = 0; i < m_threadCount; ++i)
+	{
+		m_isRunning[i] = true;
+		std::thread worker(&JobSystem::ThreadCallback, this, i);
+		worker.detach();
+	}
+
+	DEBUG_LOG("THREADS", LOG_MSG, "Spawning %d threads...", m_threadCount);
+}
+
+void JobSystem::Wait()
+{
+	JobFunction jobFn;
+
+	while (m_jobCounter < m_finishedJobCounter)
+	{
+		// Dequeues a job and runs it
+		m_jobsQueue.Dequeue(jobFn);
+		jobFn();
+		m_finishedJobCounter.fetch_add(1);
 	}
 }
 
-JobSystem::~JobSystem()
+void JobSystem::Execute(const JobFunction& jobFn)
 {
-	for (auto* systemThread : m_systemThreads)
-	{
-		// Pushes a "terminate" job to safely terminate the thread
-		systemThread->m_fullSemaphore.acquire();
-		systemThread->m_mutex.acquire();
-		systemThread->isEnabled = false;
-
-		systemThread->jobs.push(new Job([systemThread]()
-		{
-			systemThread->isEnabled = false;
-		}));
-
-		systemThread->m_mutex.release();
-		systemThread->m_emptySemaphore.release();
-
-		// Waits for the thread to execute the TerminateThreadJob
-		systemThread->thread->join();
-
-		// Deletes allocated heap memory
-		delete systemThread;
-	}
-}
-
-void JobSystem::AssignJobToSystemThreads(Job* job)
-{
-	// Job must be new
-	assert(!job->isComplete);
-
-	// Finds the thread with the lowest amount of jobs
-	int destIndex = 0;
-
-	/*for (int i = 1; i < (int)m_systemThreads.size(); ++i)
-	{
-		m_systemThreads[i]->mutex.acquire();
-		if (m_systemThreads[i]->jobs.size() < m_systemThreads[destIndex]->jobs.size())
-		{
-			destIndex = i;
-		}
-		m_systemThreads[i]->mutex.release();
-	}*/
-
-	// This is fine since threadIndex is accessed only from the main thread.
-	//job->threadIndex = destIndex;
-	//LOGGER_VAR(job->threadIndex);
-
-	// Once we have found the destination thread, adds the job to it.
-	auto systemThread = m_systemThreads[destIndex];
-
-	systemThread->m_fullSemaphore.acquire();
-	systemThread->m_mutex.acquire();
-
-	systemThread->jobs.push(job);
-
-	systemThread->m_mutex.release();
-	systemThread->m_emptySemaphore.release();
+	m_jobCounter += 1;
+	m_jobsQueue.Enqueue(jobFn);
 }
 
 void JobSystem::ThreadCallback(int i)
 {
-	auto* systemThread = m_systemThreads[i];
+	// Thread callback (everything here is run on a separate thread)
+
+	JobFunction jobFn;
 
 	// While this thread is enabled...
-	while (systemThread->isEnabled)
+	while (m_isRunning[i].load())
 	{
-		// Producer-consumer pattern
-
-		systemThread->m_emptySemaphore.acquire();
-
-		if (!systemThread->isEnabled) return;
-
-		systemThread->m_mutex.acquire();
-
-		if (!systemThread->isEnabled) return;
-
-		auto jobToRun = systemThread->jobs.back();
-		systemThread->jobs.pop();
-
-		systemThread->m_mutex.release();
-		systemThread->m_fullSemaphore.release();
-
-		jobToRun->callback();
-		jobToRun->isComplete = true;
-		delete jobToRun;
+		// Dequeues a job and runs it
+		m_jobsQueue.Dequeue(jobFn);
+		jobFn();
+		m_finishedJobCounter.fetch_add(1);
 	}
 }

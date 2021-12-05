@@ -16,8 +16,6 @@ GameCore::GameCore(Core* core, HostType hostType) :
 
 	GameData::Create("Resources/GameData/");
 
-	jobSystem = CreateRef<JobSystem>();
-
 	resourceManager = CreateRef<ResourceManager>("Resources/Sprites/");
 	registry = entt::registry();
 
@@ -129,8 +127,6 @@ void GameCore::Render()
 
 	if (map == nullptr) return;
 	
-	map->pathfindingGraph.Draw(map->mapScale, 2000);
-
 	// Draws the tile map
 	int mapZIndex = 100;
 	for (auto layer : map->layers)
@@ -169,6 +165,8 @@ void GameCore::Render()
 
 void GameCore::Destroy()
 {
+	UpdateSystems::Cleanup();
+
 	host->Disconnect();
 
 	if (resourceManager != nullptr)

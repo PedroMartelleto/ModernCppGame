@@ -87,7 +87,7 @@ ShaderData::ShaderData(const std::string& fileName)
 
 ShaderData::~ShaderData()
 {
-	for (std::vector<int>::iterator it = m_shaders.begin(); it != m_shaders.m_end(); ++it)
+	for (std::vector<int>::iterator it = m_shaders.begin(); it != m_shaders.end(); ++it)
 	{
 		glDetachShader(m_program, *it);
 		glDeleteShader(*it);
@@ -100,7 +100,7 @@ Shader::Shader(const std::string& fileName)
 	m_fileName = fileName;
 
 	std::map<std::string, ShaderData*>::const_iterator it = s_resourceMap.find(fileName);
-	if (it != s_resourceMap.m_end())
+	if (it != s_resourceMap.end())
 	{
 		m_shaderData = it->second;
 	}
@@ -223,9 +223,9 @@ void ShaderData::AddAllAttributes(const std::string& vertexShaderText, const std
 		if (!isCommented)
 		{
 			size_t begin = attributeLocation + attributeKeyword.length();
-			size_t m_end = vertexShaderText.find(";", begin);
+			size_t end = vertexShaderText.find(";", begin);
 
-			std::string attributeLine = vertexShaderText.substr(begin + 1, m_end - begin - 1);
+			std::string attributeLine = vertexShaderText.substr(begin + 1, end - begin - 1);
 
 			begin = attributeLine.find(" ");
 			std::string attributeName = attributeLine.substr(begin + 1);

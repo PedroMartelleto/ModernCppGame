@@ -8,60 +8,65 @@ struct WorldLink
 {
 	float cost;
 	WorldNodeID dst;
-	Color4f color = Colors::WHITE;
+
+	WorldLink(float cost, WorldNodeID dst) :
+		cost(cost), dst(dst)
+	{}
 };
 
 struct WorldNode
 {
-	WorldNodeID id;
+	WorldNodeID id = 0;
 
-	bool isBottomEdge;
-	bool isHorizontalEdge;
+	bool isBottomEdge = false;
+	bool isHorizontalEdge = false;
 
-	Vec2f worldPos;
+	Vec2f worldPos = Vec2f(0.0f, 0.0f);
 
-	/// <summary>
-	/// Vector of pairs containing cost and node id.
-	/// </summary>
 	std::vector<WorldLink> links;
 
-	Color4f color = Colors::WHITE;
+	WorldNode() {}
+
+	WorldNode(WorldNodeID id, bool isBottomEdge, bool isHorizontalEdge, const Vec2f& worldPos, const std::vector<WorldLink>& links) :
+		id(id), isBottomEdge(isBottomEdge), isHorizontalEdge(isHorizontalEdge), worldPos(worldPos), links(links)
+	{}
 };
 
 struct WorldGraph
 {
-	std::map<WorldNodeID, WorldNode> nodes;
+	/// <summary>
+	/// Calculates cost of moving from one node to the next using manhattan distance.
+	/// </summary>
+	static void CalculateManhattanCosts(std::unordered_map<WorldNodeID, WorldNode>& nodes, float horizontalWeight, float verticalWeight, float bottomEdgeCost, float horizontalEdgeCost);
 
+	std::unordered_map<WorldNodeID, WorldNode> nodes;
+
+	WorldGraph(const std::unordered_map<WorldNodeID, WorldNode>& nodes) : nodes(nodes) {}
+	
 	/// <summary>
 	/// Calculates the euclidean distance between all nodes and the given position.
 	/// Returns the node with the smallest euclidean distance.
 	/// </summary>
 	/// <param name="anchorPos">Point to calculate distances from.</param>
 	/// <returns>The node with the smallest euclidean distance.</returns>
-	WorldNode& GetClosestNode(const Vec2f& anchorPos);
+	WorldNodeID GetClosestNode(const Vec2f& anchorPos) const;
 
 	/// <summary>
 	/// Validates the links in the graph to see if any invalid children id is found.
-	/// In that case, removes that child id.
 	/// </summary>
-	/// <returns>Returns true if the WorldGraph was valid when this function was called.</returns>
-	bool ValidateAndFix();
-
-	/// <summary>
-	/// Calculates cost of moving from one node to the next using manhattan distance.
-	/// </summary>
-	void CalculateManhattanCosts(float horizontalWeight, float verticalWeight, float bottomEdgeCost, float horizontalEdgeCost);
+	/// <returns>Returns true if the WorldGraph is valid.</returns>
+	bool Validate() const;
 
 	/// <summary>
 	/// Draws this graph on screen.
 	/// </summary>
 	/// <param name="scale">Scale of the drawing.</param>
 	/// <param name="z">Z index.</param>
-	void Draw(float scale, int z);
+	void Draw(float scale, int z) const;
 
-	inline WorldNode& operator[](WorldNodeID id)
+	inline WorldNode operator[](WorldNodeID id) const
 	{
-		return nodes[id];
+		return nodes.at(id);
 	}
 
 	inline WorldNode at(WorldNodeID id) const

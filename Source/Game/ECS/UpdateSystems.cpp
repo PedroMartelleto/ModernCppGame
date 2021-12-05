@@ -4,20 +4,25 @@
 #include "../Spawner.h"
 #include "../../Engine/Pathfinding/AStarSearch.h"
 
-std::unordered_map<MobID, AStarSearch::WorldGraphPath> shortestPaths;
-std::unordered_map<MobID, Job*> pathfindingJobs;
-
-int pathfindingRate = 20;
+#define MAX_MOB_ID 4096
 
 namespace UpdateSystems
 {
+	// Dictionaries that map mob id to pathfinding data
+	// We need to use arrays since they are thread-safe (as long each thread accesses different indices).
+	std::pair<WorldNodeID, WorldNodeID> shortestPaths[MAX_MOB_ID] = { {0, 0} };
+	Job* pathfindingJobs[MAX_MOB_ID] = { nullptr };
+
+	int pathfindingRate = 30;
+
 	void ECSMobPathfindingUpdateSystem(GameCore* gameCore, float deltaTime)
 	{
 		auto& registry = gameCore->registry;
 		const auto& map = gameCore->map;
-		double startTime = Timer::GetTime();
 
 		auto& target = registry.get<PhysicsBodyComponent>(gameCore->mobs[1]);
+
+		double totalTime = 0.0;
 
 		for (auto entity : registry.view<MobComponent, PhysicsBodyComponent, PathfindingComponent>())
 		{
@@ -27,9 +32,6 @@ namespace UpdateSystems
 
 			auto mobPos = Vec2fFromB2((Game::METERS_TO_PIXELS / map->mapScale) * body->GetPosition());
 			auto targetPos = Vec2fFromB2((Game::METERS_TO_PIXELS / map->mapScale) * target.body->GetPosition());
-
-			auto& srcNode = map->pathfindingGraph.GetClosestNode(mobPos);
-			auto& dstNode = map->pathfindingGraph.GetClosestNode(targetPos);
 
 			// Follows target directly
 			if (mobPos.x < targetPos.x - 3.0f)
@@ -41,31 +43,41 @@ namespace UpdateSystems
 				mob.horizontalMoveDir = -1.0f;
 			}
 
-			if (srcNode.id == dstNode.id) continue;
-
-			if (gameCore->frameCounter % 1 == 0)
+			// Every N frames, perform pathfinding
+			if (gameCore->frameCounter % pathfindingRate == 0)
 			{
 				auto mobID = mob.mobID;
-				const auto& graph = map->pathfindingGraph;
-				auto srcID = srcNode.id, dstID = dstNode.id;
+				auto* graph = map->pathfindingGraph.get();
 
-				if (pathfindingJobs.find(mobID) != pathfindingJobs.end())
+				// If a pathfinding job was found...
+				if (pathfindingJobs[mobID] != nullptr)
 				{
+					// Waits for its completion and frees memory.
 					pathfindingJobs[mobID]->Wait();
+					delete pathfindingJobs[mobID];
 					pathfindingJobs[mobID] = nullptr;
+					
+					// Gets the result (at this point, we can be sure that there is no other thread accessing shortestPaths[mobID]).
+					pathfinding.currentNode = shortestPaths[mobID].first;
+					pathfinding.destNode = shortestPaths[mobID].second;
 				}
-
-				// TODO: Dafuq is happening here?
-
-				pathfindingJobs[mobID] = (new Job([mobID, graph, srcID, dstID]()
+				
+				// Schedules a new job
+				pathfindingJobs[mobID] = (new Job([graph, mobID, mobPos, targetPos]()
 				{
-					//shortestPaths[mobID] = AStarSearch::FindShortestPath(graph, srcID, dstID, [](const Vec2f& a, const Vec2f& b) { return 0.0f; });
+					auto srcID = graph->GetClosestNode(mobPos);
+					auto targetNodeID = graph->GetClosestNode(targetPos);
+					auto path = AStarSearch::FindShortestPath(*graph, srcID, targetNodeID, [](const Vec2f& a, const Vec2f& b) { return 0.0f; });
+					shortestPaths[mobID] = { srcID, path[srcID] };
 				}))->Schedule();
 			}
-			
+
 			mob.horizontalMoveDir = 0.0f;
 
-			auto& nextNode = map->pathfindingGraph[shortestPaths[mob.mobID][srcNode.id]];
+			if (pathfinding.currentNode == 0 || pathfinding.destNode  == 0) continue;
+
+			const auto& srcNode = map->pathfindingGraph->at(pathfinding.currentNode);
+			const auto& nextNode = map->pathfindingGraph->at(pathfinding.destNode);
 
 			// Follows next node in path (takes precedent over following target directly)
 			if (srcNode.isHorizontalEdge && nextNode.isHorizontalEdge)
@@ -91,9 +103,9 @@ namespace UpdateSystems
 			}
 		}
 
-		if (gameCore->frameCounter % 30 == 0)
+		if (gameCore->frameCounter % pathfindingRate == 0)
 		{
-			DEBUG_LOG("AI", LOG_MSG, "Time to find paths: %lf ms", (Timer::GetTime() - startTime) * 1000);
+			printf("Total pathfinding time: %lf\n", totalTime);
 		}
 	}
 
@@ -311,6 +323,19 @@ namespace UpdateSystems
 				auto pos = body->GetPosition();
 				pos.y = -sprite.size.y / 2 * Game::PIXELS_TO_METERS;
 				body->SetTransform(pos, body->GetAngle());
+			}
+		}
+	}
+
+	void Cleanup()
+	{
+		for (int i = 0; i < MAX_MOB_ID; ++i)
+		{
+			if (pathfindingJobs[i] != nullptr)
+			{
+				pathfindingJobs[i]->Wait();
+				delete pathfindingJobs[i];
+				pathfindingJobs[i] = nullptr;
 			}
 		}
 	}

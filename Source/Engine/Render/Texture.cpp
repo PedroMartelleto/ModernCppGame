@@ -5,7 +5,7 @@
 
 std::map<std::string, TextureData*> Texture::s_resourceMap;
 
-TextureData::TextureData(GLenum textureTarget, int width, int height, int numTextures, unsigned char** m_data, GLfloat* filters, GLenum* internalFormat, GLenum* format, bool clamp, GLenum* attachments)
+TextureData::TextureData(GLenum textureTarget, int width, int height, int numTextures, unsigned char** data, GLfloat* filters, GLenum* internalFormat, GLenum* format, bool clamp, GLenum* attachments)
 {
 	m_textureID = new GLuint[numTextures];
 	m_textureTarget = textureTarget;
@@ -21,7 +21,7 @@ TextureData::TextureData(GLenum textureTarget, int width, int height, int numTex
 	m_frameBuffer = 0;
 	m_renderBuffer = 0;
 
-	InitTextures(m_data, filters, internalFormat, format, clamp);
+	InitTextures(data, filters, internalFormat, format, clamp);
 	InitRenderTargets(attachments);
 }
 
@@ -33,7 +33,7 @@ TextureData::~TextureData()
 	if (m_textureID) delete[] m_textureID;
 }
 
-void TextureData::InitTextures(unsigned char** m_data, GLfloat* filters, GLenum* internalFormat, GLenum* format, bool clamp)
+void TextureData::InitTextures(unsigned char** data, GLfloat* filters, GLenum* internalFormat, GLenum* format, bool clamp)
 {
 	glGenTextures(m_numTextures, m_textureID);
 	for (int i = 0; i < m_numTextures; i++)
@@ -49,7 +49,7 @@ void TextureData::InitTextures(unsigned char** m_data, GLfloat* filters, GLenum*
 			glTexParameterf(m_textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
 
-		glTexImage2D(m_textureTarget, 0, internalFormat[i], m_width, m_height, 0, format[i], GL_UNSIGNED_BYTE, m_data[i]);
+		glTexImage2D(m_textureTarget, 0, internalFormat[i], m_width, m_height, 0, format[i], GL_UNSIGNED_BYTE, data[i]);
 		glTexParameteri(m_textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
 		glTexParameteri(m_textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 	}
@@ -130,31 +130,31 @@ Texture::Texture(const std::string& fileName, GLenum textureTarget, GLfloat filt
 	m_fileName = fileName;
 
 	std::map<std::string, TextureData*>::const_iterator it = s_resourceMap.find(fileName);
-	if (it != s_resourceMap.m_end())
+	if (it != s_resourceMap.end())
 	{
 		m_textureData = it->second;
 	}
 	else
 	{
 		int x, y, bytesPerPixel;
-		unsigned char* m_data = stbi_load(fileName.c_str(), &x, &y, &bytesPerPixel, 4);
+		unsigned char* data = stbi_load(fileName.c_str(), &x, &y, &bytesPerPixel, 4);
 
-		if (m_data == NULL)
+		if (data == NULL)
 		{
 			std::cerr << "Unable to load texture: " << fileName << std::endl;
 		}
 
-		m_textureData = new TextureData(textureTarget, x, y, 1, &m_data, &filter, &internalFormat, &format, clamp, &attachment);
-		stbi_image_free(m_data);
+		m_textureData = new TextureData(textureTarget, x, y, 1, &data, &filter, &internalFormat, &format, clamp, &attachment);
+		stbi_image_free(data);
 
 		s_resourceMap.insert(std::pair<std::string, TextureData*>(fileName, m_textureData));
 	}
 }
 
-Texture::Texture(int width, int height, unsigned char* m_data, GLenum textureTarget, GLfloat filter, GLenum internalFormat, GLenum format, bool clamp, GLenum attachment)
+Texture::Texture(int width, int height, unsigned char* data, GLenum textureTarget, GLfloat filter, GLenum internalFormat, GLenum format, bool clamp, GLenum attachment)
 {
 	m_fileName = "";
-	m_textureData = new TextureData(textureTarget, width, height, 1, &m_data, &filter, &internalFormat, &format, clamp, &attachment);
+	m_textureData = new TextureData(textureTarget, width, height, 1, &data, &filter, &internalFormat, &format, clamp, &attachment);
 }
 
 Texture::Texture(const Texture& texture) :

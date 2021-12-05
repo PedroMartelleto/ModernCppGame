@@ -35,7 +35,7 @@ public:
 public:
 	const float mapScale;
 
-	WorldGraph pathfindingGraph;
+	Ref<WorldGraph> pathfindingGraph = nullptr;
 
 	std::vector<Vec2f> spawns;
 	std::vector<Ref<TileMapLayer>> layers;

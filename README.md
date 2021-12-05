@@ -2,31 +2,23 @@
 
 ## TODO
 
-* Fix either A* or path following
-
-* Test job system
-
-* A* on a separate thread
-
+* Enemy spawner
+* Damage enemies and player
 * Remove dead mobs from map
-* Win/lose screen
+* Game structure and UI
+	* Win/lose screen & menu
 
-* Enemies
-	* Level graph
-	* AI Component
-	* Pathfinding on a separate thread
+* Render "arrow count"
+
+----
 
 * Proper BG, parallax, camera
-
-* Game structure and UI
-* Render "arrow count"
 
 * Create events for:
 	* Add playerIndex to spawn player event
 	* Spawning enemies
 	* Spawning projectiles
 	* Adding joints?
-
 
 ---
 

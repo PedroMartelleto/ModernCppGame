@@ -53,8 +53,6 @@ public:
 	std::unordered_map<MobID, entt::entity> mobs;
 	int localPlayerCount = 0;
 
-	Ref<JobSystem> jobSystem;
-
 	// Physics
 	Ref<WorldContactListener> worldContactListener;
 	b2World physicsWorld;

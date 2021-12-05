@@ -15,6 +15,8 @@ namespace UpdateSystems
 	void ECSMobInputUpdateSystem(GameCore* gameCore, float deltaTime);
 	void ECSSpriteBodyUpdateSystem(GameCore* gameCore, float deltaTime);
 
+	void Cleanup();
+
 	const std::vector<UpdateSystemType> updateSystems = {
 		ECSMobPathfindingUpdateSystem, ECSMobTextureRegionUpdateSystem, ECSBodyUpdateSystem, ECSMobBodyUpdateSystem, ECSMobInputUpdateSystem, ECSSpriteBodyUpdateSystem
 	};

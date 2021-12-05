@@ -172,11 +172,11 @@ namespace magic_enum {
                 assert(str.size() == N);
             }
 
-            constexpr const char* m_data() const noexcept { return chars_; }
+            constexpr const char* data() const noexcept { return chars_; }
 
             constexpr std::size_t size() const noexcept { return N; }
 
-            constexpr operator string_view() const noexcept { return { m_data(), size() }; }
+            constexpr operator string_view() const noexcept { return { data(), size() }; }
 
         private:
             template <std::size_t... I>
@@ -190,7 +190,7 @@ namespace magic_enum {
         public:
             constexpr explicit static_string(string_view) noexcept {}
 
-            constexpr const char* m_data() const noexcept { return nullptr; }
+            constexpr const char* data() const noexcept { return nullptr; }
 
             constexpr std::size_t size() const noexcept { return 0; }
 
@@ -986,7 +986,7 @@ namespace magic_enum {
                     if (!name.empty()) {
                         name.append(1, '|');
                     }
-                    name.append(n.m_data(), n.size());
+                    name.append(n.data(), n.size());
                 }
             }
 
