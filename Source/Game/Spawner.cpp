@@ -86,7 +86,7 @@ namespace Spawner
 		);
 
 		registry.emplace<PhysicsBodyComponent>(entity, dynamicBody, mobComponent.dragMultiplier);
-		registry.emplace<SpriteComponent>(entity, atlas->texture, 100, -(mobComponent.GetAABB().pos() + region.size() / 2.0f) * map->mapScale,
+		registry.emplace<SpriteComponent>(entity, atlas->texture, ZPlanes::MOBS, -(mobComponent.GetAABB().pos() + region.size() / 2.0f) * map->mapScale,
 										  region.size() * map->mapScale, Colors::WHITE);
 
 		// If this mob has access to a projectile, give it its projectiles
@@ -156,7 +156,7 @@ namespace Spawner
 		auto drawSize = region.size() * map->mapScale;
 
 		registry.emplace<PhysicsBodyComponent>(entity, dynamicBody, projectileData.dragMultiplier);
-		registry.emplace<SpriteComponent>(entity, atlas->texture, 100,
+		registry.emplace<SpriteComponent>(entity, atlas->texture, ZPlanes::MOBS,
 			-(projectileData.GetAABB().pos() * map->mapScale + drawSize/2.0f), drawSize, Colors::WHITE);
 
 		return entity;

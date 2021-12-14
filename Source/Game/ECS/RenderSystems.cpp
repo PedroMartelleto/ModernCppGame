@@ -34,22 +34,22 @@ namespace RenderSystems
 				auto portrait = atlas->GetRegion("ui_" + mob.name + "_portrait");
 				auto drawY = (float)mob.playerIndex * 42.0f;
 
-				Render2D::DrawRect(uiPos + Vec2f(0, -6 + drawY), 0.0f, portrait.size() * 2.0f, Render2D::MAX_Z - 10, portrait, atlas->texture, Colors::WHITE);
+				Render2D::DrawRect(uiPos + Vec2f(0, -6 + drawY), 0.0f, portrait.size() * 2.0f, 1.5f, portrait, atlas->texture, Colors::WHITE);
 
 				for (int i = 0; i < mob.maxHealth; ++i)
 				{
 					auto pos = uiPos + Vec2f(64.0f + i * 32.0f, drawY);
 					if (mob.health >= i+1)
 					{
-						Render2D::DrawRect(pos, 0.0f, heartSize, Render2D::MAX_Z - 10, fullHeart, atlas->texture, Colors::WHITE);
+						Render2D::DrawRect(pos, 0.0f, heartSize, ZPlanes::UI, fullHeart, atlas->texture, Colors::WHITE);
 					}
 					else if (mob.health >= (float)i + 0.5f)
 					{
-						Render2D::DrawRect(pos, 0.0f, heartSize, Render2D::MAX_Z - 10, halfHeart, atlas->texture, Colors::WHITE);
+						Render2D::DrawRect(pos, 0.0f, heartSize, ZPlanes::UI, halfHeart, atlas->texture, Colors::WHITE);
 					}
 					else
 					{
-						Render2D::DrawRect(pos, 0.0f, heartSize, Render2D::MAX_Z - 10, emptyHeart, atlas->texture, Colors::WHITE);
+						Render2D::DrawRect(pos, 0.0f, heartSize, ZPlanes::UI, emptyHeart, atlas->texture, Colors::WHITE);
 					}
 				}
 			}
@@ -140,7 +140,8 @@ namespace RenderSystems
 				Rect2D region = gameCore->GetAtlas(projectile.atlas)->GetRegion(projectile.readySpriteName);
 				Vec2f size = region.size() * gameCore->map->mapScale;
 
-				Render2D::DrawRect(drawPos + projectileDir * sprite.size/2.0f + Vec2f(7, 11), projectileAngle, size, sprite.zIndex + 100, region, sprite.texture, sprite.tint);
+				Render2D::DrawRect(drawPos + projectileDir * sprite.size/2.0f + Vec2f(7, 11), projectileAngle,
+								   size, ZPlanes::UI, region, sprite.texture, sprite.tint);
 			}
 		}
 	}

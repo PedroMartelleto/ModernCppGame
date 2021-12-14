@@ -22,5 +22,7 @@ private:
 	/// Maps an animation name to a raylib Rectangle and a frame count.
 	/// </summary>
 	std::unordered_map<std::string, std::pair<Rect2D, int>> m_animations;
+
+	friend class Font;
 };
 

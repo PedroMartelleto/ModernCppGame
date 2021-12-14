@@ -11,7 +11,7 @@ public:
 
 	TileID GetTile(int x, int y) const;
 
-	void Render(const Vec2f& position, float scale, int zIndex);
+	void Render(const Vec2f& position, float scale, float zIndex);
 public:
 	const std::string name;
 	Ref<Tileset> tileset;

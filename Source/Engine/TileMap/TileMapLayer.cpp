@@ -25,7 +25,7 @@ TileID TileMapLayer::GetTile(int x, int y) const
 	return m_tiles[x + y * width];
 }
 
-void TileMapLayer::Render(const Vec2f& position, float scale, int zIndex)
+void TileMapLayer::Render(const Vec2f& position, float scale, float zIndex)
 {
 	auto tileSize = tileset->TileSize() * scale;
 	auto zero = Vec2f(0, 0);

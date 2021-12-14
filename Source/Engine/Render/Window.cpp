@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "Render2D.h"
 #include <SDL2/SDL.h>
 
 Window::Window(int width, int height, const std::string & title) :
@@ -107,6 +108,19 @@ void Window::Update()
 			Input::SetMouseUp(value, true);
 		}
 	}
+}
+
+void Window::SetWindowSizeAndCenter(int width, int height)
+{
+	SDL_SetWindowSize(m_window, width, height);
+	Render2D::Resize((float)width, (float)height);
+
+	SDL_DisplayMode displayMode;
+	SDL_GetCurrentDisplayMode(0, &displayMode);
+	SDL_SetWindowPosition(m_window, (displayMode.w - width) / 2, (displayMode.h - height) / 2);
+	
+	m_width = width;
+	m_height = height;
 }
 
 void Window::SwapBuffers()

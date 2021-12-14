@@ -66,7 +66,7 @@ void WorldGraph::CalculateManhattanCosts(std::unordered_map<WorldNodeID, WorldNo
 	}
 }
 
-void WorldGraph::Draw(float scale, int z) const
+void WorldGraph::Draw(float scale, float z) const
 {
 	Vec2f nodeSize = Vec2f(24, 24);
 

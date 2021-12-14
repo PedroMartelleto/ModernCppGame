@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Render\Font.cpp" />
     <ClCompile Include="Source\Engine\Pathfinding\AStarSearch.cpp" />
     <ClCompile Include="Source\Engine\Threads\JobSystem.cpp" />
     <ClCompile Include="Source\Engine\Threads\Job.cpp" />
@@ -55,6 +56,7 @@
     <ClCompile Include="Source\Engine\Pathfinding\WorldGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Render\Font.h" />
     <ClInclude Include="Source\Engine\Pathfinding\AStarSearch.h" />
     <ClInclude Include="Source\Engine\Threads\JobSystem.h" />
     <ClInclude Include="Source\Engine\Threads\Job.h" />
@@ -180,6 +182,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -210,6 +213,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

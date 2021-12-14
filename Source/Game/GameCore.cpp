@@ -5,12 +5,15 @@
 #include "GameData.h"
 #include "Networking/EventHandler.h"
 
+Ref<Font> GameCore::defaultFont = nullptr;
+
 GameCore::GameCore(Core* core, HostType hostType) :
 	core(core),
 	map(nullptr),
 	physicsWorld(b2Vec2(0, 15.0f)),
 	m_hostType(hostType),
-	mapFilepath("Resources/Maps/Map2.tmx")
+	mapFilepath("Resources/Maps/Map2.tmx"),
+	gameState(GameState::MAIN_MENU)
 {
 	assert(m_hostType == HostType::CLIENT || m_hostType == HostType::SERVER);
 
@@ -21,6 +24,14 @@ GameCore::GameCore(Core* core, HostType hostType) :
 
 	worldContactListener = CreateRef<WorldContactListener>(this);
 	physicsWorld.SetContactListener(worldContactListener.get());
+}
+
+void GameCore::SetWinner(int winner)
+{
+	gameState = GameState::WIN_SCREEN;
+	this->winner = winner;
+
+	// TODO: Reset health, position, remove enemies
 }
 
 int GameCore::GetNonPlayerCount() const
@@ -67,6 +78,10 @@ void GameCore::SetupServer()
 
 void GameCore::Create()
 {
+	defaultFont = CreateRef<Font>("DefaultFont", resourceManager->GetTexture("DefaultFont/SpriteSheet.png", true),
+								  20, 20, " !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_ abcdefghijklmnopqrstuvwxyz{|}~                         ");
+	assert(defaultFont->characters.size() == 15 * 8);
+
 	host = CreateRef<NetworkHost>(this, m_hostType, "127.0.0.1");
 
 	if (m_hostType == HostType::SERVER)
@@ -97,76 +112,104 @@ void GameCore::PhysicsStep(float deltaTime)
 
 void GameCore::Update(float deltaTime)
 {
-	// Poll events from the network
-	host->PollEvents();
-
-	EventHandler::HandleEvents(this);
-
-	// If there is no map, there is nothing to update
-	if (map == nullptr) return;
-
-	// Update client prediction
-	if (clientPrediction != nullptr) clientPrediction->Update(deltaTime);
-
-	// Calls update systems and runs step in physics world
-	for (const auto& updateSystem : UpdateSystems::updateSystems)
+	if (gameState == GameState::IN_GAME)
 	{
-		updateSystem(this, deltaTime);
+		// Poll events from the network
+		host->PollEvents();
+
+		EventHandler::HandleEvents(this);
+
+		// If there is no map, there is nothing to update
+		if (map == nullptr) return;
+
+		// Update client prediction
+		if (clientPrediction != nullptr) clientPrediction->Update(deltaTime);
+
+		// Calls update systems and runs step in physics world
+		for (const auto& updateSystem : UpdateSystems::updateSystems)
+		{
+			updateSystem(this, deltaTime);
+		}
+
+		PhysicsStep(deltaTime);
+
+		// Server streams a world snapshot to all clients
+		if (frameCounter % GameData::GetWorldSnapshotTickRate() == 0 && m_hostType == HostType::SERVER)
+		{
+			WorldSnapshotEvent event;
+			event.Save(this);
+			host->SendPacket(PacketData{ { Utils::ToJSON(event) }, { EventType::WorldSnapshot } }, 0, 0);
+		}
+
+		frameCounter += 1;
 	}
-
-	PhysicsStep(deltaTime);
-
-	// Server streams a world snapshot to all clients
-	if (frameCounter % GameData::GetWorldSnapshotTickRate() == 0 && m_hostType == HostType::SERVER)
+	else if (gameState == GameState::MAIN_MENU)
 	{
-		WorldSnapshotEvent event;
-		event.Save(this);
-		host->SendPacket(PacketData{ { Utils::ToJSON(event) }, { EventType::WorldSnapshot } }, 0, 0);
+		if (Input::IsKeyDown(Input::KEY_RETURN))
+		{
+			gameState = GameState::IN_GAME;
+		}
 	}
-
-	frameCounter += 1;
+	else if (gameState == GameState::WIN_SCREEN)
+	{
+		if (Input::IsKeyDown(Input::KEY_RETURN))
+		{
+			gameState = GameState::IN_GAME;
+		}
+	}
 }
 
 void GameCore::Render()
 {
 	Render2D::SetClearColor(Color4f(95 / 255.0f, 80 / 255.0f, 115 /255.0f, 1.0f) * 1.4f);
 
-	if (map == nullptr) return;
-	
-	// Draws the tile map
-	int mapZIndex = 100;
-	for (auto layer : map->layers)
+	if (gameState == GameState::IN_GAME && map != nullptr)
 	{
-		layer->Render(Vec2f(0, 0), map->mapScale, mapZIndex);
-		mapZIndex += 10;
-	}
+		// Draws the tile map
+		float mapZIndex = ZPlanes::MAP;
+		for (auto layer : map->layers)
+		{
+			layer->Render(Vec2f(0, 0), map->mapScale, mapZIndex);
+			mapZIndex += 0.05f;
+		}
 
-	for (const auto& renderSystem : RenderSystems::renderSystems)
-	{
-		renderSystem(this);
-	}
+		for (const auto& renderSystem : RenderSystems::renderSystems)
+		{
+			renderSystem(this);
+		}
 
-	auto bg3 = resourceManager->GetTexture("Desert/background/BG-mountains.png", true);
-	Render2D::DrawRect(Vec2f(0, -128), 0, bg3->GetSize() * 2.1f * map->mapScale, 20, bg3, Color4f(1.05f, 0.95f, 1.05f, 1.0f));
+		auto bg = resourceManager->GetTexture("Desert/background/BG-mountains.png", true);
+		Render2D::DrawRect(Vec2f(0, -128), 0, bg->GetSize() * 2.1f * map->mapScale, ZPlanes::BACKGROUND, bg, Color4f(1.05f, 0.95f, 1.05f, 1.0f));
 
 #ifdef _DEBUG
-	// Renders debug collision boxes
-	for (auto entity : registry.view<PhysicsBodyComponent, DEBUG_PhysicsBodyDrawComponent>())
-	{
-		auto& body = registry.get<PhysicsBodyComponent>(entity);
-		auto& draw = registry.get<DEBUG_PhysicsBodyDrawComponent>(entity);
-
-		if (draw.drawAABB)
+		// Renders debug collision boxes
+		for (auto entity : registry.view<PhysicsBodyComponent, DEBUG_PhysicsBodyDrawComponent>())
 		{
-			core->DEBUG_DrawBodyAABB(body.body, draw.aabbColor);
-		}
+			auto& body = registry.get<PhysicsBodyComponent>(entity);
+			auto& draw = registry.get<DEBUG_PhysicsBodyDrawComponent>(entity);
 
-		if (draw.drawPoly)
-		{
-			core->DEBUG_DrawBody(body.body, draw.polyColor);
+			if (draw.drawAABB)
+			{
+				core->DEBUG_DrawBodyAABB(body.body, draw.aabbColor);
+			}
+
+			if (draw.drawPoly)
+			{
+				core->DEBUG_DrawBody(body.body, draw.polyColor);
+			}
 		}
-	}
 #endif
+	}
+	else if (gameState == GameState::MAIN_MENU)
+	{
+		Render2D::DrawLineOfText(Render2D::GetScreenCenter() - Vec2f(0.0f, 128), 2.0f, "PLATFORMER GAME", ZPlanes::UI, defaultFont);
+		Render2D::DrawLineOfText(Render2D::GetScreenCenter(), 2.0f, "PRESS 'ENTER' TO PLAY", ZPlanes::UI, defaultFont);
+	}
+	else if (gameState == GameState::WIN_SCREEN)
+	{
+		Render2D::DrawLineOfText(Render2D::GetScreenCenter() - Vec2f(0.0f, 128), 2.0f, "PLAYER " + std::to_string(winner) + " WINS!", ZPlanes::UI, defaultFont);
+		Render2D::DrawLineOfText(Render2D::GetScreenCenter(), 2.0f, "PRESS 'ENTER' TO PLAY AGAIN", ZPlanes::UI, defaultFont);
+	}
 }
 
 void GameCore::Destroy()

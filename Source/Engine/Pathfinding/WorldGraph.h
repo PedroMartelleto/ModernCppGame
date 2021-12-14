@@ -62,7 +62,7 @@ struct WorldGraph
 	/// </summary>
 	/// <param name="scale">Scale of the drawing.</param>
 	/// <param name="z">Z index.</param>
-	void Draw(float scale, int z) const;
+	void Draw(float scale, float z) const;
 
 	inline WorldNode operator[](WorldNodeID id) const
 	{

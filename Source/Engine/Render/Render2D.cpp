@@ -161,7 +161,7 @@ void Render2D::Flush(const Matrix4f& transformMatrix)
 	s_data.textureIDToIndex[s_data.textureIndexToID[0]] = 0;
 }
 
-void Render2D::DrawLine(bool arrow, const Vec2f& from, const Vec2f& to, int z, float width, const Color4f& color)
+void Render2D::DrawLine(bool arrow, const Vec2f& from, const Vec2f& to, float z, float width, const Color4f& color)
 {
 	Vec2f dir = glm::normalize(to - from);
 	Vec2f normal = Vec2f(-dir.y, dir.x) * width;
@@ -180,12 +180,12 @@ void Render2D::DrawLine(bool arrow, const Vec2f& from, const Vec2f& to, int z, f
 	}
 }
 
-void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Ref<Texture>& texture, const Color4f& color)
+void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float z, const Ref<Texture>& texture, const Color4f& color)
 {
 	DrawRect(pos, angle, size, z, Rect2D(0, 0, texture->GetWidth(), texture->GetHeight()), texture, color);
 }
 
-void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Color4f& color)
+void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float z, const Color4f& color)
 {
 	DrawRect(pos, angle, size, z, Rect2D(0, 0, 1, 1), nullptr, color);
 }
@@ -196,7 +196,7 @@ inline void RotateVecAroundCenter(Vec2f& vec, const Vec2f& center, const Matrix4
 	vec = Vec2f(r.x, r.y) + center;
 }
 
-void Render2D::DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, int z, const Ref<Texture>& texture, const Color4f& color)
+void Render2D::DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, float z, const Ref<Texture>& texture, const Color4f& color)
 {
 	// If our current batch is too big...
 	if (s_data.indexCount >= MaxIndexCount)
@@ -235,17 +235,15 @@ void Render2D::DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f,
 		}
 	}
 
-	float zFloat = -(1.0f - (float)z / (float)MAX_Z) * FAR_PLANE;
-
 	for (int i = 0; i < (int) pos.size(); ++i)
 	{
-		AddVertex(Vec3f(pos[i], zFloat), color, texCoords[i], texIndex);
+		AddVertex(Vec3f(pos[i], -z), color, texCoords[i], texIndex);
 	}
 
 	s_data.indexCount += 6;
 }
 
-void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Rect2D& region, const Ref<Texture>& texture, const Color4f& color)
+void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float z, const Rect2D& region, const Ref<Texture>& texture, const Color4f& color)
 {
 	auto normRegion = Rect2D(region);
 
@@ -283,4 +281,26 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z,
 	}};
 
 	DrawQuad(vertexPos, texCoords, z, texture, color);
+}
+
+void Render2D::DrawLineOfText(const Vec2f& center, float scale, const std::string& text, float z, const Ref<Font>& font, const Color4f& color)
+{
+	float offset = 5.0f;
+
+	Vec2f charSize = Vec2f(font->tileWidth, font->tileHeight) * scale;
+	Vec2f topLeft = center - Vec2f(text.length() * (font->tileWidth - offset), font->tileHeight) * scale / 2.0f;
+	
+	float drawX = topLeft.x;
+
+	for (int i = 0; i < text.size(); ++i)
+	{
+		auto ch = text[i];
+
+		if (ch != ' ' && font->HasChar(ch))
+		{
+			DrawRect(Vec2f(drawX + (charSize.x - offset) / 2.0f, topLeft.y), 0.0f, charSize, z, font->atlas->GetRegion(ch + ""), font->atlas->texture, color);
+		}
+
+		drawX += ((float)font->tileWidth - offset) * scale;
+	}
 }

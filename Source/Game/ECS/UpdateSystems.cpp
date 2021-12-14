@@ -42,7 +42,6 @@ namespace UpdateSystems
 			nextSpawnTicks -= 1;
 		}
 
-		// TODO: Get target better than this
 		auto& target = registry.get<PhysicsBodyComponent>(gameCore->mobs[1]);
 
 		for (auto entity : registry.view<MobComponent, PhysicsBodyComponent, PathfindingComponent>())
@@ -190,6 +189,11 @@ namespace UpdateSystems
 		{
 			auto& body = registry.get<PhysicsBodyComponent>(entity);
 			auto& mob = registry.get<MobComponent>(entity);
+
+			if (mob.IsPlayer() && mob.health <= 0.0f)
+			{
+				gameCore->SetWinner(mob.playerIndex == 0 ? 2 : 1);
+			}
 
 			if (mob.invencibilityTicks > 0)
 			{

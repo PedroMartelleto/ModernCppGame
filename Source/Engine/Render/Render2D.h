@@ -4,6 +4,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Window.h"
+#include "Font.h"
 
 #define RENDER2D_MAX_TEXTURES 32
 
@@ -41,9 +42,9 @@ struct RendererData
 class Render2D
 {
 public:
-	static const int MAX_Z = 100000;
-	inline static const float NEAR_PLANE = -0.01f;
-	inline static const float FAR_PLANE = 10.0f;
+	inline static const float MAX_Z = 10.0f;
+	inline static const float NEAR_PLANE = 0.002f;
+	inline static const float FAR_PLANE = MAX_Z + 1.0f;
 
 	static const size_t MaxQuadCount = 1024;
 	static const size_t MaxVertexCount = MaxQuadCount * 4;
@@ -65,15 +66,19 @@ public:
 
 	inline static float GetScreenWidth() { return (float)s_window->GetWidth(); }
 	inline static float GetScreenHeight() { return (float)s_window->GetHeight(); }
+	inline static Vec2f GetScreenSize() { return Vec2f((float)s_window->GetWidth(), (float)s_window->GetHeight()); }
+	inline static Vec2f GetScreenCenter() { return GetScreenSize() / 2.0f; }
 
 	static void Resize(float width, float height);
 
-	static void DrawLine(bool arrow, const Vec2f& from, const Vec2f& to, int z, float width, const Color4f& color = Colors::WHITE);
+	static void DrawLine(bool arrow, const Vec2f& from, const Vec2f& to, float z, float width, const Color4f& color = Colors::WHITE);
 
-	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
-	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z = 0.0f, const Color4f& color = Colors::WHITE);
-	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, int z, const Rect2D& region, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
-	static void DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, int z, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
+	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float z, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
+	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float z = 0.0f, const Color4f& color = Colors::WHITE);
+	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float z, const Rect2D& region, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
+	static void DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, float z, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
+
+	static void DrawLineOfText(const Vec2f& center, float scale, const std::string& text, float z, const Ref<Font>& font, const Color4f& color = Colors::WHITE);
 
 	inline static void AddVertex(const Vec3f& position, const Color4f& color, const Vec2f& texCoords, float texIndex)
 	{

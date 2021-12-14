@@ -26,6 +26,8 @@ public:
 	inline Vec2f GetCenter() const { return Vec2f((float)m_width / 2.0f, (float)m_height / 2.0f); }
 	inline SDL_Window* GetSDLWindow() { return m_window; }
 
+	void SetWindowSizeAndCenter(int width, int height);
+
 	void SetFullScreen(bool value);
 protected:
 private:

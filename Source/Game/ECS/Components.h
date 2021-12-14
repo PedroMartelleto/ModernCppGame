@@ -56,12 +56,12 @@ struct AnimationComponent
 struct SpriteComponent
 {
 	Ref<Texture2D> texture;
-	int zIndex;
+	float zIndex;
 	Vec2f pos = Vec2f(0, 0);
 	Vec2f size = Vec2f(0, 0);
 	Color4f tint = Colors::WHITE;
 
-	SpriteComponent(const Ref<Texture2D>& texture, int zIndex, const Vec2f& pos, const Vec2f& size, const Color4f& tint = Colors::WHITE) :
+	SpriteComponent(const Ref<Texture2D>& texture, float zIndex, const Vec2f& pos, const Vec2f& size, const Color4f& tint = Colors::WHITE) :
 		texture(texture), pos(pos), size(size), tint(tint), zIndex(zIndex) {}
 };
 

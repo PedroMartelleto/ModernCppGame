@@ -12,6 +12,21 @@
 struct RenderSystem;
 struct UpdateSystem;
 
+namespace ZPlanes
+{
+	const float UI = 0.5f;
+	const float MOBS = 2.5f;
+	const float MAP = 7.5f;
+	const float BACKGROUND = 8.5f;
+};
+
+enum class GameState
+{
+	MAIN_MENU = 0,
+	WIN_SCREEN = 1,
+	IN_GAME = 2
+};
+
 class GameCore
 {
 public:
@@ -24,6 +39,8 @@ public:
 	/// </summary>
 	/// <param name="jointDef"></param>
 	void AddJointWhenPossible(const b2WeldJointDef& jointDef);
+
+	void SetWinner(int winner);
 
 	void Create();
 	void Update(float deltaTime);
@@ -43,6 +60,11 @@ public:
 private:
 	void SetupServer();
 public:
+	static Ref<Font> defaultFont;
+
+	GameState gameState;
+	int winner = 0;
+
 	int8_t playerIndex = -1;
 
 	Core* core;

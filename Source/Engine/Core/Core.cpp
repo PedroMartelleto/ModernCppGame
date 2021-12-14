@@ -27,13 +27,7 @@ void Core::Create()
 
 void Core::SetWindowSizeAndCenter(int width, int height)
 {
-	auto* window = m_window->GetSDLWindow();
-	SDL_SetWindowSize(window, width, height);
-	Render2D::Resize((float)width, (float)height);
-
-	SDL_DisplayMode displayMode;
-	SDL_GetCurrentDisplayMode(0, &displayMode);
-	SDL_SetWindowPosition(window, (displayMode.w - width) / 2, (displayMode.h - height) / 2);
+	m_window->SetWindowSizeAndCenter(width, height);
 }
 
 void Core::Render()
@@ -47,7 +41,7 @@ void Core::Render()
 	for (const auto& rectTuple : m_debugRects)
 	{
 		auto [ rect, color, z ] = rectTuple;
-		Render2D::DrawRect(rect.pos(), 0.0f, rect.size(), (int)z, color);
+		Render2D::DrawRect(rect.pos(), 0.0f, rect.size(), z, color);
 	}
 
 	//for (const auto& line : m_debugLines)

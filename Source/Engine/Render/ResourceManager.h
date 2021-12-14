@@ -3,6 +3,7 @@
 #include "../Commons.h"
 #include "Texture.h"
 #include "TextureAtlas.h"
+#include "Font.h"
 
 /// <summary>
 /// Manages loading/destroying textures.
