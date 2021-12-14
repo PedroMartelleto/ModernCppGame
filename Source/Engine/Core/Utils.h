@@ -17,4 +17,6 @@ namespace Utils
 	std::string LoadFile(const std::string& filePath);
 
 	int RandomInt(int min, int max);
+
+	float FastRandomFloat(float min, float max);
 };

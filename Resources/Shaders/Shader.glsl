@@ -45,7 +45,7 @@ DeclareFragOutput(0, vec4);
 void main()
 {
 	int index = int(v_TexIndex);
-	vec4 texColor = texture2D(u_Textures[index], v_TexCoord);
+	vec4 texColor = clamp(texture2D(u_Textures[index], v_TexCoord) + 1/1000.0, 0.0, 1.0);
 
 	if (texColor.a < 0.1) { discard; }
 

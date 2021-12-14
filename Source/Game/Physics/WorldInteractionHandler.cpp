@@ -30,13 +30,37 @@ void WorldInteractionHandler::OnMobProjectileInteraction(InteractionFlag flag, c
 {
 	if (!projectileB.data->hasHitAnything && projectileB.fixture->IsSensor())
 	{
-		mobA.data->health -= projectileB.data->projectileData.damage;
+		mobA.data->Damage(projectileB.data->projectileData.damage);
 		projectileB.data->hasHitAnything = true;
+	}
+}
+
+void HandleMobContact(const ContactData<MobComponent>& mobA, const ContactData<MobComponent>& mobB)
+{
+	if (mobA.data->contactDamage > 0.0f && mobB.data->invencibilityTicks <= 0)
+	{
+		// Applies small impulse that moves the mob away
+		auto impulse = mobB.fixture->GetBody()->GetPosition() - mobA.fixture->GetBody()->GetPosition();
+		impulse.Normalize();
+		impulse *= 15.0f;
+		impulse.y = -6.5f;
+		mobB.fixture->GetBody()->ApplyLinearImpulseToCenter(impulse, true);
+		mobB.data->Damage(mobA.data->contactDamage);
 	}
 }
 
 void WorldInteractionHandler::OnMobMobInteraction(InteractionFlag flag, const ContactData<MobComponent>& mobA,
 												  const ContactData<MobComponent>& mobB, b2Contact* contact)
 {
+	if (flag == InteractionFlag::BEGIN)
+	{
+		// On contact, reduce the health of the mobs involved.
 
+		// We only care about enemy-player contacts (players and enemies don't damage mobs of the same type)
+		if ((mobB.data->playerIndex >= 0) ^ (mobA.data->playerIndex >= 0))
+		{
+			HandleMobContact(mobA, mobB);
+			HandleMobContact(mobB, mobA);
+		}
+	}
 }

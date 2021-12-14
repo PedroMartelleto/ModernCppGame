@@ -182,7 +182,7 @@
  <objectgroup id="13" name="Pathfinding">
   <object id="255" type="PathfindingNode" x="62" y="367">
    <properties>
-    <property name="to" value="258,268"/>
+    <property name="to" value="268"/>
    </properties>
    <point/>
   </object>
@@ -241,7 +241,7 @@
   <object id="266" type="PathfindingNode" x="483" y="366">
    <properties>
     <property name="isBottomEdge" type="bool" value="false"/>
-    <property name="to" value="265,267"/>
+    <property name="to" value="267"/>
    </properties>
    <point/>
   </object>
@@ -323,13 +323,13 @@
   </object>
   <object id="278" type="PathfindingNode" x="359" y="238.5">
    <properties>
-    <property name="to" value="264,277"/>
+    <property name="to" value="264,277,265"/>
    </properties>
    <point/>
   </object>
   <object id="279" type="PathfindingNode" x="186.5" y="239.5">
    <properties>
-    <property name="to" value="259,276"/>
+    <property name="to" value="259,276,258"/>
    </properties>
    <point/>
   </object>

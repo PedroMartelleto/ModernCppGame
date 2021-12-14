@@ -255,5 +255,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source\README.md" />
+    <Text Include="Requirements.txt" />
   </ItemGroup>
 </Project>

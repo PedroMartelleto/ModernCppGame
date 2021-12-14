@@ -63,7 +63,7 @@ namespace RenderSystems
 		// Renders sprites
 		for (auto entity : registry.view<SpriteComponent>())
 		{
-			const auto& sprite = registry.get<SpriteComponent>(entity);
+			auto& sprite = registry.get<SpriteComponent>(entity);
 			AnimationComponent* region = registry.try_get<AnimationComponent>(entity);
 
 			const auto* body = registry.try_get<PhysicsBodyComponent>(entity);
@@ -71,6 +71,7 @@ namespace RenderSystems
 			auto drawPos = GetBodyDrawPos(sprite, body);
 			float rotation = 0.0f;
 
+			// Deals with flipped and rotated bodies
 			if (body != nullptr)
 			{
 				rotation = body->body->GetAngle();
@@ -90,9 +91,21 @@ namespace RenderSystems
 
 			if (region != nullptr)
 			{
+				const auto* mob = registry.try_get<MobComponent>(entity);
+
+				// Makes the mob "blink" when hit
+				float colorMultiplier = 1.0f;
+
+				if (mob != nullptr && mob->invencibilityTicks > 0 && (mob->invencibilityTicks / 8) % 2 == 0)
+				{
+					colorMultiplier = 1000.0f;
+				}
+
+				// Deals with flipping the mob depending on face direction
 				Rect2D drawRegion = region->GetRect();
 				drawRegion.width = !region->isFlipped ? fabsf(drawRegion.width) : -fabsf(drawRegion.width);
-				Render2D::DrawRect(drawPos, rotation, sprite.size, sprite.zIndex, drawRegion, sprite.texture, sprite.tint);
+
+				Render2D::DrawRect(drawPos, rotation, sprite.size, sprite.zIndex, drawRegion, sprite.texture, sprite.tint * colorMultiplier);
 			}
 			else
 			{

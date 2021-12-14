@@ -15,14 +15,34 @@ namespace UpdateSystems
 
 	int pathfindingRate = 30;
 
+	// Enemy spawning
+	float spawnPeriodicityMin = 5.0f;
+	float spawnPeriodicityMax = 15.0f;
+	int maxEnemies = 14;
+	int nextSpawnTicks = 0;
+
 	void ECSMobPathfindingUpdateSystem(GameCore* gameCore, float deltaTime)
 	{
 		auto& registry = gameCore->registry;
 		const auto& map = gameCore->map;
 
-		auto& target = registry.get<PhysicsBodyComponent>(gameCore->mobs[1]);
+		if (nextSpawnTicks <= 0) // If we can spawn...
+		{
+			// Define the number of ticks until the next spawn
+			nextSpawnTicks = (int)(Utils::FastRandomFloat(spawnPeriodicityMax, spawnPeriodicityMax) * 60);
 
-		double totalTime = 0.0;
+			std::vector<std::string> possibleMobsToSpawn = { "big_demon", "chort" };
+
+			auto demon = Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), possibleMobsToSpawn[Utils::RandomInt(0, possibleMobsToSpawn.size()-1)], gameCore->map->GetSpawn());
+			registry.emplace<PathfindingComponent>(demon, PathfindingComponent{ 0, 0 });
+		}
+		else if (gameCore->GetNonPlayerCount() < maxEnemies) // If we can spawn a new mob, decrement tick by one
+		{
+			nextSpawnTicks -= 1;
+		}
+
+		// TODO: Get target better than this
+		auto& target = registry.get<PhysicsBodyComponent>(gameCore->mobs[1]);
 
 		for (auto entity : registry.view<MobComponent, PhysicsBodyComponent, PathfindingComponent>())
 		{
@@ -102,11 +122,6 @@ namespace UpdateSystems
 				mob.horizontalMoveDir = 0.0f;
 			}
 		}
-
-		if (gameCore->frameCounter % pathfindingRate == 0)
-		{
-			printf("Total pathfinding time: %lf\n", totalTime);
-		}
 	}
 
 	void ECSMobTextureRegionUpdateSystem(GameCore* gameCore, float deltaTime)
@@ -174,6 +189,11 @@ namespace UpdateSystems
 		{
 			auto& body = registry.get<PhysicsBodyComponent>(entity);
 			auto& mob = registry.get<MobComponent>(entity);
+
+			if (mob.invencibilityTicks > 0)
+			{
+				mob.invencibilityTicks -= 1;
+			}
 
 			if (mob.wantsToShoot && !mob.readyToShoot)
 			{

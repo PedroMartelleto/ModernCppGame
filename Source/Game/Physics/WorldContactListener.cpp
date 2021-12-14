@@ -28,6 +28,7 @@ struct InteractionActors
 
 void AddActorsToInteraction(FixtureUserData* userData, b2Fixture* fixture, InteractionActors& actors)
 {
+	// Maintains lists of objects involved in some interaction (contact, post solve ...)
 	if (fixture->GetBody()->GetType() == b2_staticBody)
 	{
 		actors.staticMapFixtures.push_back(ContactData<void>{nullptr, fixture});

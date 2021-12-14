@@ -66,15 +66,18 @@ namespace Spawner
 			return entt::null;
 		}
 
+		// Creates ECS entity and mob component
 		auto entity = gameCore->registry.create();
 		auto mobComponent = GameData::GetMobData(charName, mobID);
 		registry.emplace<MobComponent>(entity, mobComponent);
 
+		// Setups atlas
 		auto atlas = gameCore->GetAtlas(mobComponent.atlas);
 		auto& anim = registry.emplace<AnimationComponent>(entity, atlas, charName + "_idle_anim");
 		anim.tickRate = mobComponent.idleTickRate;
 		auto region = anim.GetRect();
 
+		// Setups physics and rendering
 		registry.emplace<SensorComponent>(entity);
 
 		auto dynamicBody = CreateDynamicBoxBody(gameCore, mobComponent.density, pos,
@@ -85,6 +88,17 @@ namespace Spawner
 		registry.emplace<PhysicsBodyComponent>(entity, dynamicBody, mobComponent.dragMultiplier);
 		registry.emplace<SpriteComponent>(entity, atlas->texture, 100, -(mobComponent.GetAABB().pos() + region.size() / 2.0f) * map->mapScale,
 										  region.size() * map->mapScale, Colors::WHITE);
+
+		// If this mob has access to a projectile, give it its projectiles
+		if (mobComponent.ammo > 0)
+		{
+			std::vector<ProjectileData> inventory;
+			for (int i = 0; i < mobComponent.ammo; ++i)
+			{
+				inventory.push_back(GameData::GetProjectileData(mobComponent.projectile));
+			}
+			registry.emplace<ProjectileInventoryComponent>(entity, ProjectileInventoryComponent{ inventory });
+		}
 
 		gameCore->mobs[mobComponent.mobID] = entity;
 
@@ -110,13 +124,6 @@ namespace Spawner
 			registry.emplace<LocalInputComponent>(player, input);
 			gameCore->localPlayerCount += 1;
 		}
-
-		std::vector<ProjectileData> temp;
-		for (int i = 0; i < 50; ++i)
-		{
-			temp.push_back(rand() % 2 == 0 ? GameData::GetProjectileData("arrow") : GameData::GetProjectileData("sword"));
-		}
-		registry.emplace<ProjectileInventoryComponent>(player, ProjectileInventoryComponent{ temp });
 
 		return player;
 	}

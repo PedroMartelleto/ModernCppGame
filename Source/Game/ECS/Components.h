@@ -88,13 +88,24 @@ struct ProjectileInventoryComponent
 struct MobComponent
 {
 public:
+	/// <summary>
+	/// General config (mob id, atlas, name...)
+	/// </summary>
 	MobID mobID = 0;
 	ResourceID atlas = 0;
 	std::string name = "";
+	int8_t playerIndex = -1;
+	nlohmann::json aabb;
 
+	/// <summary>
+	/// Tick rates for the animations.
+	/// </summary>
 	uint16_t idleTickRate = 10;
 	uint16_t runTickRate = 10;
 
+	/// <summary>
+	/// Movement-related variables.
+	/// </summary>
 	float density = 0.0f;
 	float horizontalImpulse = 0.0f;
 	float maxHorizontalSpeed = 0.0f;
@@ -102,21 +113,50 @@ public:
 	float horizontalMoveDir = 0.0f;
 	float jumpHeight = 0.0f;
 
-	ProjectileDirection shootDirection;
-	
-	int maxHealth = 3;
-	int8_t playerIndex = -1;
-	float health = 3.0f;
 	bool wantsToJump = false;
 	bool wantsToShoot = false;
+
+	/// <summary>
+	/// As long as this value is greater than 0, this mob cannot take damage.
+	/// </summary>
+	int16_t invencibilityTicks = 0;
+	int16_t maxInvencibilityTicks = 30;
+
+	/// <summary>
+	/// Projectile-related.
+	/// </summary>
+	ProjectileDirection shootDirection;
 	bool readyToShoot = false;
 	Timestamp lastShotTime = 0.0;
-	nlohmann::json aabb;
+	std::string projectile = "";
+	uint16_t ammo = 0;
+
+	/// <summary>
+	/// Health-related.
+	/// </summary>
+	float maxHealth = 3;
+	float health = 3.0f;
+	float contactDamage = 0.0f;
 
 	BitBuffer8 CreateEventBitBuffer() const;
 
 	inline Rect2D GetAABB() const { return Rect2D(aabb["x"], aabb["y"], aabb["width"], aabb["height"]); }
 	inline bool IsPlayer() const { return playerIndex >= 0; }
+
+	inline void Damage(float dmg)
+	{
+		assert(dmg >= 0.0f);
+		if (invencibilityTicks <= 0)
+		{
+			health -= dmg;
+		}
+
+		// If the mob actually took damage, it should not receive damage again in the subsequent frames
+		if (dmg > 0.0f)
+		{
+			invencibilityTicks = maxInvencibilityTicks;
+		}
+	}
 };
 
 
@@ -143,6 +183,6 @@ struct LocalInputComponent
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, maxHealth, idleTickRate, runTickRate, atlas, health, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, projectile, ammo, maxInvencibilityTicks, contactDamage, maxHealth, idleTickRate, runTickRate, atlas, health, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

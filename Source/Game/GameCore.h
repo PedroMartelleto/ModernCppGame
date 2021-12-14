@@ -64,6 +64,12 @@ public:
 	// Rendering
 	Ref<ResourceManager> resourceManager;
 	Ref<TileMap> map;
+
+	/// <summary>
+	/// Gets the number of mobs that are not a player (eg. enemies).
+	/// </summary>
+	/// <returns>Integer with the count.</returns>
+	int GetNonPlayerCount() const;
 private:
 	const HostType m_hostType;
 	Array<b2WeldJointDef> m_weldJoints;

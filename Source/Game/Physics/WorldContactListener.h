@@ -27,11 +27,26 @@ struct WorldContactListener : public b2ContactListener
 		gameCore(gameCore),
 		worldInteractionHandler(gameCore) {}
 
+	/// <summary>
+	/// Called when two box 2d objects begin contacting each other.
+	/// </summary>
+	/// <param name="contact"></param>
 	void BeginContact(b2Contact* contact) override;
+	
+	/// <summary>
+	/// Called when two box 2d objects finish contacting each other.
+	/// </summary>
+	/// <param name="contact"></param>
 	void EndContact(b2Contact* contact) override;
 
+	/// <summary>
+	/// Called after a collision has been resolved.
+	/// </summary>
 	void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 private:
+	/// <summary>
+	/// Our callback handler for contacts and post solves.
+	/// </summary>
 	void OnInteraction(InteractionFlag flag, FixtureUserData* userDataA, FixtureUserData* userDataB,
 					   b2Fixture* fixtureA, b2Fixture* fixtureB, b2Contact* contact);
 };

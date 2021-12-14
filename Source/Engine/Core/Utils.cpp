@@ -42,14 +42,26 @@ namespace Utils
 		return buffer.str();
 	}
 
+	static bool firstRand = true;
+
 	int RandomInt(int min, int max)
 	{
-		static bool first = true;
-		if (first)
+		if (firstRand)
 		{
 			srand((unsigned int) time(NULL));
-			first = false;
+			firstRand = false;
 		}
 		return min + rand() % ((max + 1) - min);
+	}
+
+	float FastRandomFloat(float min, float max)
+	{
+		if (firstRand)
+		{
+			srand((unsigned int)time(NULL));
+			firstRand = false;
+		}
+		float r = static_cast <float>(rand()) / static_cast <float>(RAND_MAX);
+		return min + (max - min) * r;
 	}
 };

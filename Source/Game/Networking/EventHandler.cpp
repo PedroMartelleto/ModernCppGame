@@ -82,18 +82,6 @@ namespace EventHandler
 						Spawner::SpawnPlayer(gameCore, ev->mobIDs[i], ev->charNames[i],
 							Vec2f(ev->positions[i].first, ev->positions[i].second), isLocal);
 					}
-
-					// NOTE: Temp code below for testing pathfinding graphs
-					std::vector<WorldNodeID> nodeIDs;
-					for (const auto& [key, _] : gameCore->map->pathfindingGraph->nodes) {
-						nodeIDs.push_back(key);
-					}
-
-					for (int i = 0; i < 5; ++i)
-					{
-						auto demon = Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), "chort", gameCore->map->GetSpawn());
-						registry.emplace<PathfindingComponent>(demon, PathfindingComponent{ 0, 0 });
-					}
 				}
 				break;
 			}

@@ -23,6 +23,12 @@ GameCore::GameCore(Core* core, HostType hostType) :
 	physicsWorld.SetContactListener(worldContactListener.get());
 }
 
+int GameCore::GetNonPlayerCount() const
+{
+	assert(playerIndex >= 0);
+	return mobs.size() - playerIndex - 1;
+}
+
 void GameCore::AddJointWhenPossible(const b2WeldJointDef& jointDef)
 {
 	m_weldJoints.push_back(jointDef);

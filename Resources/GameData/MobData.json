@@ -16,7 +16,11 @@
       "height": 16
     },
     "idleTickRate": 15,
-    "runTickRate": 12
+    "runTickRate": 12,
+    "contactDamage": 0,
+    "maxInvencibilityTicks": 24,
+    "projectile": "sword",
+    "ammo": 20
   },
   "elf_m": {
     "atlas": 0,
@@ -35,7 +39,11 @@
       "height": 16
     },
     "idleTickRate": 10,
-    "runTickRate": 7
+    "runTickRate": 7,
+    "contactDamage": 0,
+    "maxInvencibilityTicks": 24,
+    "projectile": "arrow",
+    "ammo": 15
   },
   "wizzard_m": {
     "atlas": 0,
@@ -54,7 +62,11 @@
       "height": 16
     },
     "idleTickRate": 10,
-    "runTickRate": 7
+    "runTickRate": 7,
+    "contactDamage": 0,
+    "maxInvencibilityTicks": 24,
+    "projectile": "fire",
+    "ammo": 10
   },
   "lizard_m": {
     "atlas": 0,
@@ -73,7 +85,11 @@
       "height": 16
     },
     "idleTickRate": 10,
-    "runTickRate": 7
+    "runTickRate": 7,
+    "contactDamage": 0,
+    "maxInvencibilityTicks": 24,
+    "projectile": "sword",
+    "ammo": 20
   },
   "big_demon": {
     "atlas": 0,
@@ -92,7 +108,11 @@
       "height": 28
     },
     "idleTickRate": 10,
-    "runTickRate": 7
+    "runTickRate": 7,
+    "contactDamage": 1.5,
+    "maxInvencibilityTicks": 0,
+    "projectile": "fire",
+    "ammo": 0
   },
   "chort": {
     "atlas": 0,
@@ -111,6 +131,10 @@
       "height": 11
     },
     "idleTickRate": 10,
-    "runTickRate": 7
+    "runTickRate": 7,
+    "contactDamage": 0.5,
+    "maxInvencibilityTicks": 0,
+    "projectile": "fire",
+    "ammo": 0
   }
 }
