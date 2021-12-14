@@ -2,12 +2,16 @@
 
 ## TODO
 
+* Font rendering
+
 * Remove dead mobs from map
 * Game structure and UI
 	* Win/lose screen & menu
 
 * Get player target
 * Random walk mobs w/ different colors
+
+* Test pathfinding (single-thread + draw on-screen)
 
 * Render "arrow count"
 

@@ -32,9 +32,10 @@ namespace UpdateSystems
 			nextSpawnTicks = (int)(Utils::FastRandomFloat(spawnPeriodicityMax, spawnPeriodicityMax) * 60);
 
 			std::vector<std::string> possibleMobsToSpawn = { "big_demon", "chort" };
+			auto mobToSpawn = possibleMobsToSpawn[Utils::RandomInt(0, possibleMobsToSpawn.size() - 1)];
 
-			auto demon = Spawner::SpawnMob(gameCore, gameCore->CreateMobID(), possibleMobsToSpawn[Utils::RandomInt(0, possibleMobsToSpawn.size()-1)], gameCore->map->GetSpawn());
-			registry.emplace<PathfindingComponent>(demon, PathfindingComponent{ 0, 0 });
+			auto enemy = Spawner::SpawnEnemyMob(gameCore, gameCore->CreateMobID(), mobToSpawn, gameCore->map->GetSpawn());
+			registry.emplace<PathfindingComponent>(enemy, PathfindingComponent{ 0, 0 });
 		}
 		else if (gameCore->GetNonPlayerCount() < maxEnemies) // If we can spawn a new mob, decrement tick by one
 		{

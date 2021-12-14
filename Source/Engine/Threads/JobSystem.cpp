@@ -1,8 +1,11 @@
 #include "JobSystem.h"
 #include "../Core/Logger.h"
 
-/// Number of threads reserved for the Operating System
+/// Number of threads reserved for the Operating System.
 #define NUM_RESERVED_THREADS 0
+
+/// Minimum number of threads to be spawned.
+#define MIN_THREADS 1
 
 Ref<JobSystem> JobSystem::master = CreateRef<JobSystem>();
 
@@ -10,16 +13,7 @@ JobSystem::JobSystem()
 {
 	// Spawns the maximum amount of parallel threads that this system supports
 	m_threadCount = (int)std::thread::hardware_concurrency() - 1 - NUM_RESERVED_THREADS;
-
-	if (m_threadCount <= 0)
-	{
-		m_threadCount = 1;
-	}
-
-	if (m_threadCount > MAX_THREADS)
-	{
-		m_threadCount = MAX_THREADS;
-	}
+	m_threadCount = std::clamp<int>(m_threadCount, MIN_THREADS, MAX_THREADS);
 
 	m_isRunning = new std::atomic_bool[m_threadCount];
 

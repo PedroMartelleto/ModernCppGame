@@ -6,6 +6,7 @@ void Job::Wait()
 {
 	JobFunction jobFn;
 
+	// While we need to wait...
 	while (!m_isCompleteSemaphore.try_acquire())
 	{
 		// Dequeues a job and runs it
@@ -17,10 +18,19 @@ void Job::Wait()
 
 Job* Job::Schedule()
 {
-	JobSystem::master->Execute([this]()
+	if (JobSystem::master->m_threadCount <= 0)
 	{
 		callback();
 		m_isCompleteSemaphore.release();
-	});
+	}
+	else
+	{
+		JobSystem::master->Execute([this]()
+		{
+			callback();
+			m_isCompleteSemaphore.release();
+		});
+	}
+
 	return this;
 }
