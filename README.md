@@ -2,15 +2,19 @@
 
 ## TODO
 
-* Remove mob function
-* Remove dead mobs from map
+* Projectile pickup (using jobs)
 
-* Get player target
 * Test pathfinding (single-thread + draw on-screen)
+* Get player target
+
+* UI: "Arrow count"
+* UI: Scores
 
 * Random walk mobs w/ different colors
 
-* Render "arrow count"
+----
+
+* Sounds
 
 ----
 
@@ -21,6 +25,7 @@
 	* Spawning enemies
 	* Spawning projectiles
 	* Adding joints?
+	* Remove mobs
 
 ---
 

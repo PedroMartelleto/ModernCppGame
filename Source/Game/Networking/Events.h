@@ -4,6 +4,11 @@
 #include "../ECS/Components.h"
 #include "../Physics/WorldSnapshotEvent.h"
 
+struct RemoveMobsEvent
+{
+	std::vector<MobID> mobIDs;
+};
+
 struct MapDataEvent
 {
 	std::string mapXMLContents;

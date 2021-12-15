@@ -20,13 +20,13 @@
     "contactDamage": 0,
     "maxInvencibilityTicks": 24,
     "projectile": "sword",
-    "ammo": 20
+    "initialAmmo": 20
   },
   "elf_m": {
     "atlas": 0,
     "name": "elf_m",
-    "health": 1.0,
-    "maxHealth": 1.0,
+    "health": 2.0,
+    "maxHealth": 2.0,
     "density": 1,
     "dragMultiplier": 10.0,
     "horizontalImpulse": 4.0,
@@ -43,7 +43,7 @@
     "contactDamage": 0,
     "maxInvencibilityTicks": 24,
     "projectile": "arrow",
-    "ammo": 15
+    "initialAmmo": 15
   },
   "wizzard_m": {
     "atlas": 0,
@@ -66,7 +66,7 @@
     "contactDamage": 0,
     "maxInvencibilityTicks": 24,
     "projectile": "fire",
-    "ammo": 10
+    "initialAmmo": 10
   },
   "lizard_m": {
     "atlas": 0,
@@ -89,13 +89,13 @@
     "contactDamage": 0,
     "maxInvencibilityTicks": 24,
     "projectile": "sword",
-    "ammo": 20
+    "initialAmmo": 20
   },
   "big_demon": {
     "atlas": 0,
     "name": "big_demon",
-    "health": 6,
-    "maxHealth": 6,
+    "health": 1,
+    "maxHealth": 1,
     "density": 1,
     "dragMultiplier": 10.0,
     "horizontalImpulse": 4.0,
@@ -112,7 +112,7 @@
     "contactDamage": 1.5,
     "maxInvencibilityTicks": 0,
     "projectile": "fire",
-    "ammo": 0
+    "initialAmmo": 0
   },
   "chort": {
     "atlas": 0,
@@ -135,6 +135,6 @@
     "contactDamage": 0.5,
     "maxInvencibilityTicks": 0,
     "projectile": "fire",
-    "ammo": 0
+    "initialAmmo": 0
   }
 }

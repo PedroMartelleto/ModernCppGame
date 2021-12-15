@@ -129,7 +129,7 @@ public:
 	bool readyToShoot = false;
 	Timestamp lastShotTime = 0.0;
 	std::string projectile = "";
-	uint16_t ammo = 0;
+	uint16_t initialAmmo = 0;
 
 	/// <summary>
 	/// Health-related.
@@ -157,6 +157,12 @@ public:
 			invencibilityTicks = maxInvencibilityTicks;
 		}
 	}
+
+	/// <summary>
+	/// Resets the state of this mob (useful for spawning and resetting the game).
+	/// </summary>
+	/// <param name="inventory">Inventory.</param>
+	void Reset(ProjectileInventoryComponent* inventory);
 };
 
 
@@ -183,6 +189,6 @@ struct LocalInputComponent
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, projectile, ammo, maxInvencibilityTicks, contactDamage, maxHealth, idleTickRate, runTickRate, atlas, health, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, projectile, initialAmmo, maxInvencibilityTicks, contactDamage, maxHealth, idleTickRate, runTickRate, atlas, health, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

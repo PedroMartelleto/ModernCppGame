@@ -14,3 +14,22 @@ BitBuffer8 MobComponent::CreateEventBitBuffer() const
 
 	return buffer;
 }
+
+void MobComponent::Reset(ProjectileInventoryComponent* inventory)
+{
+	health = maxHealth;
+	invencibilityTicks = 0;
+	readyToShoot = false;
+	wantsToJump = false;
+
+	if (inventory != nullptr)
+	{
+		inventory->projectiles.clear();
+
+		// If this mob has access to a projectile, give it its projectiles
+		for (int i = 0; i < initialAmmo; ++i)
+		{
+			inventory->projectiles.push_back(GameData::GetProjectileData(projectile));
+		}
+	}
+}

@@ -68,6 +68,7 @@ namespace EventHandler
 				{
 					auto ev = std::static_pointer_cast<SpawnPlayersEvent>(event.data);
 
+					// If no positions were specified, randomly pick spawn positions from the map
 					if (ev->positions.size() <= 0)
 					{
 						for (const auto& pos : gameCore->map->GetSpawns(ev->mobIDs.size()))
@@ -81,6 +82,29 @@ namespace EventHandler
 						bool isLocal = ev->types[i] == gameCore->host->type;
 						Spawner::SpawnPlayer(gameCore, ev->mobIDs[i], ev->charNames[i],
 							Vec2f(ev->positions[i].first, ev->positions[i].second), isLocal);
+					}
+				}
+				break;
+				case EventType::RemoveMobs:
+				{
+					auto ev = std::static_pointer_cast<RemoveMobsEvent>(event.data);
+
+					for (auto mobID : ev->mobIDs)
+					{
+						// Removes entity from registry, removes its body and from the entity map
+						if (gameCore->mobs.find(mobID) != gameCore->mobs.end())
+						{
+							auto entity = gameCore->mobs[mobID];
+
+							auto* body = registry.try_get<PhysicsBodyComponent>(entity);
+							if (body != nullptr)
+							{
+								gameCore->physicsWorld.DestroyBody(body->body);
+							}
+
+							gameCore->registry.destroy(entity);
+							gameCore->mobs.erase(mobID);
+						}
 					}
 				}
 				break;

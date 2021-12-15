@@ -13,6 +13,7 @@ enum class EventType : NetworkByte
     // Client or server
     MobInputs,
     WorldSnapshot,
+    RemoveMobs,
 
     // Server only
     SpawnPlayers,

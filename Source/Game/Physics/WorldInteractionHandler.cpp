@@ -28,7 +28,7 @@ void WorldInteractionHandler::OnPostSolveMapProjectile(const ContactData<void>& 
 void WorldInteractionHandler::OnMobProjectileInteraction(InteractionFlag flag, const ContactData<MobComponent>& mobA,
 														 const ContactData<ProjectileComponent>& projectileB, b2Contact* contact)
 {
-	if (!projectileB.data->hasHitAnything && projectileB.fixture->IsSensor())
+	if (!projectileB.data->hasHitAnything && projectileB.fixture->IsSensor() && projectileB.fixture->GetBody()->GetLinearVelocity().LengthSquared() > 1.0f)
 	{
 		mobA.data->Damage(projectileB.data->projectileData.damage);
 		projectileB.data->hasHitAnything = true;

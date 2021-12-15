@@ -184,15 +184,23 @@ namespace UpdateSystems
 	{
 		auto& registry = gameCore->registry;
 
-		// Mob movement
+		// Mob movement, winner detection and removal of dead mobs
 		for (auto entity : registry.view<PhysicsBodyComponent, MobComponent>())
 		{
 			auto& body = registry.get<PhysicsBodyComponent>(entity);
 			auto& mob = registry.get<MobComponent>(entity);
 
-			if (mob.IsPlayer() && mob.health <= 0.0f)
+			if (mob.health <= 0.0f)
 			{
-				gameCore->SetWinner(mob.playerIndex == 0 ? 2 : 1);
+				if (mob.IsPlayer())
+				{
+					gameCore->SetWinner(mob.playerIndex == 0 ? 2 : 1);
+				}
+				else
+				{
+					// Safely removes this mob next update (we delay the removal to avoid logic errors and box 2d conflicts).
+					gameCore->host->eventQueue.Enqueue(EventType::RemoveMobs, CreateRef<RemoveMobsEvent>(RemoveMobsEvent{ {mob.mobID} }));
+				}
 			}
 
 			if (mob.invencibilityTicks > 0)

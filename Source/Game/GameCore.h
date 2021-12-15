@@ -16,6 +16,7 @@ namespace ZPlanes
 {
 	const float UI = 0.5f;
 	const float MOBS = 2.5f;
+	const float PROJECTILES = 4.5f;
 	const float MAP = 7.5f;
 	const float BACKGROUND = 8.5f;
 };
@@ -40,6 +41,10 @@ public:
 	/// <param name="jointDef"></param>
 	void AddJointWhenPossible(const b2WeldJointDef& jointDef);
 
+	/// <summary>
+	/// Called once a winner has been decided.
+	/// </summary>
+	/// <param name="winner">Player number of the winner.</param>
 	void SetWinner(int winner);
 
 	void Create();
@@ -72,7 +77,10 @@ public:
 	entt::registry registry; // ECS registry
 	uint64_t frameCounter = 0;
 	MobID globalMobID = 0;
+
 	std::unordered_map<MobID, entt::entity> mobs;
+	std::vector<entt::entity> players;
+
 	int localPlayerCount = 0;
 
 	// Physics

@@ -30,8 +30,34 @@ void GameCore::SetWinner(int winner)
 {
 	gameState = GameState::WIN_SCREEN;
 	this->winner = winner;
+	
+	std::vector<MobID> mobsToRemove;
+	auto nextSpawns = map->GetSpawns(4);
 
-	// TODO: Reset health, position, remove enemies
+	// Resets the health of the players and removes all other mobs from the map.
+	for (auto entity : registry.view<MobComponent>())
+	{
+		auto& mob = registry.get<MobComponent>(entity);
+
+		if (mob.IsPlayer())
+		{
+			mob.Reset(registry.try_get<ProjectileInventoryComponent>(entity));
+			
+			auto* body = registry.try_get<PhysicsBodyComponent>(entity);
+			if (body != nullptr)
+			{
+				body->body->SetTransform(Vec2fToB2(nextSpawns.back() * Game::PIXELS_TO_METERS), 0.0f);
+			}
+			nextSpawns.pop_back();
+		}
+		else
+		{
+			mobsToRemove.push_back(mob.mobID);
+		}
+	}
+
+	// Enqueues the remove mobs event.
+	host->eventQueue.Enqueue(EventType::RemoveMobs, CreateRef<RemoveMobsEvent>(mobsToRemove));
 }
 
 int GameCore::GetNonPlayerCount() const
@@ -80,8 +106,9 @@ void GameCore::Create()
 {
 	defaultFont = CreateRef<Font>("DefaultFont", resourceManager->GetTexture("DefaultFont/SpriteSheet.png", true),
 								  20, 20, " !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_ abcdefghijklmnopqrstuvwxyz{|}~                         ");
-	assert(defaultFont->characters.size() == 15 * 8);
+	assert(defaultFont->characters.size() == 15 * 8); // Ensures we actually have the right number of characters in the font specs
 
+	// Setups networking
 	host = CreateRef<NetworkHost>(this, m_hostType, "127.0.0.1");
 
 	if (m_hostType == HostType::SERVER)
@@ -104,6 +131,14 @@ void GameCore::PhysicsStep(float deltaTime)
 		for (const auto& jointDef : m_weldJoints)
 		{
 			physicsWorld.CreateJoint(&jointDef);
+			auto* fixture = jointDef.bodyB->GetFixtureList();
+			jointDef.bodyB->SetAwake(false);
+
+			while (fixture != nullptr)
+			{
+				fixture->SetSensor(true);
+				fixture = fixture->GetNext();
+			}
 		}
 
 		m_weldJoints.clear();
@@ -143,6 +178,7 @@ void GameCore::Update(float deltaTime)
 
 		frameCounter += 1;
 	}
+	// Simple transition states
 	else if (gameState == GameState::MAIN_MENU)
 	{
 		if (Input::IsKeyDown(Input::KEY_RETURN))
