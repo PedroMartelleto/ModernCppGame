@@ -26,6 +26,7 @@ struct PathfindingComponent
 
 struct ProjectileComponent
 {
+	entt::entity entityHandle;
 	ProjectileData projectileData;
 	bool hasHitAnything = false;
 };

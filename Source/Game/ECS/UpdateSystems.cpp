@@ -16,8 +16,8 @@ namespace UpdateSystems
 	int pathfindingRate = 30;
 
 	// Enemy spawning
-	float spawnPeriodicityMin = 5.0f;
-	float spawnPeriodicityMax = 15.0f;
+	float spawnPeriodicityMin = 3.5f;
+	float spawnPeriodicityMax = 8.5f;
 	int maxEnemies = 14;
 	int nextSpawnTicks = 0;
 

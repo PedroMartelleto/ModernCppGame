@@ -36,12 +36,6 @@ public:
 	void PhysicsStep(float deltaTime);
 
 	/// <summary>
-	/// Adds a joint to the physics world as soon as possible (may be called during callbacks to avoid adding a joint when the world is locked).
-	/// </summary>
-	/// <param name="jointDef"></param>
-	void AddJointWhenPossible(const b2WeldJointDef& jointDef);
-
-	/// <summary>
 	/// Called once a winner has been decided.
 	/// </summary>
 	/// <param name="winner">Player number of the winner.</param>
@@ -51,6 +45,11 @@ public:
 	void Update(float deltaTime);
 	void Render();
 	void Destroy();
+
+	/// <summary>
+	/// Removes the body of the given entity when it is safe.
+	/// </summary>
+	void QueueBodyForRemoval(entt::entity entity);
 
 	MobID CreateMobID();
 	int8_t CreatePlayerIndex();
@@ -100,9 +99,10 @@ public:
 	/// </summary>
 	/// <returns>Integer with the count.</returns>
 	int GetNonPlayerCount() const;
+
 private:
 	const HostType m_hostType;
-	Array<b2WeldJointDef> m_weldJoints;
+	Array<entt::entity> m_bodiesForRemoval;
 	Array<FixtureUserData*> m_fixturesUserData;
 };
 

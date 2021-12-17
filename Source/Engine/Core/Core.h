@@ -39,6 +39,8 @@ public:
 	void DEBUG_DrawBodyAABB(b2Body* body, const Color4f& color);
 	void DEBUG_DrawBody(b2Body* body, const Color4f& color);
 	void DEBUG_DrawLine(const Vec2f& m_start, const Vec2f& m_end, const Color4f& color = Colors::RED, float thickness = 4.0f);
+
+	float GetFrameTime() const;
 public:
 	GameCore* gameCore;
 	Ref<ResourceManager> resourceManager;

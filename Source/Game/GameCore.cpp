@@ -30,7 +30,20 @@ void GameCore::SetWinner(int winner)
 {
 	gameState = GameState::WIN_SCREEN;
 	this->winner = winner;
-	
+
+	// Removes projectiles
+	for (auto entity : registry.view<ProjectileComponent>())
+	{
+		auto* body = registry.try_get<PhysicsBodyComponent>(entity);
+
+		if (body != nullptr)
+		{
+			physicsWorld.DestroyBody(body->body);
+		}
+
+		registry.destroy(entity);
+	}
+
 	std::vector<MobID> mobsToRemove;
 	auto nextSpawns = map->GetSpawns(4);
 
@@ -47,6 +60,8 @@ void GameCore::SetWinner(int winner)
 			if (body != nullptr)
 			{
 				body->body->SetTransform(Vec2fToB2(nextSpawns.back() * Game::PIXELS_TO_METERS), 0.0f);
+				body->body->SetLinearVelocity(b2Vec2(0, 0));
+				body->body->SetAngularVelocity(0);
 			}
 			nextSpawns.pop_back();
 		}
@@ -66,11 +81,6 @@ int GameCore::GetNonPlayerCount() const
 	return mobs.size() - playerIndex - 1;
 }
 
-void GameCore::AddJointWhenPossible(const b2WeldJointDef& jointDef)
-{
-	m_weldJoints.push_back(jointDef);
-}
-
 MobID GameCore::CreateMobID()
 {
 	assert(m_hostType == HostType::SERVER);
@@ -88,6 +98,11 @@ void GameCore::DefineFixtureData(b2FixtureDef* fixtureDef, FixtureUserData* fixt
 {
 	m_fixturesUserData.push_back(fixtureData);
 	fixtureDef->userData.pointer = reinterpret_cast<uintptr_t>(m_fixturesUserData.back());
+}
+
+void GameCore::QueueBodyForRemoval(entt::entity entity)
+{
+	m_bodiesForRemoval.push_back(entity);
 }
 
 void GameCore::SetupServer()
@@ -125,23 +140,19 @@ void GameCore::PhysicsStep(float deltaTime)
 {
 	physicsWorld.Step(deltaTime, 6, 2);
 
-	// Adds joints to the world (if applicable)
-	if (m_weldJoints.size() > 0)
+	if (m_bodiesForRemoval.size() > 0)
 	{
-		for (const auto& jointDef : m_weldJoints)
+		// Removes bodies from the world
+		for (auto entityHandle : m_bodiesForRemoval)
 		{
-			physicsWorld.CreateJoint(&jointDef);
-			auto* fixture = jointDef.bodyB->GetFixtureList();
-			jointDef.bodyB->SetAwake(false);
-
-			while (fixture != nullptr)
+			auto* body = registry.try_get<PhysicsBodyComponent>(entityHandle);
+			if (body != nullptr)
 			{
-				fixture->SetSensor(true);
-				fixture = fixture->GetNext();
+				physicsWorld.DestroyBody(body->body);
+				registry.remove<PhysicsBodyComponent>(entityHandle);
 			}
 		}
-
-		m_weldJoints.clear();
+		m_bodiesForRemoval.clear();
 	}
 }
 

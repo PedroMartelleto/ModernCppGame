@@ -30,6 +30,11 @@ void Core::SetWindowSizeAndCenter(int width, int height)
 	m_window->SetWindowSizeAndCenter(width, height);
 }
 
+float Core::GetFrameTime() const
+{
+	return m_frameTime;
+}
+
 void Core::Render()
 {
 	auto viewMatrix = Matrix4f(1.0f);

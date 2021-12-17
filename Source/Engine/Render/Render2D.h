@@ -46,7 +46,7 @@ public:
 	inline static const float NEAR_PLANE = 0.002f;
 	inline static const float FAR_PLANE = MAX_Z + 1.0f;
 
-	static const size_t MaxQuadCount = 1024;
+	static const size_t MaxQuadCount = 4096;
 	static const size_t MaxVertexCount = MaxQuadCount * 4;
 	static const size_t MaxIndexCount = MaxQuadCount * 6;
 	static const size_t MaxTextures = RENDER2D_MAX_TEXTURES;

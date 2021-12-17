@@ -137,7 +137,7 @@ namespace Spawner
 
 		auto entity = gameCore->registry.create();
 		
-		registry.emplace<ProjectileComponent>(entity, projectileData);
+		registry.emplace<ProjectileComponent>(entity, entity, projectileData);
 		registry.emplace<SensorComponent>(entity);
 
 		auto atlas = gameCore->GetAtlas(projectileData.atlas);
