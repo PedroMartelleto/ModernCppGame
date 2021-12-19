@@ -4,21 +4,92 @@
 #include "../Spawner.h"
 #include "../../Engine/Pathfinding/AStarSearch.h"
 
-#define MAX_MOB_ID 4096
-
 namespace UpdateSystems
 {
+	#define MAX_PLAYERS 4
+	std::vector<entt::entity> nearProjectiles[MAX_PLAYERS] = { {} };
+	Job* nearProjectilesJobs[MAX_PLAYERS] = { nullptr };
+
+	int nearProjectilesRate = 4;
+
+	void StandbyProjectileUpdateSystem(GameCore* gameCore, float deltaTime)
+	{
+		auto& registry = gameCore->registry;
+		const auto& map = gameCore->map;
+
+		// Every N frames, check if there are projectiles near the player
+		if (gameCore->frameCounter % nearProjectilesRate == 0)
+		{
+			for (uint32_t i = 0; i < gameCore->players.size(); ++i)
+			{
+				auto playerHandle = gameCore->players[i];
+
+				// If a job was found...
+				if (nearProjectilesJobs[i] != nullptr)
+				{
+					// Waits for its completion and frees memory.
+					nearProjectilesJobs[i]->Wait();
+					delete nearProjectilesJobs[i];
+					nearProjectilesJobs[i] = nullptr;
+
+					// Gets the result (at this point, we can be sure that there is no other thread accessing nearProjectiles).
+					for (auto projHandle : nearProjectiles[i])
+					{
+						// Picks up projectile
+ 						auto& inventory = registry.get<ProjectileInventoryComponent>(playerHandle);
+						auto& projectile = registry.get<ProjectileComponent>(projHandle);
+						inventory.projectiles.push_back(projectile.projectileData);
+						registry.destroy(projHandle);
+					}
+
+					nearProjectiles[i].clear();
+				}
+
+				// Gets projectiles to test if they are near the player
+				std::vector<std::pair<Vec2f, entt::entity>> standbyProjectiles;
+				Vec2f targetPos = Vec2fFromB2(registry.get<PhysicsBodyComponent>(playerHandle).body->GetPosition()) * Game::METERS_TO_PIXELS;
+
+				for (auto projHandle : registry.view<ProjectileComponent, SpriteComponent>())
+				{
+					auto& projectile = registry.get<ProjectileComponent>(projHandle);
+					auto& sprite = registry.get<SpriteComponent>(projHandle);
+
+					if (projectile.hasHitAnything && projectile.projectileData.owner == playerHandle)
+					{
+						standbyProjectiles.push_back({ sprite.pos, projectile.entityHandle });
+					}
+				}
+
+				static const float pickupDistance = 1.7f * map->scaledTileSize.x;
+
+				// Schedules a new job
+				nearProjectilesJobs[i] = (new Job([i, standbyProjectiles, targetPos]()
+				{
+					for (const auto& nearProjectile : standbyProjectiles)
+					{
+						if (Math::DistanceSquared(nearProjectile.first, targetPos) < pickupDistance * pickupDistance)
+						{
+							nearProjectiles[i].push_back(nearProjectile.second);
+						}
+					}
+				}))->Schedule();
+			}
+		}
+	}
+
+	#define MAX_MOB_ID 4096
+
 	// Dictionaries that map mob id to pathfinding data
 	// We need to use arrays since they are thread-safe (as long each thread accesses different indices).
 	std::pair<WorldNodeID, WorldNodeID> shortestPaths[MAX_MOB_ID] = { {0, 0} };
 	Job* pathfindingJobs[MAX_MOB_ID] = { nullptr };
 
-	int pathfindingRate = 30;
+	int pathfindingRate = 20;
 
 	// Enemy spawning
 	float spawnPeriodicityMin = 3.5f;
 	float spawnPeriodicityMax = 8.5f;
-	int maxEnemies = 14;
+	int maxEnemies = 12;
 	int nextSpawnTicks = 0;
 
 	void ECSMobPathfindingUpdateSystem(GameCore* gameCore, float deltaTime)
@@ -34,15 +105,20 @@ namespace UpdateSystems
 			std::vector<std::string> possibleMobsToSpawn = { "big_demon", "chort" };
 			auto mobToSpawn = possibleMobsToSpawn[Utils::RandomInt(0, possibleMobsToSpawn.size() - 1)];
 
+			if (Utils::FastRandomFloat(0, 1) < 0.1f)
+			{
+				mobToSpawn = "crazy_demon";
+			}
+
+			// Picks a random player to be the target mob
+			auto targetMob = registry.get<MobComponent>(gameCore->players[Utils::RandomInt(0, gameCore->players.size()-1)]).mobID;
 			auto enemy = Spawner::SpawnEnemyMob(gameCore, gameCore->CreateMobID(), mobToSpawn, gameCore->map->GetSpawn());
-			registry.emplace<PathfindingComponent>(enemy, PathfindingComponent{ 0, 0 });
+			registry.emplace<PathfindingComponent>(enemy, PathfindingComponent{ 0, 0, targetMob });
 		}
 		else if (gameCore->GetNonPlayerCount() < maxEnemies) // If we can spawn a new mob, decrement tick by one
 		{
 			nextSpawnTicks -= 1;
 		}
-
-		auto& target = registry.get<PhysicsBodyComponent>(gameCore->mobs[1]);
 
 		for (auto entity : registry.view<MobComponent, PhysicsBodyComponent, PathfindingComponent>())
 		{
@@ -50,17 +126,22 @@ namespace UpdateSystems
 			auto& pathfinding = registry.get<PathfindingComponent>(entity);
 			auto* body = registry.get<PhysicsBodyComponent>(entity).body;
 
+			auto& target = registry.get<PhysicsBodyComponent>(gameCore->mobs[pathfinding.targetMob]);
+
 			auto mobPos = Vec2fFromB2((Game::METERS_TO_PIXELS / map->mapScale) * body->GetPosition());
 			auto targetPos = Vec2fFromB2((Game::METERS_TO_PIXELS / map->mapScale) * target.body->GetPosition());
 
-			// Follows target directly
-			if (mobPos.x < targetPos.x - 3.0f)
+			if (!mob.randomWalk)
 			{
-				mob.horizontalMoveDir = 1.0f;
-			}
-			else if (mobPos.x > targetPos.x + 3.0f)
-			{
-				mob.horizontalMoveDir = -1.0f;
+				// Follows target directly
+				if (mobPos.x < targetPos.x - 3.0f)
+				{
+					mob.horizontalMoveDir = 1.0f;
+				}
+				else if (mobPos.x > targetPos.x + 3.0f)
+				{
+					mob.horizontalMoveDir = -1.0f;
+				}
 			}
 
 			// Every N frames, perform pathfinding
@@ -81,20 +162,39 @@ namespace UpdateSystems
 					pathfinding.currentNode = shortestPaths[mobID].first;
 					pathfinding.destNode = shortestPaths[mobID].second;
 				}
+
+				auto randomWalk = mob.randomWalk;
 				
+				if (randomWalk)
+				{
+					mob.wantsToJump = true;
+				}
+
+				auto nextNode = pathfinding.destNode;
+
 				// Schedules a new job
-				pathfindingJobs[mobID] = (new Job([graph, mobID, mobPos, targetPos]()
+				pathfindingJobs[mobID] = (new Job([graph, mobID, mobPos, targetPos, nextNode, randomWalk]()
 				{
 					auto srcID = graph->GetClosestNode(mobPos);
-					auto targetNodeID = graph->GetClosestNode(targetPos);
-					auto path = AStarSearch::FindShortestPath(*graph, srcID, targetNodeID, [](const Vec2f& a, const Vec2f& b) { return 0.0f; });
-					shortestPaths[mobID] = { srcID, path[srcID] };
+					if (!randomWalk)
+					{
+						auto targetNodeID = graph->GetClosestNode(targetPos);
+						auto path = AStarSearch::FindShortestPath(*graph, srcID, targetNodeID, [](const Vec2f& a, const Vec2f& b) { return 0.0f; });
+						shortestPaths[mobID] = { srcID, path[srcID] };
+					}
+					else
+					{
+						shortestPaths[mobID].first = srcID;
+						if (srcID == nextNode || srcID == 0 || nextNode == 0)
+						{
+							const auto& links = graph->at(srcID).links;
+							shortestPaths[mobID].second = links[Utils::RandomInt(0, links.size() - 1)].dst;
+						}
+					}
 				}))->Schedule();
 			}
 
-			mob.horizontalMoveDir = 0.0f;
-
-			if (pathfinding.currentNode == 0 || pathfinding.destNode  == 0) continue;
+			if (pathfinding.currentNode == 0 || pathfinding.destNode == 0) continue;
 
 			const auto& srcNode = map->pathfindingGraph->at(pathfinding.currentNode);
 			const auto& nextNode = map->pathfindingGraph->at(pathfinding.destNode);
@@ -183,7 +283,6 @@ namespace UpdateSystems
 	void ECSMobBodyUpdateSystem(GameCore* gameCore, float deltaTime)
 	{
 		auto& registry = gameCore->registry;
-
 		// Mob movement, winner detection and removal of dead mobs
 		for (auto entity : registry.view<PhysicsBodyComponent, MobComponent>())
 		{
@@ -224,15 +323,29 @@ namespace UpdateSystems
 				}
 			}
 
-			if (mob.wantsToJump)
+			if (mob.wantsToJump || (mob.jumpStartTimestamp > 0 && mob.jumpStartTimestamp < 0.05))
 			{
 				auto* sensorComponent = registry.try_get<SensorComponent>(entity);
 
 				if (sensorComponent != nullptr && sensorComponent->IsColliding())
 				{
-					auto impulse = b2Vec2(0.0f, -mob.jumpHeight * body.body->GetMass());
-					body.body->ApplyLinearImpulse(impulse, b2Vec2(0, 0), true);
+					auto force = b2Vec2(0.0f, -mob.jumpHeight * body.body->GetMass() * 50.0f);
+					body.body->ApplyForceToCenter(force, true);
+					mob.jumpStartTimestamp = Timer::GetTime();
 				}
+			}
+
+
+			if (mob.jumpStartTimestamp > 0 && Timer::GetTime() - mob.jumpStartTimestamp >= 0.4)
+			{
+				auto force = b2Vec2(0.0f, gameCore->physicsWorld.GetGravity().y * 0.85f);
+
+				if (Timer::GetTime() - mob.jumpStartTimestamp >= 0.65)
+				{
+					force.y *= 1.3f;
+				}
+
+				body.body->ApplyForceToCenter(force, true);
 			}
 
 			// Movement impulse
@@ -362,6 +475,8 @@ namespace UpdateSystems
 
 	void Cleanup()
 	{
+		// Cleans up any jobs that were not done yet.
+
 		for (int i = 0; i < MAX_MOB_ID; ++i)
 		{
 			if (pathfindingJobs[i] != nullptr)
@@ -369,6 +484,16 @@ namespace UpdateSystems
 				pathfindingJobs[i]->Wait();
 				delete pathfindingJobs[i];
 				pathfindingJobs[i] = nullptr;
+			}
+		}
+
+		for (int i = 0; i < MAX_PLAYERS; ++i)
+		{
+			if (nearProjectilesJobs[i] != nullptr)
+			{
+				nearProjectilesJobs[i]->Wait();
+				delete nearProjectilesJobs[i];
+				nearProjectilesJobs[i] = nullptr;
 			}
 		}
 	}

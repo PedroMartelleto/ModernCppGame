@@ -4,6 +4,8 @@
 #include "../Networking/BitBuffer.h"
 #include "../Physics/Projectile.h"
 
+using MobID = uint32_t;
+
 // We are using ECS, so we need to define components: minimal pieces of data used in the game
 
 struct PhysicsBodyComponent
@@ -22,6 +24,7 @@ struct PathfindingComponent
 {
 	WorldNodeID currentNode;
 	WorldNodeID destNode;
+	MobID targetMob;
 };
 
 struct ProjectileComponent
@@ -61,6 +64,12 @@ struct SpriteComponent
 	Vec2f pos = Vec2f(0, 0);
 	Vec2f size = Vec2f(0, 0);
 	Color4f tint = Colors::WHITE;
+	float angle = 0.0f;
+
+	/// <summary>
+	/// Helper flag used when creating standby arrows.
+	/// </summary>
+	bool transformedFlag = false;
 
 	SpriteComponent(const Ref<Texture2D>& texture, float zIndex, const Vec2f& pos, const Vec2f& size, const Color4f& tint = Colors::WHITE) :
 		texture(texture), pos(pos), size(size), tint(tint), zIndex(zIndex) {}
@@ -78,8 +87,6 @@ struct DEBUG_PhysicsBodyDrawComponent
 		const Color4f& polyColor = Colors::BLACK) :
 		drawAABB(drawAABB), drawPoly(drawPoly), aabbColor(aabbColor), polyColor(polyColor) {}
 };
-
-using MobID = uint32_t;
 
 struct ProjectileInventoryComponent
 {
@@ -116,6 +123,10 @@ public:
 
 	bool wantsToJump = false;
 	bool wantsToShoot = false;
+
+	bool randomWalk = false;
+
+	Timestamp jumpStartTimestamp = 0;
 
 	/// <summary>
 	/// As long as this value is greater than 0, this mob cannot take damage.
@@ -190,6 +201,6 @@ struct LocalInputComponent
 
 namespace Serialization
 {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, projectile, initialAmmo, maxInvencibilityTicks, contactDamage, maxHealth, idleTickRate, runTickRate, atlas, health, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MobComponent, randomWalk, projectile, initialAmmo, maxInvencibilityTicks, contactDamage, maxHealth, idleTickRate, runTickRate, atlas, health, name, density, horizontalImpulse, maxHorizontalSpeed, dragMultiplier, jumpHeight, aabb)
 	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LocalInputComponent, inputCodes)
 }

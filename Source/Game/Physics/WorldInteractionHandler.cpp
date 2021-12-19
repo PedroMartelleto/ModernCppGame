@@ -2,23 +2,42 @@
 #include "../GameCore.h"
 #include "../GameData.h"
 
-#define PROJECTILE_STICK_MAP_HARDNESS 3.6f
+#define PROJECTILE_STICK_MAP_HARDNESS 4.5f
 
 void WorldInteractionHandler::OnPostSolveMapProjectile(const ContactData<void>& mapA, const ContactData<ProjectileComponent>& projectileB,
 													   b2Contact* contact, const b2ContactImpulse* impulse)
 {
+	auto* sprite = gameCore->registry.try_get<SpriteComponent>(projectileB.data->entityHandle);
+	if (sprite != nullptr)
+	{
+		b2WorldManifold manifold;
+		contact->GetWorldManifold(&manifold);
+
+		if (!sprite->transformedFlag)
+		{
+			b2Vec2 stickPos = projectileB.fixture->GetBody()->GetPosition();
+
+			if (contact->GetManifold()->pointCount > 0 && impulse->normalImpulses[0] > PROJECTILE_STICK_MAP_HARDNESS)
+			{
+				stickPos = manifold.points[contact->GetManifold()->pointCount - 1];
+			}
+
+			sprite->pos += Vec2fFromB2(stickPos) * Game::METERS_TO_PIXELS;
+			sprite->angle = projectileB.fixture->GetBody()->GetAngle();
+			sprite->transformedFlag = true;
+		}
+	}
+
 	gameCore->QueueBodyForRemoval(projectileB.data->entityHandle);
 	projectileB.data->hasHitAnything = true;
-	// TODO: Adjust sprite component location so that is actually renders
 }
 
 void WorldInteractionHandler::OnMobProjectileInteraction(InteractionFlag flag, const ContactData<MobComponent>& mobA,
 														 const ContactData<ProjectileComponent>& projectileB, b2Contact* contact)
 {
-	if (!projectileB.data->hasHitAnything && projectileB.fixture->IsSensor() && projectileB.fixture->GetBody()->GetLinearVelocity().LengthSquared() > 1.0f)
+	if (projectileB.fixture->IsSensor() && projectileB.fixture->GetBody()->GetLinearVelocity().LengthSquared() > 1.0f)
 	{
 		mobA.data->Damage(projectileB.data->projectileData.damage);
-		projectileB.data->hasHitAnything = true;
 	}
 }
 
@@ -49,5 +68,13 @@ void WorldInteractionHandler::OnMobMobInteraction(InteractionFlag flag, const Co
 			HandleMobContact(mobA, mobB);
 			HandleMobContact(mobB, mobA);
 		}
+	}
+}
+
+void WorldInteractionHandler::OnMobMapInteraction(InteractionFlag flag, const ContactData<MobComponent>& mobA, const ContactData<void>& mapB, b2Contact* contact)
+{
+	if (mobA.fixture->IsSensor() && Timer::GetTime() - mobA.data->jumpStartTimestamp > 0.1)
+	{
+		mobA.data->jumpStartTimestamp = 0;
 	}
 }

@@ -63,6 +63,10 @@ void WorldContactListener::OnInteraction(InteractionFlag flag, FixtureUserData* 
 	{
 		worldInteractionHandler.OnMobMobInteraction(flag, actors.mobs[0], actors.mobs[1], contact);
 	}
+	else if (actors.mobs.size() == 1 && actors.staticMapFixtures.size() == 1)
+	{
+		worldInteractionHandler.OnMobMapInteraction(flag, actors.mobs[0], actors.staticMapFixtures[0], contact);
+	}
 }
 
 void WorldContactListener::BeginContact(b2Contact* contact)

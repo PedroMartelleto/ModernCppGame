@@ -73,7 +73,7 @@ namespace Spawner
 
 		// Setups atlas
 		auto atlas = gameCore->GetAtlas(mobComponent.atlas);
-		auto& anim = registry.emplace<AnimationComponent>(entity, atlas, charName + "_idle_anim");
+		auto& anim = registry.emplace<AnimationComponent>(entity, atlas, mobComponent.name + "_idle_anim");
 		anim.tickRate = mobComponent.idleTickRate;
 		auto region = anim.GetRect();
 
@@ -101,6 +101,7 @@ namespace Spawner
 
 	entt::entity SpawnEnemyMob(GameCore* gameCore, MobID mobID, const std::string& charName, const Vec2f& pos)
 	{
+		LOGGER_VAR(charName);
 		auto entity = SpawnMob(gameCore, mobID, charName, pos);
 		return entity;
 	}
@@ -124,7 +125,7 @@ namespace Spawner
 		return player;
 	}
 
-	entt::entity SpawnProjectile(GameCore* gameCore, const Vec2f& pos, const ProjectileData& projectileData)
+	entt::entity SpawnProjectile(GameCore* gameCore, entt::entity owner, const Vec2f& pos, const ProjectileData& projectileData)
 	{
 		auto& registry = gameCore->registry;
 		auto map = gameCore->map;
@@ -137,7 +138,8 @@ namespace Spawner
 
 		auto entity = gameCore->registry.create();
 		
-		registry.emplace<ProjectileComponent>(entity, entity, projectileData);
+		auto& projComponent = registry.emplace<ProjectileComponent>(entity, entity, projectileData);
+		projComponent.projectileData.owner = owner;
 		registry.emplace<SensorComponent>(entity);
 
 		auto atlas = gameCore->GetAtlas(projectileData.atlas);

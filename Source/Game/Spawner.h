@@ -20,7 +20,7 @@ namespace Spawner
 
 	entt::entity SpawnPlayer(GameCore* gameCore, MobID playerID, const std::string& charName, const Vec2f& pos, bool isLocal);
 
-	entt::entity SpawnProjectile(GameCore* gameCore, const Vec2f& pos, const ProjectileData& projectileData);
+	entt::entity SpawnProjectile(GameCore* gameCore, entt::entity owner, const Vec2f& pos, const ProjectileData& projectileData);
 
 	entt::entity SpawnMob(GameCore* gameCore, MobID mobID, const std::string& charName, const Vec2f& pos);
 };

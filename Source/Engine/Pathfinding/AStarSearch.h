@@ -7,5 +7,5 @@ namespace AStarSearch
 	using HeuristicFn = std::function<float(Vec2f, Vec2f)>;
 	using WorldGraphPath = std::unordered_map<WorldNodeID, WorldNodeID>;
 
-	WorldGraphPath FindShortestPath(const WorldGraph& graph, WorldNodeID src, WorldNodeID dest, const HeuristicFn& heuristic);
+	WorldGraphPath FindShortestPath(WorldGraph& graph, WorldNodeID src, WorldNodeID dest, const HeuristicFn& heuristic);
 };

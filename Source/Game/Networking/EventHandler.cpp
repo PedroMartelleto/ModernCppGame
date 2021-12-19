@@ -51,6 +51,44 @@ namespace EventHandler
 					}
 				}
 				break;
+				case EventType::ResetMap:
+				{
+					// Removes projectiles
+					for (auto entity : registry.view<ProjectileComponent>())
+					{
+						auto* body = registry.try_get<PhysicsBodyComponent>(entity);
+
+						if (body != nullptr)
+						{
+							gameCore->physicsWorld.DestroyBody(body->body);
+						}
+
+						registry.destroy(entity);
+					}
+
+					auto nextSpawns = gameCore->map->GetSpawns(4);
+
+					// Resets the health of the players and removes all other mobs from the map.
+					for (auto entity : registry.view<MobComponent>())
+					{
+						auto& mob = registry.get<MobComponent>(entity);
+
+						if (mob.IsPlayer())
+						{
+							mob.Reset(registry.try_get<ProjectileInventoryComponent>(entity));
+
+							auto* body = registry.try_get<PhysicsBodyComponent>(entity);
+							if (body != nullptr)
+							{
+								body->body->SetTransform(Vec2fToB2(nextSpawns.back() * Game::PIXELS_TO_METERS), 0.0f);
+								body->body->SetLinearVelocity(b2Vec2(0, 0));
+								body->body->SetAngularVelocity(0);
+							}
+							nextSpawns.pop_back();
+						}
+					}
+				}
+				break;
 				case EventType::WorldSnapshot:
 				{
 					auto ev = std::static_pointer_cast<WorldSnapshotEvent>(event.data);

@@ -26,5 +26,7 @@ public:
 								  b2Contact* contact, const b2ContactImpulse* impulse);
 	void OnMobProjectileInteraction(InteractionFlag flag, const ContactData<MobComponent>& mobA, const ContactData<ProjectileComponent>& projectileB, b2Contact* contact);
 	void OnMobMobInteraction(InteractionFlag flag, const ContactData<MobComponent>& mobA, const ContactData<MobComponent>& mobB, b2Contact* contact);
+	
+	void OnMobMapInteraction(InteractionFlag flag, const ContactData<MobComponent>& mobA, const ContactData<void>& mapB, b2Contact* contact);
 };
 

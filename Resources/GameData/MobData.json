@@ -7,7 +7,7 @@
     "density": 1,
     "dragMultiplier": 10.0,
     "horizontalImpulse": 3.0,
-    "jumpHeight": 3.5,
+    "jumpHeight": 4.5,
     "maxHorizontalSpeed": 7.0,
     "aabb": {
       "x": 0,
@@ -20,7 +20,8 @@
     "contactDamage": 0,
     "maxInvencibilityTicks": 24,
     "projectile": "sword",
-    "initialAmmo": 20
+    "initialAmmo": 6,
+    "randomWalk": false
   },
   "elf_m": {
     "atlas": 0,
@@ -30,7 +31,7 @@
     "density": 1,
     "dragMultiplier": 10.0,
     "horizontalImpulse": 4.0,
-    "jumpHeight": 3.5,
+    "jumpHeight": 4.5,
     "maxHorizontalSpeed": 8.0,
     "aabb": {
       "x": 0,
@@ -43,7 +44,8 @@
     "contactDamage": 0,
     "maxInvencibilityTicks": 24,
     "projectile": "arrow",
-    "initialAmmo": 15
+    "initialAmmo": 6,
+    "randomWalk": false
   },
   "wizzard_m": {
     "atlas": 0,
@@ -53,7 +55,7 @@
     "density": 1,
     "dragMultiplier": 10.0,
     "horizontalImpulse": 4.0,
-    "jumpHeight": 3.5,
+    "jumpHeight": 4.5,
     "maxHorizontalSpeed": 8.0,
     "aabb": {
       "x": 0,
@@ -66,7 +68,8 @@
     "contactDamage": 0,
     "maxInvencibilityTicks": 24,
     "projectile": "fire",
-    "initialAmmo": 10
+    "initialAmmo": 6,
+    "randomWalk": false
   },
   "lizard_m": {
     "atlas": 0,
@@ -76,7 +79,7 @@
     "density": 1,
     "dragMultiplier": 10.0,
     "horizontalImpulse": 4.0,
-    "jumpHeight": 3.5,
+    "jumpHeight": 4.5,
     "maxHorizontalSpeed": 8.0,
     "aabb": {
       "x": 0,
@@ -89,7 +92,8 @@
     "contactDamage": 0,
     "maxInvencibilityTicks": 24,
     "projectile": "sword",
-    "initialAmmo": 20
+    "initialAmmo": 6,
+    "randomWalk": false
   },
   "big_demon": {
     "atlas": 0,
@@ -109,10 +113,11 @@
     },
     "idleTickRate": 10,
     "runTickRate": 7,
-    "contactDamage": 1.5,
+    "contactDamage": 1,
     "maxInvencibilityTicks": 0,
     "projectile": "fire",
-    "initialAmmo": 0
+    "initialAmmo": 0,
+    "randomWalk": false
   },
   "chort": {
     "atlas": 0,
@@ -126,15 +131,40 @@
     "maxHorizontalSpeed": 8.4,
     "aabb": {
       "x": 0,
-      "y": 4,
+      "y": 0,
       "width": 11,
-      "height": 11
+      "height": 15
     },
     "idleTickRate": 10,
     "runTickRate": 7,
     "contactDamage": 0.5,
     "maxInvencibilityTicks": 0,
     "projectile": "fire",
-    "initialAmmo": 0
+    "initialAmmo": 0,
+    "randomWalk": false
+  },
+  "crazy_demon": {
+    "atlas": 0,
+    "name": "big_demon",
+    "health": 1,
+    "maxHealth": 1,
+    "density": 1,
+    "dragMultiplier": 11.0,
+    "horizontalImpulse": 6,
+    "jumpHeight": 4.0,
+    "maxHorizontalSpeed": 10,
+    "aabb": {
+      "x": -2,
+      "y": 1,
+      "width": 22,
+      "height": 28
+    },
+    "idleTickRate": 10,
+    "runTickRate": 7,
+    "contactDamage": 1.5,
+    "maxInvencibilityTicks": 0,
+    "projectile": "fire",
+    "initialAmmo": 0,
+    "randomWalk": true
   }
 }

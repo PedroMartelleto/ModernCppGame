@@ -8,7 +8,7 @@
     "baseAngle": 180.0,
     "linearDamping": 0.1,
     "angularDamping": 2.0,
-    "dragMultiplier": 0.4,
+    "dragMultiplier": 0.2,
     "damage": 2.0,
     "aabb": {
       "x": 0,
@@ -26,8 +26,8 @@
     "baseAngle": 90.0,
     "linearDamping": 0.1,
     "angularDamping": 2.0,
-    "dragMultiplier": 0.4,
-    "damage": 2.0,
+    "dragMultiplier": 0.2,
+    "damage": 1.0,
     "aabb": {
       "x": 0,
       "y": 0,
@@ -44,7 +44,7 @@
     "baseAngle": 90.0,
     "linearDamping": 1.0,
     "angularDamping": 2.0,
-    "dragMultiplier": 0.7,
+    "dragMultiplier": 0.1,
     "damage": 1.0,
     "aabb": {
       "x": 1,

@@ -31,6 +31,8 @@ struct ProjectileData
 	float damage;
 
 	nlohmann::json aabb;
+	
+	entt::entity owner = entt::null;
 
 	inline Rect2D GetAABB() const
 	{

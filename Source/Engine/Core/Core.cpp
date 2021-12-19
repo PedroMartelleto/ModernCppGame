@@ -43,19 +43,7 @@ void Core::Render()
 
 	gameCore->Render();
 
-	for (const auto& rectTuple : m_debugRects)
-	{
-		auto [ rect, color, z ] = rectTuple;
-		Render2D::DrawRect(rect.pos(), 0.0f, rect.size(), z, color);
-	}
-
-	//for (const auto& line : m_debugLines)
-	//{
-	//	Render2D::DrawLine(line.start, line.end, line.thickness, line.color);
-	//}
-
-	m_debugRects.clear();
-	m_debugLines.clear();
+	Render2D::DrawQueued();
 
 	Render2D::EndBatch();
 	Render2D::Flush();
@@ -137,60 +125,4 @@ void Core::Run()
 void Core::Update(float deltaTime)
 {
 	gameCore->Update(deltaTime);
-}
-
-void Core::DEBUG_DrawRect(const Vec2f& pos, const Vec2f& size, const Color4f& color, float z)
-{
-	m_debugRects.push_back(std::tuple<Rect2D,Color4f,float>(Rect2D(pos, size), color, z));
-}
-
-void Core::DEBUG_DrawBodyAABB(b2Body* body, const Color4f& color)
-{
-	b2Fixture* fixture = body->GetFixtureList();
-
-	while (fixture != NULL)
-	{
-		for (int childIndex = 0; childIndex < fixture->GetShape()->GetChildCount(); ++childIndex)
-		{
-			const auto& aabb = fixture->GetAABB(childIndex);
-			auto bottomRight = Vec2fFromB2(aabb.upperBound) * Game::METERS_TO_PIXELS;
-			auto topLeft = Vec2fFromB2(aabb.lowerBound) * Game::METERS_TO_PIXELS;
-
-			m_debugRects.push_back({ Rect2D(topLeft, glm::abs(bottomRight - topLeft)), fixture->IsSensor() ? Colors::RED : color, fixture->IsSensor() ? 10000.0f : 1000.0f });
-		}
-		fixture = fixture->GetNext();
-	}
-}
-
-void Core::DEBUG_DrawBody(b2Body* body, const Color4f& color)
-{
-	b2Fixture* fixture = body->GetFixtureList();
-	DebugLineInfo line;
-	line.color = color;
-	line.thickness = 3.0f;
-
-	while (fixture != NULL)
-	{
-		b2PolygonShape* polygonShape = (b2PolygonShape*)fixture->GetShape();
-		for (int i = 1; i < polygonShape->m_count; ++i)
-		{
-			line.m_start = Vec2fFromB2(polygonShape->m_vertices[i - 1]) * Game::METERS_TO_PIXELS;
-			line.m_end = Vec2fFromB2(polygonShape->m_vertices[i]) * Game::METERS_TO_PIXELS;
-			m_debugLines.push_back(line);
-		}
-		line.m_start = Vec2fFromB2(polygonShape->m_vertices[polygonShape->m_count - 1]) * Game::METERS_TO_PIXELS;
-		line.m_end = Vec2fFromB2(polygonShape->m_vertices[0]) * Game::METERS_TO_PIXELS;
-		m_debugLines.push_back(line);
-		fixture = fixture->GetNext();
-	}
-}
-
-void Core::DEBUG_DrawLine(const Vec2f& m_start, const Vec2f& m_end, const Color4f& color, float thickness)
-{
-	DebugLineInfo dbLineInfo;
-	dbLineInfo.m_start = m_start;
-	dbLineInfo.m_end = m_end;
-	dbLineInfo.color = color;
-	dbLineInfo.thickness = thickness;
-	m_debugLines.push_back(dbLineInfo);
 }

@@ -14,6 +14,7 @@ enum class EventType : NetworkByte
     MobInputs,
     WorldSnapshot,
     RemoveMobs,
+    ResetMap,
 
     // Server only
     SpawnPlayers,

@@ -4,13 +4,14 @@ RendererData Render2D::s_data = RendererData();
 Shader* Render2D::shader = nullptr;
 Matrix4f Render2D::orthoMatrix = Matrix4f(1.0f);
 Window* Render2D::s_window = nullptr;
+std::map<float, Render2DDrawData> Render2D::s_drawOrder;
 
 void Render2D::Create(Window* window)
 {
 	s_window = window;
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_FALSE);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -99,7 +100,18 @@ void Render2D::Create(Window* window)
 
 void Render2D::Resize(float width, float height)
 {
-	orthoMatrix = glm::ortho(0.0f, width, height, 0.0f, NEAR_PLANE, FAR_PLANE);
+	auto left = 0.0f;
+	auto right = width;
+	auto top = 0.0f;
+	auto bottom = height;
+
+	glm::mat4 result(1);
+	result[0][0] = 2.0f / (right - left);
+	result[1][1] = 2.0f / (top - bottom);
+	result[3][0] = -(right + left) / (right - left);
+	result[3][1] = -(top + bottom) / (top - bottom);
+
+	orthoMatrix = result;
 	glViewport(0, 0, (int)width, (int)height);
 }
 
@@ -110,10 +122,20 @@ void Render2D::SetClearColor(const Color4f& clearColor)
 
 void Render2D::BeginRender(const Matrix4f& viewMatrix)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	shader->Bind();
 	shader->SetUniformMatrix4f("u_ViewProj", viewMatrix * orthoMatrix);
+}
+
+void Render2D::DrawQueued()
+{
+	for (const auto& drawInfo : s_drawOrder)
+	{
+		const auto& info = drawInfo.second;
+		DrawQuad(info.pos, info.texCoords, info.texture, info.color);
+	}
+	s_drawOrder.clear();
 }
 
 void Render2D::Destroy()
@@ -171,12 +193,16 @@ void Render2D::DrawLine(bool arrow, const Vec2f& from, const Vec2f& to, float z,
 	Vec2f p2 = from + normal;
 	Vec2f p3 = from - normal;
 
-	DrawQuad({ { p0, p1, p2, p3 } }, {{ Vec2f(0.0f, 0.0f), Vec2f(1.0f, 0.0f), Vec2f(1.0f, 1.0f), Vec2f(0.0f, 1.0f) }}, z, nullptr, color);
+	std::array<Vec2f, 4> pos = { { p0, p1, p2, p3 } };
+	std::array<Vec2f, 4> texCoords = { { Vec2f(0.0f, 0.0f), Vec2f(1.0f, 0.0f), Vec2f(1.0f, 1.0f), Vec2f(0.0f, 1.0f) } };
+	EnqueueDrawQuad(pos, texCoords, z, nullptr, color);
 
 	if (arrow)
 	{
-		DrawQuad({ { to - normal * 0.1f + dir * 9.0f, to + normal * 0.1f + dir * 9.0f, to + normal * width * 2.0f, to - normal * width * 2.0f } },
-			{ { Vec2f(0.0f, 0.0f), Vec2f(1.0f, 0.0f), Vec2f(1.0f, 1.0f), Vec2f(0.0f, 1.0f) } }, z, nullptr, color);
+		std::array<Vec2f, 4> arrowPos = { { to - normal * 0.1f + dir * 9.0f, to + normal * 0.1f + dir * 9.0f, to + normal * width * 2.0f, to - normal * width * 2.0f } };
+		std::array<Vec2f, 4> arrowTexCoords = { { Vec2f(0.0f, 0.0f), Vec2f(1.0f, 0.0f), Vec2f(1.0f, 1.0f), Vec2f(0.0f, 1.0f) } };
+
+		EnqueueDrawQuad(arrowPos, arrowTexCoords, z, nullptr, color);
 	}
 }
 
@@ -196,7 +222,17 @@ inline void RotateVecAroundCenter(Vec2f& vec, const Vec2f& center, const Matrix4
 	vec = Vec2f(r.x, r.y) + center;
 }
 
-void Render2D::DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, float z, const Ref<Texture>& texture, const Color4f& color)
+void Render2D::EnqueueDrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, float z, const Ref<Texture>& texture, const Color4f& color)
+{
+	while (s_drawOrder.find(z) != s_drawOrder.end())
+	{
+		z += Utils::FastRandomFloat(1e-6f, 1e-4f);
+	}
+
+	s_drawOrder[z] = Render2DDrawData{ pos, texCoords, z, texture, color };
+}
+
+void Render2D::DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, const Ref<Texture>& texture, const Color4f& color)
 {
 	// If our current batch is too big...
 	if (s_data.indexCount >= MaxIndexCount)
@@ -237,7 +273,7 @@ void Render2D::DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f,
 
 	for (int i = 0; i < (int) pos.size(); ++i)
 	{
-		AddVertex(Vec3f(pos[i], -z), color, texCoords[i], texIndex);
+		AddVertex(pos[i], color, texCoords[i], texIndex);
 	}
 
 	s_data.indexCount += 6;
@@ -280,27 +316,32 @@ void Render2D::DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float 
 		normRegion.pos() + normRegion.size() + offset, Vec2f(normRegion.x, normRegion.y + normRegion.height) + offset
 	}};
 
-	DrawQuad(vertexPos, texCoords, z, texture, color);
+	EnqueueDrawQuad(vertexPos, texCoords, z, texture, color);
+}
+
+static const float textSpacingOffset = -3.0f;
+
+Vec2f Render2D::GetTextSize(float scale, const std::string& text, const Ref<Font>& font)
+{
+	return Vec2f(text.length() * (font->tileWidth + textSpacingOffset), font->tileHeight) * scale;
 }
 
 void Render2D::DrawLineOfText(const Vec2f& center, float scale, const std::string& text, float z, const Ref<Font>& font, const Color4f& color)
 {
-	float offset = 5.0f;
-
 	Vec2f charSize = Vec2f(font->tileWidth, font->tileHeight) * scale;
-	Vec2f topLeft = center - Vec2f(text.length() * (font->tileWidth - offset), font->tileHeight) * scale / 2.0f;
+	Vec2f topLeft = center - GetTextSize(scale, text, font) / 2.0f;
 	
 	float drawX = topLeft.x;
 
-	for (int i = 0; i < text.size(); ++i)
+	for (uint32_t i = 0; i < text.size(); ++i)
 	{
 		auto ch = text[i];
 
 		if (ch != ' ' && font->HasChar(ch))
 		{
-			DrawRect(Vec2f(drawX + (charSize.x - offset) / 2.0f, topLeft.y), 0.0f, charSize, z, font->atlas->GetRegion(ch + ""), font->atlas->texture, color);
+			DrawRect(Vec2f(drawX + (charSize.x + textSpacingOffset) / 2.0f, topLeft.y), 0.0f, charSize, z, font->atlas->GetRegion(ch + ""), font->atlas->texture, color);
 		}
 
-		drawX += ((float)font->tileWidth - offset) * scale;
+		drawX += ((float)font->tileWidth + textSpacingOffset) * scale;
 	}
 }

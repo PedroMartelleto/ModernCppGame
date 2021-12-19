@@ -2,18 +2,6 @@
 
 ## TODO
 
-* Projectile pickup (using jobs)
-
-* Test pathfinding (single-thread + draw on-screen)
-* Get player target
-
-* UI: "Arrow count"
-* UI: Scores
-
-* Random walk mobs w/ different colors
-
-----
-
 * Sounds
 
 ----
@@ -28,10 +16,6 @@
 	* Remove mobs
 
 ---
-
-
-* Long & short jumps
-	* Jump cooldown + Use forces + "increase gravity mid-air"
 
 * Small input delay for removing shoot direction
 * Handle looping of non-fixed rotation projectiles

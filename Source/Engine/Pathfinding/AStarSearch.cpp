@@ -3,7 +3,7 @@
 
 namespace AStarSearch
 {
-	WorldGraphPath FindShortestPath(const WorldGraph& graph, WorldNodeID src, WorldNodeID dst, const HeuristicFn& heuristic)
+	WorldGraphPath FindShortestPath(WorldGraph& graph, WorldNodeID src, WorldNodeID dst, const HeuristicFn& heuristic)
 	{
 		if (src == dst) return {};
 
@@ -25,7 +25,7 @@ namespace AStarSearch
 
 			if (currID == dst) break;
 
-			for (const auto& [cost, childID] : graph.at(currID).links)
+			for (const auto& [cost, childID, _] : graph.at(currID).links)
 			{
 				float newCost = costSoFar[currID] + cost;
 				if (costSoFar.find(childID) == costSoFar.end() || newCost < costSoFar[childID])
@@ -47,9 +47,20 @@ namespace AStarSearch
 			auto prevNode = cameFrom[sentinel];
 			path[prevNode] = sentinel;
 
+			for (auto& link : graph[prevNode].links)
+			{
+				if (link.dst == sentinel)
+				{
+					link.color = Colors::RED;
+				}
+			}
+
 			sentinel = prevNode;
 			i -= 1;
 		}
+
+		graph[src].color = Colors::RED;
+		graph[dst].color = Colors::RED;
 
 		return path;
 	}

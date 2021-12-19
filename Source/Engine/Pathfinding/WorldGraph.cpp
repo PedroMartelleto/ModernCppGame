@@ -66,7 +66,7 @@ void WorldGraph::CalculateManhattanCosts(std::unordered_map<WorldNodeID, WorldNo
 	}
 }
 
-void WorldGraph::Draw(float scale, float z) const
+void WorldGraph::Draw(float scale, float z)
 {
 	Vec2f nodeSize = Vec2f(24, 24);
 
@@ -74,13 +74,15 @@ void WorldGraph::Draw(float scale, float z) const
 	{
 		Vec2f srcPos = node.worldPos * scale;
 
-		Render2D::DrawRect(srcPos - nodeSize/2.0f, 0.0f, nodeSize, z + 10, Colors::WHITE);
+		Render2D::DrawRect(srcPos - nodeSize/2.0f, 0.0f, nodeSize, z + 10, node.color);
+		node.color = Colors::WHITE;
 
-		for (const auto& link : node.links)
+		for (auto& link : node.links)
 		{
 			Vec2f childPos = nodes.at(link.dst).worldPos * scale;
 			Vec2f dir = glm::normalize(childPos - srcPos);
-			Render2D::DrawLine(true, srcPos, childPos - dir * 24.0f, z, 2.0f, Colors::WHITE);
+			Render2D::DrawLine(true, srcPos, childPos - dir * 24.0f, z, 2.0f, link.color);
+			link.color = Colors::WHITE;
 		}
 	}
 }

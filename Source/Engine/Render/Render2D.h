@@ -6,11 +6,11 @@
 #include "Window.h"
 #include "Font.h"
 
-#define RENDER2D_MAX_TEXTURES 32
+#define RENDER2D_MAX_TEXTURES 2
 
 struct Vertex
 {
-	Vec3f position;
+	Vec2f position;
 	Color4f color;
 	Vec2f texCoords;
 	float texIndex;
@@ -39,6 +39,25 @@ struct RendererData
 	uint32_t textureCount = 1;
 };
 
+struct Render2DDrawData
+{
+	std::array<Vec2f, 4> pos;
+	std::array<Vec2f, 4> texCoords;
+	float z;
+	Ref<Texture> texture;
+	Color4f color;
+
+	inline bool operator<(const Render2DDrawData& other)
+	{
+		return z < other.z;
+	}
+
+	inline bool operator>=(const Render2DDrawData& other)
+	{
+		return z >= other.z;
+	}
+};
+
 class Render2D
 {
 public:
@@ -58,6 +77,8 @@ public:
 	static void Destroy();
 
 	static void BeginRender(const Matrix4f& viewMatrix = Matrix4f(1.0f));
+	static void DrawQueued();
+
 	static void SetClearColor(const Color4f& clearColor);
 
 	static void BeginBatch();
@@ -76,11 +97,15 @@ public:
 	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float z, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
 	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float z = 0.0f, const Color4f& color = Colors::WHITE);
 	static void DrawRect(const Vec2f& pos, float angle, const Vec2f& size, float z, const Rect2D& region, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
-	static void DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, float z, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
+	static void DrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
 
 	static void DrawLineOfText(const Vec2f& center, float scale, const std::string& text, float z, const Ref<Font>& font, const Color4f& color = Colors::WHITE);
 
-	inline static void AddVertex(const Vec3f& position, const Color4f& color, const Vec2f& texCoords, float texIndex)
+	static Vec2f GetTextSize(float scale, const std::string& text, const Ref<Font>& font);
+
+	static void EnqueueDrawQuad(const std::array<Vec2f, 4>& pos, const std::array<Vec2f, 4> texCoords, float z, const Ref<Texture>& texture, const Color4f& color = Colors::WHITE);
+
+	inline static void AddVertex(const Vec2f& position, const Color4f& color, const Vec2f& texCoords, float texIndex)
 	{
 		s_data.quadBufferPtr->position = position;
 		s_data.quadBufferPtr->color = color;
@@ -94,6 +119,8 @@ private:
 		s_data.textureIndexToID[index] = textureID;
 		s_data.textureIDToIndex[textureID] = index;
 	}
+
+	static std::map<float, Render2DDrawData> s_drawOrder;
 public:
 	static Window* s_window;
 	static RendererData s_data;

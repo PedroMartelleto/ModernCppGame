@@ -10,7 +10,7 @@ Ref<Font> GameCore::defaultFont = nullptr;
 GameCore::GameCore(Core* core, HostType hostType) :
 	core(core),
 	map(nullptr),
-	physicsWorld(b2Vec2(0, 15.0f)),
+	physicsWorld(b2Vec2(0, 19.0f)),
 	m_hostType(hostType),
 	mapFilepath("Resources/Maps/Map2.tmx"),
 	gameState(GameState::MAIN_MENU)
@@ -31,41 +31,14 @@ void GameCore::SetWinner(int winner)
 	gameState = GameState::WIN_SCREEN;
 	this->winner = winner;
 
-	// Removes projectiles
-	for (auto entity : registry.view<ProjectileComponent>())
-	{
-		auto* body = registry.try_get<PhysicsBodyComponent>(entity);
-
-		if (body != nullptr)
-		{
-			physicsWorld.DestroyBody(body->body);
-		}
-
-		registry.destroy(entity);
-	}
-
 	std::vector<MobID> mobsToRemove;
-	auto nextSpawns = map->GetSpawns(4);
 
 	// Resets the health of the players and removes all other mobs from the map.
 	for (auto entity : registry.view<MobComponent>())
 	{
 		auto& mob = registry.get<MobComponent>(entity);
 
-		if (mob.IsPlayer())
-		{
-			mob.Reset(registry.try_get<ProjectileInventoryComponent>(entity));
-			
-			auto* body = registry.try_get<PhysicsBodyComponent>(entity);
-			if (body != nullptr)
-			{
-				body->body->SetTransform(Vec2fToB2(nextSpawns.back() * Game::PIXELS_TO_METERS), 0.0f);
-				body->body->SetLinearVelocity(b2Vec2(0, 0));
-				body->body->SetAngularVelocity(0);
-			}
-			nextSpawns.pop_back();
-		}
-		else
+		if (!mob.IsPlayer())
 		{
 			mobsToRemove.push_back(mob.mobID);
 		}
@@ -73,6 +46,7 @@ void GameCore::SetWinner(int winner)
 
 	// Enqueues the remove mobs event.
 	host->eventQueue.Enqueue(EventType::RemoveMobs, CreateRef<RemoveMobsEvent>(mobsToRemove));
+	host->eventQueue.Enqueue(EventType::ResetMap, nullptr);
 }
 
 int GameCore::GetNonPlayerCount() const
@@ -227,25 +201,6 @@ void GameCore::Render()
 
 		auto bg = resourceManager->GetTexture("Desert/background/BG-mountains.png", true);
 		Render2D::DrawRect(Vec2f(0, -128), 0, bg->GetSize() * 2.1f * map->mapScale, ZPlanes::BACKGROUND, bg, Color4f(1.05f, 0.95f, 1.05f, 1.0f));
-
-#ifdef _DEBUG
-		// Renders debug collision boxes
-		for (auto entity : registry.view<PhysicsBodyComponent, DEBUG_PhysicsBodyDrawComponent>())
-		{
-			auto& body = registry.get<PhysicsBodyComponent>(entity);
-			auto& draw = registry.get<DEBUG_PhysicsBodyDrawComponent>(entity);
-
-			if (draw.drawAABB)
-			{
-				core->DEBUG_DrawBodyAABB(body.body, draw.aabbColor);
-			}
-
-			if (draw.drawPoly)
-			{
-				core->DEBUG_DrawBody(body.body, draw.polyColor);
-			}
-		}
-#endif
 	}
 	else if (gameState == GameState::MAIN_MENU)
 	{

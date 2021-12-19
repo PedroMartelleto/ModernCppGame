@@ -8,6 +8,7 @@ struct WorldLink
 {
 	float cost;
 	WorldNodeID dst;
+	Color4f color = Colors::WHITE;
 
 	WorldLink(float cost, WorldNodeID dst) :
 		cost(cost), dst(dst)
@@ -24,6 +25,8 @@ struct WorldNode
 	Vec2f worldPos = Vec2f(0.0f, 0.0f);
 
 	std::vector<WorldLink> links;
+
+	Color4f color = Colors::WHITE;
 
 	WorldNode() {}
 
@@ -62,11 +65,11 @@ struct WorldGraph
 	/// </summary>
 	/// <param name="scale">Scale of the drawing.</param>
 	/// <param name="z">Z index.</param>
-	void Draw(float scale, float z) const;
+	void Draw(float scale, float z);
 
-	inline WorldNode operator[](WorldNodeID id) const
+	inline WorldNode& operator[](WorldNodeID id)
 	{
-		return nodes.at(id);
+		return nodes[id];
 	}
 
 	inline WorldNode at(WorldNodeID id) const

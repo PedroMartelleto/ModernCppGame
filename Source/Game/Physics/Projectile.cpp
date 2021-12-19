@@ -13,7 +13,7 @@ namespace Projectile
 		auto faceDir = anim.GetFaceDir();
 		auto map = gameCore->map;
 
-		auto projEntity = Spawner::SpawnProjectile(gameCore, Vec2fFromB2(body->GetPosition()) * Game::METERS_TO_PIXELS, projectile);
+		auto projEntity = Spawner::SpawnProjectile(gameCore, owner, Vec2fFromB2(body->GetPosition()) * Game::METERS_TO_PIXELS, projectile);
 		auto& projBody = registry.get<PhysicsBodyComponent>(projEntity).body;
 		auto initialDir = mob.shootDirection.AsVector(faceDir);
 		

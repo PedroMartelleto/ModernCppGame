@@ -4,9 +4,6 @@
 /// Number of threads reserved for the Operating System.
 #define NUM_RESERVED_THREADS 0
 
-/// Minimum number of threads to be spawned.
-#define MIN_THREADS 1
-
 Ref<JobSystem> JobSystem::master = CreateRef<JobSystem>();
 
 JobSystem::JobSystem()

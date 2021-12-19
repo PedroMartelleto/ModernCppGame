@@ -9,16 +9,14 @@
 #include "GameData.h"
 #include "../Engine/Threads/JobSystem.h"
 
-struct RenderSystem;
-struct UpdateSystem;
-
 namespace ZPlanes
 {
-	const float UI = 0.5f;
-	const float MOBS = 2.5f;
-	const float PROJECTILES = 4.5f;
-	const float MAP = 7.5f;
-	const float BACKGROUND = 8.5f;
+	const float DEBUG = 8.5f;
+	const float UI = 7.5f;
+	const float MOBS = 5.5f;
+	const float MAP = 4.5f;
+	const float PROJECTILES = 3.5f;
+	const float BACKGROUND = 2.5f;
 };
 
 enum class GameState
@@ -77,7 +75,14 @@ public:
 	uint64_t frameCounter = 0;
 	MobID globalMobID = 0;
 
+	/// <summary>
+	/// Maps a mob id to an entity handle.
+	/// </summary>
 	std::unordered_map<MobID, entt::entity> mobs;
+	
+	/// <summary>
+	/// List of the entity handles for the players.
+	/// </summary>
 	std::vector<entt::entity> players;
 
 	int localPlayerCount = 0;
@@ -99,7 +104,6 @@ public:
 	/// </summary>
 	/// <returns>Integer with the count.</returns>
 	int GetNonPlayerCount() const;
-
 private:
 	const HostType m_hostType;
 	Array<entt::entity> m_bodiesForRemoval;

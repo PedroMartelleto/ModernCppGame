@@ -9,6 +9,9 @@
 #define MAX_JOBS 256
 #define MAX_THREADS 100
 
+/// Minimum number of threads to be spawned.
+#define MIN_THREADS 0
+
 class JobSystem
 {
 public:
