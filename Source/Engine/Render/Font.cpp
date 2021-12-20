@@ -1,6 +1,6 @@
 #include "Font.h"
 
-Font::Font(const std::string& name, const Ref<Texture>& texture, int tileWidth, int tileHeight, const std::string& characters) :
+Font::Font(const std::string& name, const Ref<Texture>& texture, int tileWidth, int tileHeight, const std::vector<char>& characters) :
 	name(name),
 	tileWidth(tileWidth),
 	tileHeight(tileHeight),
@@ -13,7 +13,7 @@ Font::Font(const std::string& name, const Ref<Texture>& texture, int tileWidth, 
 	atlas = CreateRef<TextureAtlas>();
 	atlas->texture = texture;
 
-	for (uint32_t i = 0; i < characters.length(); ++i)
+	for (uint32_t i = 0; i < characters.size(); ++i)
 	{
 		float x = (float)(i % tileCountWidth) * (float) tileWidth;
 		float y = (float)(i / tileCountWidth) * (float) tileHeight;

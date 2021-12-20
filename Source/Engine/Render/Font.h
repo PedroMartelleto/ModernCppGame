@@ -9,10 +9,10 @@ public:
 	std::string name;
 	int tileWidth;
 	int tileHeight;
-	std::string characters;
+	std::vector<char> characters;
 	Ref<TextureAtlas> atlas;
 	
-	Font(const std::string& name, const Ref<Texture>& texture, int tileWidth, int tileHeight, const std::string& characters);
+	Font(const std::string& name, const Ref<Texture>& texture, int tileWidth, int tileHeight, const std::vector<char>& characters);
 
 	inline bool HasChar(char ch) const
 	{

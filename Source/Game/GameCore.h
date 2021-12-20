@@ -39,9 +39,24 @@ public:
 	/// <param name="winner">Player number of the winner.</param>
 	void SetWinner(int winner);
 
+	/// <summary>
+	/// Called when the game starts.
+	/// </summary>
 	void Create();
+	
+	/// <summary>
+	/// Called every frame.
+	/// </summary>
 	void Update(float deltaTime);
+	
+	/// <summary>
+	/// Called every frame after Update.
+	/// </summary>
 	void Render();
+
+	/// <summary>
+	/// Called when the game ends.
+	/// </summary>
 	void Destroy();
 
 	/// <summary>
@@ -60,6 +75,9 @@ public:
 	}
 
 private:
+	/// <summary>
+	/// Setup required only for servers.
+	/// </summary>
 	void SetupServer();
 public:
 	static Ref<Font> defaultFont;
@@ -105,7 +123,14 @@ public:
 	/// <returns>Integer with the count.</returns>
 	int GetNonPlayerCount() const;
 private:
+	/// <summary>
+	/// The host type (server or client).
+	/// </summary>
 	const HostType m_hostType;
+
+	/// <summary>
+	/// Arrays for delayed removal of certain objects.
+	/// </summary>
 	Array<entt::entity> m_bodiesForRemoval;
 	Array<FixtureUserData*> m_fixturesUserData;
 };

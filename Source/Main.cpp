@@ -19,11 +19,11 @@
 
 int main(int argc, char* argv[])
 {
-    bool isServer = false;
+    bool isServer = true;
 
-    if (argc > 1 && strcmp(argv[1], "server") == 0)
+    if (argc > 1 && strcmp(argv[1], "client") == 0)
     {
-        isServer = true;
+        isServer = false;
     }
 
     if (isServer)
