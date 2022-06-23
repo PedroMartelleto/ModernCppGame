@@ -1,14 +1,11 @@
 # Pixel Art Arena Game
 
-<p align="center">
-  <video autoplay="true" controls="false" src="./Res/gamePreview.m4v"/>
-</p>
-
-
-<!-- ABOUT THE PROJECT -->
-## About The Project
-
 A simple 16-bit arena game implemented in modern C++ that features a multithreaded Job System and an Entity Component System.
+
+
+<p align="center">
+  <video autoplay="true" controls="false" type="video/mp4" preload="auto" src="https://user-images.githubusercontent.com/35240934/175192721-d98a1925-aa89-469b-aa42-ffd87ef5b20d.mp4"/>
+</p>
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -52,23 +49,25 @@ This project uses vcpkg for package management.
 
 The game only has one mode: two players in a 1v1. The player first moves with the WASD keys on the keyboard. By pressing the G key, player 1 starts preparing a projectile that can be thrown to damage opponents (monsters or other players). To aim the projectile, use the WASD keys on the keyboard. Player 2 has the same actions, but moves with the IJKL keys and shoots with P.
 
-<img src="./Res/image1.png" />
+<img src="./Res/image11.png" />
 
 <img src="./Res/image2.png" />
 
 Periodically, monsters appear on the map. When a player comes into contact, the monster deals damage to the player. The player can shoot projectiles to kill the monsters. Also, projectiles can be used to shoot the other player, dealing damage.
 
-<img src="./Res/image3.png" />
+<img src="./Res/image10.png" />
 
 The player who survives the longest or who reduces their opponent's health to zero wins.
 
 ## About pathfinding
 
 Pathfinding is the means by which enemies find the player. In general, these algorithms boil down to finding the least expensive path in a graph to get to point B, starting from point A. We can represent the "level" at which the player and enemies are by a graph that determines how to jump in order to reach the platforms. Using a pathfinding algorithm (in the game's case, A*), the enemy finds the shortest possible path between the enemy and its target.
-<img src="./Res/image4.gif" />
+
+<img src="./Res/image9.gif" />
 
 The problem here is that the game is needs to be updated in real-time, since the position of the player and enemies changes (almost) every frame. That is, 60 times per second. We don't need to run the pathfinding algorithm every frame (since the positions of game objects don't change instantly), but every X frames we need to do pathfinding for N enemies. An algorithm that is not that complex ends up becoming a bottleneck, and it competes for CPU time with rendering, physics, and game logic. In fact, let's look at an extreme case: putting 80 enemies on the screen at the same time, and making them all search for the player in the graph, we spend between 26 and 46 ms every X frames with pathfinding! This is a lot since we want to render the game 60 times per second (so each frame should last a maximum of 16.6 ms).
-<img src="./Res/image5.png" />
+
+<img src="./Res/image1.png" />
 
 ## About multithreading
 
