@@ -101,7 +101,6 @@ namespace Spawner
 
 	entt::entity SpawnEnemyMob(GameCore* gameCore, MobID mobID, const std::string& charName, const Vec2f& pos)
 	{
-		LOGGER_VAR(charName);
 		auto entity = SpawnMob(gameCore, mobID, charName, pos);
 		return entity;
 	}
