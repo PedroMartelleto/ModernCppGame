@@ -3,9 +3,9 @@
 A simple 16-bit arena game implemented in modern C++ that features a multithreaded Job System and an Entity Component System.
 
 
-<p align="center">
+<div>
   <video autoplay="true" controls="false" type="video/mp4" preload="auto" src="https://user-images.githubusercontent.com/35240934/175192721-d98a1925-aa89-469b-aa42-ffd87ef5b20d.mp4"/>
-</p>
+</div>
 
 <!-- GETTING STARTED -->
 ## Getting Started
