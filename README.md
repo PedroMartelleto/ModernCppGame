@@ -59,20 +59,24 @@ Periodically, monsters appear on the map. When a player comes into contact, the 
 
 The player who survives the longest or who reduces their opponent's health to zero wins.
 
-## About pathfinding
+## Pathfinding
 
 Pathfinding is the means by which enemies find the player. In general, these algorithms boil down to finding the least expensive path in a graph to get to point B, starting from point A. We can represent the "level" at which the player and enemies are by a graph that determines how to jump in order to reach the platforms. Using a pathfinding algorithm (in the game's case, A*), the enemy finds the shortest possible path between the enemy and its target.
 
 <img src="./Res/image9.gif" />
 
-The problem here is that the game is needs to be updated in real-time, since the position of the player and enemies changes (almost) every frame. That is, 60 times per second. We don't need to run the pathfinding algorithm every frame (since the positions of game objects don't change instantly), but every X frames we need to do pathfinding for N enemies. An algorithm that is not that complex ends up becoming a bottleneck, and it competes for CPU time with rendering, physics, and game logic. In fact, let's look at an extreme case: putting 80 enemies on the screen at the same time, and making them all search for the player in the graph, we spend between 26 and 46 ms every X frames with pathfinding! This is a lot since we want to render the game 60 times per second (so each frame should last a maximum of 16.6 ms).
+The problem here is that the game is needs to be updated in real-time, since the position of the player and enemies changes (almost) every frame. That is, 60 times per second. We don't need to run the pathfinding algorithm every frame (since the positions of game objects don't change instantly), but every X frames we need to do pathfinding for N enemies. An algorithm that is not that complex ends up becoming a bottleneck. In other words, it competes for CPU time with rendering, physics, and game logic.
+
+In fact, let's look at an extreme case: putting 80 enemies on the screen at the same time, and making them all search for the player in the graph. We spend between 26 and 46 ms every X frames with pathfinding! This is a lot since we want to render the game 60 times per second (so each frame should last a maximum of 16.6 ms).
 
 <img src="./Res/image1.png" />
 
-## About multithreading
+## Multithreading
 
-To resolve the issue raised in [About pathfinding](#about-pathfinding), we can parallelize the A* pathfinding algorithm by using a [Job System](https://wickedengine.net/2018/11/24/simple-job-system-using-standard-c/). Including 80 enemies on the map, all running pathfinding algorithms in real time, we can still maintaining 60 frames per second without any trouble.
-In fact, the parallelization decreased the pathfinding time from 32.8 ms to 0.37 ms!
+To mitigate the issue raised in [Pathfinding](#pathfinding), we can parallelize the A* pathfinding algorithm by using a [Job System](https://wickedengine.net/2018/11/24/simple-job-system-using-standard-c/). Instead of blocking the main thread every time we want to perform pathfiding, we schedule a "Pathfinding Job". The "Job System" automatically handles how many threads should be running at the same time, and queues new jobs on a thread pool. This way, we can run pathfinding in parallel with the rest of the game.
+
+The result: even when including 80 enemies on the map, all running pathfinding every frame, we still maintain 60 frames per second without any trouble.
+In fact, parallelization decreases the pathfinding time from 32.8 ms to 0.37 ms!
 
 <img src="./Res/image15.gif" />
 <img src="./Res/image12.png" />
