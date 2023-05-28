@@ -81,6 +81,20 @@ In fact, parallelization decreases the pathfinding time from 32.8 ms to 0.37 ms!
 <img src="./Res/image15.gif" />
 <img src="./Res/image12.png" />
 
+## Entity Component System
+
+This project was built with the entity component system (ECS) architectural pattern. One of the primary advantages of ECS is the flexibility it provides for designing and implementing complex systems in game development. By separating the components (data) and systems (logic), ECS allows for modular and reusable code, making it easier to add, remove, or modify functionalities without impacting the entire system. This architectural pattern also facilitates efficient parallel processing, which is particularly convenient for implementing multithreading.
+
+ECS works by storing entities as unique identifiers and their associated components as data containers. Instead of organizing objects based on their type or class hierarchy, ECS focuses on the composition of entities using a composition-over-inheritance approach. This approach leads to improved data locality, which is a significant advantage in terms of performance. By storing components contiguously in memory, ECS maximizes cache coherence, reducing memory access latency and improving overall processing speed. With data locality, systems can efficiently iterate over components that are spatially close in memory, minimizing cache misses and allowing for more efficient parallel processing. As a result, ECS can handle large-scale simulations and complex game environments with ease, delivering enhanced performance compared to traditional object-oriented approaches.
+
+The figure below from the Unity documentation illustrates ECS quite nicely:
+
+- Entities are unique identifiers that contain components.
+- Components are essentially just data containers.
+- Systems iterate over component types to define functionality and interactions.
+
+<img src="https://i.imgur.com/jILtOcV.png" />
+
 ## Authors
 
 @PedroMartelleto
