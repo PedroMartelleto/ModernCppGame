@@ -1,4 +1,4 @@
-# Pixel Art Arena Game
+# 16-bit Arena Game
 
 A simple 16-bit arena game implemented in modern C++ that features a multithreaded Job System and an Entity Component System.
 
